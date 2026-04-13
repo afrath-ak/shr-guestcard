@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Steigenberger Digital Guest Cards | Google Sheets Sync</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Steigenberger Digital Guest Card | QR Scanner</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- HTML5 QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
@@ -293,6 +295,11 @@
     border-radius: 7px;
     cursor: pointer;
   }
+  .btn-danger {
+    background: #c0392b;
+    color: white;
+    border: none;
+  }
   .priv-tag {
     padding: 6px 12px;
     border: 1px solid #ddd;
@@ -339,6 +346,7 @@
   }
   .badge-active { background: #e6f7ee; color: #1a7a45; }
   .badge-revoked { background: #fde8e8; color: #c0392b; }
+  .badge-expired { background: #fff3cd; color: #856404; }
   .modal-overlay {
     display: none;
     position: fixed;
@@ -354,6 +362,8 @@
     border-radius: 12px;
     padding: 24px;
     width: min(540px, 94vw);
+    max-height: 90vh;
+    overflow-y: auto;
   }
   .toast {
     position: fixed;
@@ -385,8 +395,100 @@
     font-size: 12px;
     margin-bottom: 12px;
   }
+  
+  /* QR Scanner Styles */
+  .scanner-container {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .scanner-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .scanner-header h3 {
+    color: #c9a84c;
+    margin-bottom: 8px;
+  }
+  #qr-reader {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #qr-reader video {
+    width: 100%;
+    border-radius: 12px;
+  }
+  .scanner-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .guest-result-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .guest-result-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    padding: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .guest-result-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #c9a84c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .guest-result-body {
+    padding: 20px;
+  }
+  .privilege-tag {
+    display: inline-block;
+    background: #f0f0f0;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    margin: 4px;
+  }
+  .valid-stamp {
+    background: #1a7a45;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .invalid-stamp {
+    background: #c0392b;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
   @media(max-width:600px) {
     .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .guest-result-header { flex-direction: column; text-align: center; }
   }
 </style>
 </head>
@@ -421,13 +523,13 @@
     <button class="nav-btn active" onclick="showPanel('guest-dashboard')">My Digital Card</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-guests')">Guest Management</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-add')">Add Guest</button>
-    <button class="nav-btn staff-only" onclick="showPanel('staff-scanner')">QR Scanner</button>
+    <button class="nav-btn staff-only" onclick="showPanel('staff-scanner')">📷 QR Scanner</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-admin')">Admin Panel</button>
   </div>
   <div class="container">
     <div class="panel active" id="panel-guest-dashboard"><div class="guest-welcome"><h1 id="guest-greeting">Welcome</h1><div class="guest-id-badge" id="guest-id-badge">Guest ID: ---</div></div>
     <div class="stats-grid"><div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" id="guest-status">---</div></div><div class="stat-card"><div class="stat-label">Valid Until</div><div class="stat-val" id="guest-valid-until">---</div></div><div class="stat-card"><div class="stat-label">Room</div><div class="stat-val" id="guest-room">---</div></div><div class="stat-card"><div class="stat-label">Type</div><div class="stat-val" id="guest-type">---</div></div></div>
-    <div class="card"><div class="card-title">QR Code</div><div id="guest-qr-code"></div><button class="btn-primary btn-sm" onclick="downloadGuestQR()" style="margin-top:12px;">Download QR</button></div>
+    <div class="card"><div class="card-title">QR Code</div><div id="guest-qr-code"></div><button class="btn-primary btn-sm" onclick="downloadGuestQR()" style="margin-top:12px;">Download QR</button><p style="font-size:12px; color:#888; margin-top:12px;">Show this QR code to staff for verification</p></div>
     <div class="card"><div class="card-title">Privileges</div><div id="guest-privileges" class="privilege-grid"></div></div>
     <div class="card"><div class="card-title">Stay Info</div><div id="guest-stay-info"></div></div></div>
 
@@ -435,9 +537,31 @@
     
     <div class="panel" id="panel-staff-add"><div class="card"><div class="card-title">Add New Guest</div><div class="info-note">ℹ️ Guest ID is auto-generated. All data will sync to Google Sheets.</div><div class="form-grid"><div class="field"><label>Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div><div class="field"><label>First Name *</label><input id="f-first"></div><div class="field"><label>Last Name *</label><input id="f-last"></div><div class="field"><label>Room Number *</label><input id="f-room" placeholder="e.g., 101, B-12"></div><div class="field"><label>Email *</label><input id="f-email" type="email"></div><div class="field"><label>Phone/WhatsApp</label><input id="f-phone"></div><div class="field"><label>Nationality</label><input id="f-nationality"></div><div class="field"><label>Guest Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div><div class="field"><label>Check-in Date</label><input type="date" id="f-checkin"></div><div class="field"><label>Check-out Date</label><input type="date" id="f-checkout"></div></div><div class="card-title">Privileges (Click to select)</div><div class="priv-grid" id="priv-list"><div class="priv-tag" onclick="togglePriv(this)">🍳 Free breakfast</div><div class="priv-tag" onclick="togglePriv(this)">🏊 Pool access</div><div class="priv-tag" onclick="togglePriv(this)">💪 Gym access</div><div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div><div class="priv-tag" onclick="togglePriv(this)">🕐 Early check-in</div><div class="priv-tag" onclick="togglePriv(this)">✈️ Airport transfer</div><div class="priv-tag" onclick="togglePriv(this)">🍷 F&B discount 20%</div><div class="priv-tag" onclick="togglePriv(this)">⬆️ Room upgrade</div><div class="priv-tag" onclick="togglePriv(this)">🍾 Complimentary minibar</div><div class="priv-tag" onclick="togglePriv(this)">💼 Business lounge</div><div class="priv-tag" onclick="togglePriv(this)">📶 Premium Wi-Fi</div></div><textarea id="f-notes" rows="3" placeholder="Special notes or requests..." style="width:100%; margin-top:12px; padding:9px;"></textarea><button class="btn-primary" style="margin-top:16px;" onclick="staffAddGuest()">Save Guest & Sync to Google Sheets</button></div></div>
     
-    <div class="panel" id="panel-staff-scanner"><div class="card"><div class="card-title">QR Scanner / Guest Lookup</div><div class="search-row" style="display:flex; gap:8px;"><input id="staff-scan-id" placeholder="Guest ID / Room / Name" style="flex:1;"><button class="btn-ghost" onclick="staffLookupGuest()">Lookup</button></div><div id="staff-scan-result"></div></div></div>
+    <!-- QR SCANNER PANEL - NEW FEATURE -->
+    <div class="panel" id="panel-staff-scanner">
+      <div class="scanner-container">
+        <div class="scanner-header">
+          <h3>📷 Scan Guest QR Code</h3>
+          <p style="font-size:13px;">Point your camera at the guest's QR code to see their details instantly</p>
+        </div>
+        <div id="qr-reader"></div>
+        <div class="scanner-controls">
+          <button class="btn-primary" onclick="startScanner()">▶ Start Scanner</button>
+          <button class="btn-danger btn-ghost" onclick="stopScanner()">⏹ Stop Scanner</button>
+        </div>
+        <div id="qr-scan-result"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Or Manual Lookup</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input id="staff-scan-id" placeholder="Guest ID / Room / Name" style="flex:1; padding:10px;">
+          <button class="btn-ghost" onclick="staffLookupGuest()">🔍 Lookup</button>
+        </div>
+        <div id="manual-lookup-result"></div>
+      </div>
+    </div>
     
-    <div class="panel" id="panel-staff-admin"><div class="card"><div class="card-title">Staff Management</div><button class="btn-primary btn-sm" onclick="showAddStaffModal()">+ Add Staff Member</button><div style="margin-top:16px; overflow-x:auto;"><table class="data"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody id="staff-users-tbody"></tbody></table></div><div class="card-title" style="margin-top:16px;">Activity Log</div><div id="activity-log"></div></div></div>
+    <div class="panel" id="panel-staff-admin"><div class="card"><div class="card-title">Staff Management</div><button class="btn-primary btn-sm" onclick="showAddStaffModal()">+ Add Staff Member</button><div style="margin-top:16px; overflow-x:auto;"><table class="data"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></thead><tbody id="staff-users-tbody"></tbody></table></div><div class="card-title" style="margin-top:16px;">Activity Log</div><div id="activity-log"></div></div></div>
   </div>
 </div>
 
@@ -449,6 +573,12 @@
 // SHEETDB API CONFIGURATION
 // ============================================
 const SHEETDB_API = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
+
+// ============================================
+// QR SCANNER VARIABLES
+// ============================================
+let html5QrCode = null;
+let scannerActive = false;
 
 // ============================================
 // DATA STORES
@@ -502,9 +632,6 @@ function addActivityLog(message) {
         <span class="activity-time">${log.time}</span>
       </div>
     `).join('');
-    if (activityLog.length === 0) {
-      logContainer.innerHTML = '<div class="empty-state">No activity yet</div>';
-    }
   }
 }
 
@@ -513,7 +640,189 @@ function saveGuestsLocal() {
 }
 
 // ============================================
-// GOOGLE SHEETS SYNC (UPDATED VERSION)
+// QR CODE SCANNER FUNCTIONS (NEW)
+// ============================================
+async function startScanner() {
+  if (scannerActive) {
+    showToast("Scanner already running");
+    return;
+  }
+  
+  const scannerElement = document.getElementById('qr-reader');
+  scannerElement.innerHTML = '';
+  
+  html5QrCode = new Html5Qrcode("qr-reader");
+  
+  const qrboxSize = window.innerWidth < 600 ? 250 : 300;
+  
+  try {
+    await html5QrCode.start(
+      { facingMode: "environment" }, // Use back camera
+      {
+        fps: 10,
+        qrbox: { width: qrboxSize, height: qrboxSize },
+        aspectRatio: 1.0
+      },
+      (decodedText, decodedResult) => {
+        // Success callback - QR code detected
+        console.log("QR Code detected:", decodedText);
+        processScannedQR(decodedText);
+        stopScanner(); // Stop after successful scan
+      },
+      (errorMessage) => {
+        // Error callback - ignore, just keep scanning
+        // console.log("Scan error:", errorMessage);
+      }
+    );
+    scannerActive = true;
+    showToast("Scanner started - point camera at QR code");
+  } catch (err) {
+    console.error("Failed to start scanner:", err);
+    showToast("Camera error. Please check permissions.");
+  }
+}
+
+function stopScanner() {
+  if (html5QrCode && scannerActive) {
+    html5QrCode.stop().then(() => {
+      scannerActive = false;
+      showToast("Scanner stopped");
+    }).catch(err => {
+      console.error("Error stopping scanner:", err);
+    });
+  }
+}
+
+function processScannedQR(qrData) {
+  try {
+    // Parse QR code data (JSON format)
+    let guestData;
+    try {
+      guestData = JSON.parse(qrData);
+    } catch(e) {
+      // If not JSON, treat as Guest ID
+      guestData = { id: qrData };
+    }
+    
+    const guestId = guestData.id;
+    if (!guestId) {
+      showToast("Invalid QR code format");
+      return;
+    }
+    
+    // Find guest by ID
+    const guest = guests.find(g => g.id === guestId);
+    
+    if (guest) {
+      // Increment scan count
+      guest.scans = (guest.scans || 0) + 1;
+      saveGuestsLocal();
+      
+      // Log activity
+      addActivityLog(`${currentUser?.data?.fullname || 'Staff'} scanned ${guest.first} ${guest.last} via QR`);
+      
+      // Display guest details
+      displayScannedGuest(guest);
+      showToast(`✅ Guest verified: ${guest.first} ${guest.last}`);
+    } else {
+      displayGuestNotFound(guestId);
+      showToast("❌ Guest not found in system");
+    }
+  } catch (error) {
+    console.error("QR processing error:", error);
+    showToast("Error processing QR code");
+  }
+}
+
+function displayScannedGuest(guest) {
+  const today = new Date();
+  const checkoutDate = new Date(guest.checkout);
+  const isExpired = checkoutDate < today;
+  const isValid = guest.status === 'Active' && !isExpired;
+  
+  const resultContainer = document.getElementById('qr-scan-result');
+  resultContainer.innerHTML = `
+    <div class="guest-result-card">
+      <div class="guest-result-header">
+        <div class="guest-result-avatar">${guest.first.charAt(0)}${guest.last.charAt(0)}</div>
+        <div style="flex:1;">
+          <h3 style="margin:0;">${guest.title} ${guest.first} ${guest.last}</h3>
+          <p style="margin:5px 0; color:#c9a84c;">${guest.type} · ${guest.id}</p>
+          <p style="margin:0;">Room: <strong>${guest.room}</strong></p>
+        </div>
+        <div>
+          <span class="${isValid ? 'valid-stamp' : 'invalid-stamp'}">
+            ${isValid ? '✓ VALID' : (guest.status !== 'Active' ? '✗ REVOKED' : '⚠ EXPIRED')}
+          </span>
+        </div>
+      </div>
+      <div class="guest-result-body">
+        <div class="detail-row">
+          <span class="detail-label">📅 Check-in</span>
+          <span>${guest.checkin || '—'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📅 Check-out</span>
+          <span>${guest.checkout || '—'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📧 Email</span>
+          <span>${guest.email}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📞 Phone</span>
+          <span>${guest.phone || '—'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">🌍 Nationality</span>
+          <span>${guest.nationality || '—'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">🔄 Total Scans</span>
+          <span>${guest.scans || 0}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">✨ Privileges</span>
+          <div style="flex:1; text-align:right;">
+            ${(guest.privileges || []).map(p => `<span class="privilege-tag">${p}</span>`).join('') || '—'}
+          </div>
+        </div>
+        ${guest.notes ? `
+        <div class="detail-row">
+          <span class="detail-label">📝 Notes</span>
+          <span style="text-align:right;">${guest.notes}</span>
+        </div>
+        ` : ''}
+        <div class="detail-row" style="border-bottom:none;">
+          <span class="detail-label">🕐 Scanned By</span>
+          <span>${currentUser?.data?.fullname || 'Staff'}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function displayGuestNotFound(guestId) {
+  const resultContainer = document.getElementById('qr-scan-result');
+  resultContainer.innerHTML = `
+    <div class="guest-result-card">
+      <div class="guest-result-header" style="background: #c0392b;">
+        <div class="guest-result-avatar" style="background:#fff;">❌</div>
+        <div>
+          <h3 style="margin:0; color:white;">Guest Not Found</h3>
+          <p style="margin:5px 0; color:#ffcccc;">ID: ${guestId}</p>
+        </div>
+      </div>
+      <div class="guest-result-body">
+        <p>This guest is not registered in the system.</p>
+        <p style="margin-top:12px;">Please check the QR code or add the guest manually.</p>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================
+// LOAD REMOTE GUESTS
 // ============================================
 async function loadRemoteGuests() {
   console.log("🟡 Loading guests from SheetDB...");
@@ -551,7 +860,6 @@ async function loadRemoteGuests() {
     console.error("SheetDB load error:", e);
   }
   
-  // Fallback to localStorage
   const local = localStorage.getItem("shr_guests");
   if (local) {
     guests = JSON.parse(local);
@@ -566,7 +874,7 @@ async function loadRemoteGuests() {
 }
 
 // ============================================
-// UPDATED STAFF ADD GUEST FUNCTION WITH SHEETDB SYNC
+// STAFF ADD GUEST FUNCTION
 // ============================================
 async function staffAddGuest() {
   const first = document.getElementById('f-first').value.trim();
@@ -600,7 +908,6 @@ async function staffAddGuest() {
     emailVerified: false
   };
 
-  // --- SYNC TO SHEETDB (THE FIXED PART) ---
   showToast("Saving to Google Sheets...");
   
   try {
@@ -610,32 +917,23 @@ async function staffAddGuest() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(newGuest)  // ← SheetDB accepts single object directly
+      body: JSON.stringify(newGuest)
     });
 
     if (response.ok) {
-      const result = await response.json();
-      console.log("SheetDB response:", result);
       showToast(`✅ Guest ${newId} synced to Google Sheets!`);
-      addActivityLog(`Guest ${first} ${last} (${newId}) added and synced to cloud`);
+      addActivityLog(`Guest ${first} ${last} (${newId}) added and synced`);
     } else {
-      const errorText = await response.text();
-      console.error("SheetDB error:", errorText);
-      showToast("⚠️ Saved locally, but cloud sync failed");
-      addActivityLog(`Failed to sync ${first} ${last} to SheetDB`);
+      showToast("⚠️ Saved locally only");
     }
   } catch (error) {
     console.error('SheetDB Error:', error);
     showToast("⚠️ Network error - saved locally only");
-    addActivityLog(`Network error when saving ${first} ${last}`);
   }
-  // --- END SYNC SECTION ---
   
-  // Add to local array
   guests.push(newGuest);
   saveGuestsLocal();
   
-  // Clear form
   document.getElementById('f-first').value = '';
   document.getElementById('f-last').value = '';
   document.getElementById('f-room').value = '';
@@ -645,14 +943,13 @@ async function staffAddGuest() {
   document.getElementById('f-notes').value = '';
   document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
   
-  // Set default dates
   const today = new Date().toISOString().split('T')[0];
   const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
   document.getElementById('f-checkin').value = today;
   document.getElementById('f-checkout').value = nextWeek;
   
   renderStaffTable();
-  showToast(`🎉 Guest ${first} ${last} added locally!`);
+  showToast(`🎉 Guest ${first} ${last} added!`);
 }
 
 // ============================================
@@ -735,6 +1032,7 @@ function staffLogin() {
 }
 
 function logout() {
+  stopScanner(); // Stop scanner if running
   if (currentUser?.type === 'staff') {
     addActivityLog(`${currentUser.data.fullname} logged out`);
   }
@@ -781,9 +1079,10 @@ function loadGuestDashboard() {
   qrContainer.innerHTML = '<div id="qr-inner"></div>';
   setTimeout(() => {
     try {
+      const qrData = JSON.stringify({ id: g.id, name: `${g.first} ${g.last}`, room: g.room });
       new QRCode(document.getElementById('qr-inner'), {
-        text: JSON.stringify({ id: g.id, name: `${g.first} ${g.last}`, room: g.room }),
-        width: 160, height: 160
+        text: qrData,
+        width: 180, height: 180
       });
     } catch(e) {
       qrContainer.innerHTML = `<div style="padding:20px;">${g.id}</div>`;
@@ -811,6 +1110,11 @@ function showPanel(panelId) {
   
   if (panelId === 'staff-guests') renderStaffTable();
   if (panelId === 'staff-admin') renderStaffUsersTable();
+  if (panelId === 'staff-scanner') {
+    // Clear previous results
+    document.getElementById('qr-scan-result').innerHTML = '';
+    document.getElementById('manual-lookup-result').innerHTML = '';
+  }
 }
 
 function renderStaffTable() {
@@ -862,23 +1166,16 @@ function staffLookupGuest() {
     `${g.first} ${g.last}`.toLowerCase().includes(query)
   );
   
+  const resultContainer = document.getElementById('manual-lookup-result');
+  
   if (guest) {
     guest.scans++;
     saveGuestsLocal();
-    addActivityLog(`${currentUser?.data?.fullname} scanned ${guest.first} ${guest.last} (${guest.id})`);
-    
-    document.getElementById('staff-scan-result').innerHTML = `
-      <div class="card" style="margin-top:16px;">
-        <div style="font-weight:600;">${guest.title} ${guest.first} ${guest.last}</div>
-        <div style="color:#c9a84c; font-size:12px;">${guest.id} | Room: ${guest.room}</div>
-        <div style="margin-top:8px;"><span class="badge badge-${guest.status.toLowerCase()}">${guest.status}</span></div>
-        <div style="margin-top:8px;"><strong>Privileges:</strong> ${Array.isArray(guest.privileges) ? guest.privileges.join(', ') : guest.privileges || 'None'}</div>
-        <div style="margin-top:8px;"><strong>Total Scans:</strong> ${guest.scans}</div>
-        ${guest.notes ? `<div style="margin-top:8px;"><strong>Notes:</strong> ${guest.notes}</div>` : ''}
-      </div>
-    `;
+    addActivityLog(`${currentUser?.data?.fullname} looked up ${guest.first} ${guest.last}`);
+    displayScannedGuest(guest);
+    resultContainer.innerHTML = ''; // Clear manual result since we show in scanner area
   } else {
-    document.getElementById('staff-scan-result').innerHTML = '<div class="empty-state" style="color:#c0392b;">❌ Guest not found</div>';
+    resultContainer.innerHTML = '<div class="empty-state" style="color:#c0392b; padding:16px;">❌ Guest not found. Try Guest ID, Room number, or Name.</div>';
   }
 }
 
@@ -975,7 +1272,7 @@ async function init() {
   if (document.getElementById('f-checkout')) document.getElementById('f-checkout').value = nextWeek;
   
   addActivityLog('System initialized');
-  console.log("🚀 System ready! SheetDB API:", SHEETDB_API);
+  console.log("🚀 System ready with QR Scanner!");
 }
 
 init();
