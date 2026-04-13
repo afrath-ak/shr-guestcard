@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Steigenberger Digital Guest Card | Live Google Sheets</title>
+<title>Steigenberger Digital Guest Card | Google Sheets Sync</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -300,6 +300,8 @@
     font-size: 12px;
     cursor: pointer;
     background: white;
+    display: inline-block;
+    margin: 4px;
   }
   .priv-tag.sel {
     background: #1a1a1a;
@@ -401,6 +403,7 @@
     <div id="guest-login-form" class="login-form">
       <div class="field"><label>Guest ID</label><input type="text" id="guest-id" placeholder="SHR-1001"></div>
       <div class="field"><label>Last Name</label><input type="text" id="guest-lastname" placeholder="Last name" onkeypress="if(event.key==='Enter')guestLogin()"></div>
+      <div class="info-note">ℹ️ Your Guest ID was provided at check-in.</div>
       <button class="login-btn" onclick="guestLogin()">Access My Digital Card</button>
     </div>
     <div id="staff-login-form" class="login-form" style="display:none;">
@@ -424,46 +427,100 @@
   <div class="container">
     <div class="panel active" id="panel-guest-dashboard"><div class="guest-welcome"><h1 id="guest-greeting">Welcome</h1><div class="guest-id-badge" id="guest-id-badge">Guest ID: ---</div></div>
     <div class="stats-grid"><div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" id="guest-status">---</div></div><div class="stat-card"><div class="stat-label">Valid Until</div><div class="stat-val" id="guest-valid-until">---</div></div><div class="stat-card"><div class="stat-label">Room</div><div class="stat-val" id="guest-room">---</div></div><div class="stat-card"><div class="stat-label">Type</div><div class="stat-val" id="guest-type">---</div></div></div>
-    <div class="card"><div class="card-title">QR Code</div><div id="guest-qr-code"></div><button class="btn-primary btn-sm" onclick="downloadGuestQR()">Download QR</button></div>
+    <div class="card"><div class="card-title">QR Code</div><div id="guest-qr-code"></div><button class="btn-primary btn-sm" onclick="downloadGuestQR()" style="margin-top:12px;">Download QR</button></div>
     <div class="card"><div class="card-title">Privileges</div><div id="guest-privileges" class="privilege-grid"></div></div>
     <div class="card"><div class="card-title">Stay Info</div><div id="guest-stay-info"></div></div></div>
 
-    <div class="panel" id="panel-staff-guests"><div class="card"><div class="card-title">All Guests</div><input type="text" id="staff-search" placeholder="Search..." oninput="renderStaffTable()" style="width:100%; margin-bottom:12px; padding:8px;"><div style="overflow-x:auto;"><table class="data"><thead><tr><th>ID</th><th>Name</th><th>Room</th><th>Status</th><th>Actions</th></thead><tbody id="staff-tbody"></tbody></table></div></div></div>
-    <div class="panel" id="panel-staff-add"><div class="card"><div class="card-title">New Guest</div><div class="form-grid"><div class="field"><label>First Name *</label><input id="f-first"></div><div class="field"><label>Last Name *</label><input id="f-last"></div><div class="field"><label>Room *</label><input id="f-room"></div><div class="field"><label>Email *</label><input id="f-email"></div><div class="field"><label>Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option></select></div><div class="field"><label>Check-in</label><input type="date" id="f-checkin"></div><div class="field"><label>Check-out</label><input type="date" id="f-checkout"></div></div><div class="card-title">Privileges</div><div class="priv-grid" id="priv-list"><div class="priv-tag" onclick="togglePriv(this)">🍳 Breakfast</div><div class="priv-tag" onclick="togglePriv(this)">🏊 Pool</div><div class="priv-tag" onclick="togglePriv(this)">💪 Gym</div><div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div><div class="priv-tag" onclick="togglePriv(this)">🍷 Discount 20%</div></div><textarea id="f-notes" rows="2" placeholder="Notes" style="width:100%; margin-top:12px;"></textarea><button class="btn-primary" style="margin-top:16px;" onclick="staffAddGuest()">Save & Sync to Sheet</button></div></div>
-    <div class="panel" id="panel-staff-scanner"><div class="card"><div class="card-title">Lookup Guest</div><div class="search-row"><input id="staff-scan-id" placeholder="Guest ID / Room / Name"><button class="btn-ghost" onclick="staffLookupGuest()">Find</button></div><div id="staff-scan-result"></div></div></div>
-    <div class="panel" id="panel-staff-admin"><div class="card"><div class="card-title">Staff & Activity</div><button class="btn-primary btn-sm" onclick="showAddStaffModal()">+ Add Staff</button><div style="margin-top:16px;"><table class="data"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></thead><tbody id="staff-users-tbody"></tbody></table></div><div class="card-title mt-3">Activity Log</div><div id="activity-log"></div></div></div>
+    <div class="panel" id="panel-staff-guests"><div class="card"><div class="card-title">All Guests</div><input type="text" id="staff-search" placeholder="Search by ID, Name, Room, Email..." oninput="renderStaffTable()" style="width:100%; margin-bottom:12px; padding:8px;"><div style="overflow-x:auto;"><table class="data"><thead><tr><th>ID</th><th>Name</th><th>Room</th><th>Status</th><th>Actions</th></thead><tbody id="staff-tbody"></tbody></table></div></div></div>
+    
+    <div class="panel" id="panel-staff-add"><div class="card"><div class="card-title">Add New Guest</div><div class="info-note">ℹ️ Guest ID is auto-generated. All data will sync to Google Sheets.</div><div class="form-grid"><div class="field"><label>Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div><div class="field"><label>First Name *</label><input id="f-first"></div><div class="field"><label>Last Name *</label><input id="f-last"></div><div class="field"><label>Room Number *</label><input id="f-room" placeholder="e.g., 101, B-12"></div><div class="field"><label>Email *</label><input id="f-email" type="email"></div><div class="field"><label>Phone/WhatsApp</label><input id="f-phone"></div><div class="field"><label>Nationality</label><input id="f-nationality"></div><div class="field"><label>Guest Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div><div class="field"><label>Check-in Date</label><input type="date" id="f-checkin"></div><div class="field"><label>Check-out Date</label><input type="date" id="f-checkout"></div></div><div class="card-title">Privileges (Click to select)</div><div class="priv-grid" id="priv-list"><div class="priv-tag" onclick="togglePriv(this)">🍳 Free breakfast</div><div class="priv-tag" onclick="togglePriv(this)">🏊 Pool access</div><div class="priv-tag" onclick="togglePriv(this)">💪 Gym access</div><div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div><div class="priv-tag" onclick="togglePriv(this)">🕐 Early check-in</div><div class="priv-tag" onclick="togglePriv(this)">✈️ Airport transfer</div><div class="priv-tag" onclick="togglePriv(this)">🍷 F&B discount 20%</div><div class="priv-tag" onclick="togglePriv(this)">⬆️ Room upgrade</div><div class="priv-tag" onclick="togglePriv(this)">🍾 Complimentary minibar</div><div class="priv-tag" onclick="togglePriv(this)">💼 Business lounge</div><div class="priv-tag" onclick="togglePriv(this)">📶 Premium Wi-Fi</div></div><textarea id="f-notes" rows="3" placeholder="Special notes or requests..." style="width:100%; margin-top:12px; padding:9px;"></textarea><button class="btn-primary" style="margin-top:16px;" onclick="staffAddGuest()">Save Guest & Sync to Google Sheets</button></div></div>
+    
+    <div class="panel" id="panel-staff-scanner"><div class="card"><div class="card-title">QR Scanner / Guest Lookup</div><div class="search-row" style="display:flex; gap:8px;"><input id="staff-scan-id" placeholder="Guest ID / Room / Name" style="flex:1;"><button class="btn-ghost" onclick="staffLookupGuest()">Lookup</button></div><div id="staff-scan-result"></div></div></div>
+    
+    <div class="panel" id="panel-staff-admin"><div class="card"><div class="card-title">Staff Management</div><button class="btn-primary btn-sm" onclick="showAddStaffModal()">+ Add Staff Member</button><div style="margin-top:16px; overflow-x:auto;"><table class="data"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody id="staff-users-tbody"></tbody></table></div><div class="card-title" style="margin-top:16px;">Activity Log</div><div id="activity-log"></div></div></div>
   </div>
 </div>
-<div class="modal-overlay" id="addstaff-modal"><div class="modal-box"><div class="modal-title">Add Staff</div><input type="text" id="staff-username-new" placeholder="Username" style="width:100%; margin-bottom:8px; padding:8px;"><input type="text" id="staff-fullname-new" placeholder="Full Name" style="width:100%; margin-bottom:8px; padding:8px;"><input type="password" id="staff-password-new" placeholder="Password" style="width:100%; margin-bottom:8px; padding:8px;"><select id="staff-role-new"><option value="staff">Staff</option><option value="admin">Admin</option></select><div class="modal-footer" style="margin-top:16px;"><button class="btn-primary" onclick="addStaffMember()">Add</button><button class="btn-ghost" onclick="closeAddStaffModal()">Cancel</button></div></div></div>
+
+<div class="modal-overlay" id="addstaff-modal"><div class="modal-box"><div class="modal-title">Add Staff Member</div><input type="text" id="staff-username-new" placeholder="Username" style="width:100%; margin-bottom:8px; padding:8px;"><input type="text" id="staff-fullname-new" placeholder="Full Name" style="width:100%; margin-bottom:8px; padding:8px;"><input type="password" id="staff-password-new" placeholder="Password" style="width:100%; margin-bottom:8px; padding:8px;"><select id="staff-role-new" style="width:100%; padding:8px;"><option value="staff">Staff</option><option value="admin">Admin</option></select><div class="modal-footer" style="margin-top:16px;"><button class="btn-primary" onclick="addStaffMember()">Add</button><button class="btn-ghost" onclick="closeAddStaffModal()">Cancel</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================
-// ✅ CORRECT SHEETDB API URL - REPLACED!
+// SHEETDB API CONFIGURATION
 // ============================================
 const SHEETDB_API = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
 
+// ============================================
+// DATA STORES
+// ============================================
 let guests = [];
 let staffUsers = [
-  { id: "1", username: "admin", password: "admin123", fullname: "Admin User", role: "admin", status: "active" },
+  { id: "1", username: "admin", password: "admin123", fullname: "System Administrator", role: "admin", status: "active" },
   { id: "2", username: "reception", password: "reception123", fullname: "Reception Staff", role: "staff", status: "active" }
 ];
-let currentUser = null, currentGuest = null;
+let currentUser = null;
+let currentGuest = null;
 let activityLog = [];
-let useSheetSync = false;
 
-// ========== GOOGLE SHEETS CONNECTION ==========
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+function generateGuestId() {
+  let max = 1000;
+  guests.forEach(g => {
+    let num = parseInt(g.id.split('-')[1]);
+    if (num > max) max = num;
+  });
+  return `SHR-${max + 1}`;
+}
+
+function getSelectedPrivileges() {
+  return [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent);
+}
+
+function togglePriv(el) {
+  el.classList.toggle('sel');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function addActivityLog(message) {
+  activityLog.unshift({
+    time: new Date().toLocaleString(),
+    message: message
+  });
+  const logContainer = document.getElementById('activity-log');
+  if (logContainer) {
+    logContainer.innerHTML = activityLog.slice(0, 20).map(log => `
+      <div class="activity-item">
+        <span>${log.message}</span>
+        <span class="activity-time">${log.time}</span>
+      </div>
+    `).join('');
+    if (activityLog.length === 0) {
+      logContainer.innerHTML = '<div class="empty-state">No activity yet</div>';
+    }
+  }
+}
+
+function saveGuestsLocal() {
+  localStorage.setItem("shr_guests", JSON.stringify(guests));
+}
+
+// ============================================
+// GOOGLE SHEETS SYNC (UPDATED VERSION)
+// ============================================
 async function loadRemoteGuests() {
-  console.log("🟡 Loading guests from:", SHEETDB_API);
-  
+  console.log("🟡 Loading guests from SheetDB...");
   try {
     const response = await fetch(SHEETDB_API);
-    console.log("🟡 Response status:", response.status);
-    
     if (response.ok) {
       const data = await response.json();
-      console.log("🟡 Data received:", data);
-      
       if (data && Array.isArray(data) && data.length > 0) {
         guests = data.map(row => ({
           id: row.id || '',
@@ -481,108 +538,126 @@ async function loadRemoteGuests() {
           status: row.status || 'Active',
           scans: parseInt(row.scans) || 0,
           notes: row.notes || '',
-          issued: row.issued || new Date().toISOString().slice(0,10),
+          issued: row.issued || '',
           emailVerified: row.emailVerified === 'true' || row.emailVerified === true
         }));
-        useSheetSync = true;
-        console.log("✅✅✅ CONNECTED! Loaded", guests.length, "guests from Google Sheets");
-        showToast("✅ Connected to Google Sheets!");
+        console.log("✅ Loaded", guests.length, "guests from SheetDB");
+        showToast("✅ Connected to Google Sheets");
         saveGuestsLocal();
         return true;
-      } else {
-        console.log("🟡 No data in sheet, using defaults");
       }
-    } else {
-      console.error("❌ HTTP Error:", response.status);
     }
   } catch(e) {
-    console.error("❌ Connection error:", e.message);
-    showToast("⚠️ Using local storage - Sheet not connected");
+    console.error("SheetDB load error:", e);
   }
   
   // Fallback to localStorage
   const local = localStorage.getItem("shr_guests");
   if (local) {
     guests = JSON.parse(local);
-    console.log("🟡 Loaded from localStorage:", guests.length, "guests");
+    console.log("📦 Loaded from localStorage:", guests.length, "guests");
   } else {
     guests = [
-      { id:"SHR-1001", title:"Ms.", first:"Hodan", last:"Ahmed", room:"805", checkin:"2026-04-10", checkout:"2026-04-20", email:"hodan@example.com", phone:"+97450001234", nationality:"Somalia", type:"Privilege Guest", privileges:["🍳 Breakfast","🏊 Pool"], status:"Active", scans:3, notes:"VIP guest", issued:"2026-04-10", emailVerified:true },
-      { id:"SHR-1002", title:"Mr.", first:"John", last:"Smith", room:"1205", checkin:"2026-04-12", checkout:"2026-04-18", email:"john@example.com", phone:"+97451234567", nationality:"UK", type:"VIP", privileges:["🍳 Breakfast","💪 Gym"], status:"Active", scans:2, notes:"Birthday", issued:"2026-04-12", emailVerified:true }
+      { id:"SHR-1001", title:"Ms.", first:"Hodan", last:"Ahmed", room:"805", checkin:"2026-04-10", checkout:"2026-04-20", email:"hodan@example.com", phone:"+97450001234", nationality:"Somalia", type:"Privilege Guest", privileges:["🍳 Free breakfast", "🏊 Pool access"], status:"Active", scans:3, notes:"VIP guest", issued:"2026-04-10", emailVerified:true },
+      { id:"SHR-1002", title:"Mr.", first:"John", last:"Smith", room:"1205", checkin:"2026-04-12", checkout:"2026-04-18", email:"john@example.com", phone:"+97451234567", nationality:"United Kingdom", type:"VIP", privileges:["🍳 Free breakfast", "💪 Gym access"], status:"Active", scans:2, notes:"Birthday celebration", issued:"2026-04-12", emailVerified:true }
     ];
-    console.log("🟡 Created default guests");
   }
   return false;
 }
 
-async function syncGuestToSheet(guest) {
-  if (!useSheetSync) {
-    console.log("🟡 Sheet sync disabled");
-    return false;
+// ============================================
+// UPDATED STAFF ADD GUEST FUNCTION WITH SHEETDB SYNC
+// ============================================
+async function staffAddGuest() {
+  const first = document.getElementById('f-first').value.trim();
+  const last = document.getElementById('f-last').value.trim();
+  const room = document.getElementById('f-room').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  
+  if (!first || !last || !room || !email) {
+    showToast('Please fill required fields: First name, Last name, Room number, Email');
+    return;
   }
   
+  const newId = generateGuestId();
+  const newGuest = {
+    id: newId,
+    title: document.getElementById('f-title').value,
+    first: first,
+    last: last,
+    room: room,
+    checkin: document.getElementById('f-checkin').value,
+    checkout: document.getElementById('f-checkout').value,
+    email: email,
+    phone: document.getElementById('f-phone').value.trim(),
+    nationality: document.getElementById('f-nationality').value.trim(),
+    type: document.getElementById('f-type').value,
+    privileges: getSelectedPrivileges().join(','),
+    status: 'Active',
+    scans: 0,
+    notes: document.getElementById('f-notes').value.trim(),
+    issued: new Date().toISOString().split('T')[0],
+    emailVerified: false
+  };
+
+  // --- SYNC TO SHEETDB (THE FIXED PART) ---
+  showToast("Saving to Google Sheets...");
+  
   try {
-    console.log("🟡 Syncing guest to sheet:", guest.id);
-    
-    // Check if guest already exists
-    const checkResponse = await fetch(`${SHEETDB_API}/id/${guest.id}`);
-    const existing = await checkResponse.json();
-    
-    let response;
-    if (existing && existing.length > 0) {
-      // Update existing
-      response = await fetch(`${SHEETDB_API}/id/${guest.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...guest,
-          privileges: Array.isArray(guest.privileges) ? guest.privileges.join(',') : guest.privileges
-        })
-      });
-    } else {
-      // Add new
-      response = await fetch(SHEETDB_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...guest,
-          privileges: Array.isArray(guest.privileges) ? guest.privileges.join(',') : guest.privileges
-        })
-      });
-    }
-    
+    const response = await fetch(SHEETDB_API, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newGuest)  // ← SheetDB accepts single object directly
+    });
+
     if (response.ok) {
-      console.log("✅ Guest synced to Google Sheets!");
-      showToast("✅ Saved to Google Sheets!");
-      return true;
+      const result = await response.json();
+      console.log("SheetDB response:", result);
+      showToast(`✅ Guest ${newId} synced to Google Sheets!`);
+      addActivityLog(`Guest ${first} ${last} (${newId}) added and synced to cloud`);
     } else {
-      console.error("❌ Sync failed:", await response.text());
-      return false;
+      const errorText = await response.text();
+      console.error("SheetDB error:", errorText);
+      showToast("⚠️ Saved locally, but cloud sync failed");
+      addActivityLog(`Failed to sync ${first} ${last} to SheetDB`);
     }
-  } catch(e) {
-    console.error("❌ Sync error:", e);
-    return false;
+  } catch (error) {
+    console.error('SheetDB Error:', error);
+    showToast("⚠️ Network error - saved locally only");
+    addActivityLog(`Network error when saving ${first} ${last}`);
   }
+  // --- END SYNC SECTION ---
+  
+  // Add to local array
+  guests.push(newGuest);
+  saveGuestsLocal();
+  
+  // Clear form
+  document.getElementById('f-first').value = '';
+  document.getElementById('f-last').value = '';
+  document.getElementById('f-room').value = '';
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-nationality').value = '';
+  document.getElementById('f-notes').value = '';
+  document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
+  
+  // Set default dates
+  const today = new Date().toISOString().split('T')[0];
+  const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+  document.getElementById('f-checkin').value = today;
+  document.getElementById('f-checkout').value = nextWeek;
+  
+  renderStaffTable();
+  showToast(`🎉 Guest ${first} ${last} added locally!`);
 }
 
-function saveGuestsLocal() {
-  localStorage.setItem("shr_guests", JSON.stringify(guests));
-  // Sync only the most recent guest to avoid rate limits
-  if (guests.length > 0 && useSheetSync) {
-    syncGuestToSheet(guests[guests.length - 1]);
-  }
-}
-
-function generateGuestId() {
-  let max = 1000;
-  guests.forEach(g => {
-    let num = parseInt(g.id.split('-')[1]);
-    if (num > max) max = num;
-  });
-  return `SHR-${max + 1}`;
-}
-
-// ========== LOGIN FUNCTIONS ==========
+// ============================================
+// LOGIN FUNCTIONS
+// ============================================
 function switchLoginTab(tab) {
   const guestForm = document.getElementById('guest-login-form');
   const staffForm = document.getElementById('staff-login-form');
@@ -601,7 +676,7 @@ function switchLoginTab(tab) {
   }
 }
 
-async function guestLogin() {
+function guestLogin() {
   const guestId = document.getElementById('guest-id').value.trim().toUpperCase();
   const lastName = document.getElementById('guest-lastname').value.trim();
   const errorDiv = document.getElementById('login-error');
@@ -629,7 +704,7 @@ async function guestLogin() {
   }
 }
 
-async function staffLogin() {
+function staffLogin() {
   const username = document.getElementById('staff-username').value.trim();
   const password = document.getElementById('staff-password').value;
   const errorDiv = document.getElementById('login-error');
@@ -674,7 +749,9 @@ function logout() {
   switchLoginTab('guest');
 }
 
-// ========== GUEST DASHBOARD ==========
+// ============================================
+// GUEST DASHBOARD
+// ============================================
 function loadGuestDashboard() {
   if (!currentGuest) return;
   
@@ -725,7 +802,9 @@ function downloadGuestQR() {
   }
 }
 
-// ========== STAFF FUNCTIONS ==========
+// ============================================
+// STAFF FUNCTIONS
+// ============================================
 function showPanel(panelId) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById(`panel-${panelId}`).classList.add('active');
@@ -761,7 +840,7 @@ function renderStaffTable() {
 function viewGuestDetails(guestId) {
   const guest = guests.find(g => g.id === guestId);
   if (!guest) return;
-  alert(`Guest Details:\n\nID: ${guest.id}\nName: ${guest.title} ${guest.first} ${guest.last}\nRoom: ${guest.room}\nType: ${guest.type}\nStatus: ${guest.status}\nEmail: ${guest.email}\nPrivileges: ${guest.privileges.join(', ')}\nNotes: ${guest.notes || 'None'}`);
+  alert(`Guest Details:\n\nID: ${guest.id}\nName: ${guest.title} ${guest.first} ${guest.last}\nRoom: ${guest.room}\nType: ${guest.type}\nStatus: ${guest.status}\nEmail: ${guest.email}\nPrivileges: ${Array.isArray(guest.privileges) ? guest.privileges.join(', ') : guest.privileges}\nNotes: ${guest.notes || 'None'}`);
 }
 
 function toggleGuestStatus(guestId) {
@@ -773,56 +852,6 @@ function toggleGuestStatus(guestId) {
     addActivityLog(`${currentUser?.data?.fullname} changed ${guest.first} ${guest.last} status to ${guest.status}`);
     showToast(`Guest ${guest.id} is now ${guest.status}`);
   }
-}
-
-async function staffAddGuest() {
-  const first = document.getElementById('f-first').value.trim();
-  const last = document.getElementById('f-last').value.trim();
-  const room = document.getElementById('f-room').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  
-  if (!first || !last || !room || !email) {
-    showToast('Please fill required fields: First name, Last name, Room, Email');
-    return;
-  }
-  
-  const newId = generateGuestId();
-  const newGuest = {
-    id: newId,
-    title: 'Mr.',
-    first: first,
-    last: last,
-    room: room,
-    checkin: document.getElementById('f-checkin').value,
-    checkout: document.getElementById('f-checkout').value,
-    email: email,
-    phone: '',
-    nationality: '',
-    type: document.getElementById('f-type').value,
-    privileges: [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent),
-    status: 'Active',
-    scans: 0,
-    notes: document.getElementById('f-notes').value.trim(),
-    issued: new Date().toISOString().split('T')[0],
-    emailVerified: false
-  };
-  
-  guests.push(newGuest);
-  saveGuestsLocal();
-  addActivityLog(`${currentUser?.data?.fullname} added new guest: ${first} ${last} (${newId}) - Room: ${room}`);
-  showToast(`✅ Guest ${first} ${last} added! ID: ${newId}`);
-  
-  // Clear form
-  ['f-first', 'f-last', 'f-room', 'f-email', 'f-notes'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
-  
-  renderStaffTable();
-}
-
-function togglePriv(el) {
-  el.classList.toggle('sel');
 }
 
 function staffLookupGuest() {
@@ -843,7 +872,7 @@ function staffLookupGuest() {
         <div style="font-weight:600;">${guest.title} ${guest.first} ${guest.last}</div>
         <div style="color:#c9a84c; font-size:12px;">${guest.id} | Room: ${guest.room}</div>
         <div style="margin-top:8px;"><span class="badge badge-${guest.status.toLowerCase()}">${guest.status}</span></div>
-        <div style="margin-top:8px;"><strong>Privileges:</strong> ${guest.privileges.join(', ') || 'None'}</div>
+        <div style="margin-top:8px;"><strong>Privileges:</strong> ${Array.isArray(guest.privileges) ? guest.privileges.join(', ') : guest.privileges || 'None'}</div>
         <div style="margin-top:8px;"><strong>Total Scans:</strong> ${guest.scans}</div>
         ${guest.notes ? `<div style="margin-top:8px;"><strong>Notes:</strong> ${guest.notes}</div>` : ''}
       </div>
@@ -853,7 +882,9 @@ function staffLookupGuest() {
   }
 }
 
-// ========== STAFF ADMIN ==========
+// ============================================
+// STAFF ADMIN FUNCTIONS
+// ============================================
 function renderStaffUsersTable() {
   const tbody = document.getElementById('staff-users-tbody');
   tbody.innerHTML = staffUsers.map(u => `
@@ -931,35 +962,9 @@ function deleteStaffUser(userId) {
   }
 }
 
-// ========== UTILITIES ==========
-function addActivityLog(message) {
-  activityLog.unshift({
-    time: new Date().toLocaleString(),
-    message: message
-  });
-  
-  const logContainer = document.getElementById('activity-log');
-  if (logContainer) {
-    logContainer.innerHTML = activityLog.slice(0, 20).map(log => `
-      <div class="activity-item">
-        <span>${log.message}</span>
-        <span class="activity-time">${log.time}</span>
-      </div>
-    `).join('');
-    if (activityLog.length === 0) {
-      logContainer.innerHTML = '<div class="empty-state">No activity yet</div>';
-    }
-  }
-}
-
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// ========== INITIALIZATION ==========
+// ============================================
+// INITIALIZATION
+// ============================================
 async function init() {
   await loadRemoteGuests();
   saveGuestsLocal();
