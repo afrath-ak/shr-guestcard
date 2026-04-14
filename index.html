@@ -2,137 +2,179 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Steigenberger Digital Guest Card | QR Scan Ready</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<title>Steigenberger Enterprise Digital Guest Card</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
   
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+  
+  /* ========== LOGIN STYLES ========== */
   .login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     padding: 20px;
   }
+  
+  .login-box {
+    background: white;
+    border-radius: 32px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  }
+  
+  @media (min-width: 480px) {
+    .login-box {
+      padding: 48px 40px;
+    }
+  }
+  
+  .login-logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  
+  .login-logo .logo-badge {
+    background: linear-gradient(135deg, #c9a84c, #b8942a);
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 10px 20px;
+    border-radius: 40px;
+    display: inline-block;
+    letter-spacing: 2px;
+  }
+  
+  .login-logo h2 {
+    margin-top: 20px;
+    font-size: 24px;
+  }
+  
   .login-tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 28px;
+    background: #f0f0f0;
+    padding: 6px;
+    border-radius: 60px;
   }
+  
   .login-tab {
     flex: 1;
     text-align: center;
-    padding: 10px;
+    padding: 12px;
     background: transparent;
     border: none;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     color: #888;
-    transition: all 0.15s;
-    border-radius: 8px;
+    transition: all 0.2s;
+    border-radius: 40px;
   }
+  
   .login-tab.active {
     background: #1a1a1a;
     color: #c9a84c;
   }
-  .login-box {
-    background: white;
-    border-radius: 16px;
-    padding: 40px;
-    width: 100%;
-    max-width: 450px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-  }
-  .login-logo {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .login-logo .logo-badge {
-    background: #c9a84c;
-    color: #1a1a1a;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 8px 16px;
-    border-radius: 6px;
-    display: inline-block;
-    letter-spacing: 2px;
-  }
-  .login-logo h2 {
-    margin-top: 16px;
-    color: #1a1a1a;
-    font-size: 24px;
-  }
-  .login-logo p {
-    color: #666;
-    font-size: 13px;
-    margin-top: 8px;
-  }
+  
   .login-form .field {
     margin-bottom: 20px;
   }
+  
   .login-form input {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 14px 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    font-size: 16px;
+    transition: all 0.2s;
   }
+  
   .login-form input:focus {
     outline: none;
     border-color: #c9a84c;
   }
+  
   .login-btn {
     width: 100%;
-    background: #1a1a1a;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
     color: #c9a84c;
-    border: 1px solid #c9a84c;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    border: none;
+    padding: 16px;
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.15s;
-  }
-  .login-btn:hover {
-    background: #c9a84c;
-    color: #1a1a1a;
-  }
-  .error-msg {
-    background: #fde8e8;
-    color: #c0392b;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    text-align: center;
+    transition: all 0.2s;
   }
   
+  .login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  /* ========== MAIN APP ========== */
   #main-app {
     display: none;
   }
+  
   #main-app.active {
     display: block;
   }
   
+  /* Header - Fixed for mobile */
   .header {
     background: #1a1a1a;
-    padding: 14px 24px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  @media (min-width: 768px) {
+    .header {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+    }
+  }
+  
+  .logo {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
     gap: 12px;
   }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-badge { background: #c9a84c; color: #1a1a1a; font-size: 11px; font-weight: 700; padding: 5px 8px; border-radius: 4px; letter-spacing: 1px; }
-  .logo-text { color: white; font-size: 14px; font-weight: 500; }
-  .logo-sub { color: #888; font-size: 11px; }
+  
+  .logo-badge {
+    background: linear-gradient(135deg, #c9a84c, #b8942a);
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
   
   .user-info {
     display: flex;
@@ -140,279 +182,562 @@
     gap: 12px;
     background: #2a2a2a;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 60px;
+    width: 100%;
   }
+  
+  @media (min-width: 768px) {
+    .user-info {
+      width: auto;
+    }
+  }
+  
   .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: #c9a84c;
+    background: linear-gradient(135deg, #c9a84c, #b8942a);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 800;
     color: #1a1a1a;
   }
-  .user-details { flex: 1; }
-  .user-name { color: white; font-size: 13px; font-weight: 600; }
-  .user-role { color: #c9a84c; font-size: 11px; }
-  .logout-btn {
-    background: transparent;
-    color: #888;
-    border: 1px solid #555;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    cursor: pointer;
-  }
-  .logout-btn:hover { color: #c9a84c; border-color: #c9a84c; }
   
-  .nav {
-    display: flex;
-    gap: 4px;
-    background: #1a1a1a;
-    padding: 0 24px 12px 24px;
-    flex-wrap: wrap;
+  .user-details {
+    flex: 1;
   }
-  .nav-btn {
-    background: transparent;
-    color: #888;
+  
+  .user-name {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .user-role {
+    color: #c9a84c;
+    font-size: 11px;
+  }
+  
+  .logout-btn {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
     border: none;
     padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .nav-btn:hover { color: #c9a84c; background: #2a2a2a; }
-  .nav-btn.active { background: #c9a84c; color: #1a1a1a; }
-  
-  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  
-  .guest-welcome {
-    background: linear-gradient(135deg, #c9a84c 0%, #b8942a 100%);
-    border-radius: 16px;
-    padding: 32px;
-    margin-bottom: 24px;
-    color: #1a1a1a;
-  }
-  .guest-welcome h1 { font-size: 28px; margin-bottom: 8px; }
-  .guest-id-badge {
-    background: #1a1a1a;
-    color: #c9a84c;
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: 40px;
     font-size: 12px;
-    font-weight: 600;
-    margin-top: 12px;
+    cursor: pointer;
   }
   
-  .privilege-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    margin-top: 16px;
-  }
-  .privilege-item {
-    background: #f8f8f6;
-    border-radius: 10px;
-    padding: 14px;
+  /* Navigation - Scrollable on mobile */
+  .nav {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    border-left: 3px solid #c9a84c;
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .stat-card {
-    background: white;
-    border-radius: 10px;
-    padding: 16px;
-    border: 1px solid #e8e5de;
-  }
-  .stat-label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 6px; }
-  .stat-val { font-size: 28px; font-weight: 600; color: #1a1a1a; }
-  .card {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    border: 1px solid #e8e5de;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 16px;
-  }
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-  }
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .field label { font-size: 12px; color: #666; font-weight: 500; }
-  .field input, .field select, .field textarea {
-    padding: 9px 11px;
-    border: 1px solid #ddd;
-    border-radius: 7px;
-    font-size: 13px;
-  }
-  .btn-primary {
+    gap: 6px;
     background: #1a1a1a;
-    color: #c9a84c;
-    border: 1px solid #c9a84c;
-    padding: 10px 20px;
-    border-radius: 7px;
+    padding: 0 16px 12px 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  
+  @media (min-width: 768px) {
+    .nav {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      padding: 0 24px 12px 24px;
+    }
+  }
+  
+  .nav-btn {
+    background: rgba(255,255,255,0.05);
+    color: #aaa;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 40px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
   }
-  .btn-primary:hover {
+  
+  .nav-btn.active {
     background: #c9a84c;
     color: #1a1a1a;
   }
-  .btn-ghost {
-    background: white;
-    color: #555;
-    border: 1px solid #ddd;
-    padding: 9px 16px;
-    border-radius: 7px;
-    cursor: pointer;
+  
+  /* Container */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px;
   }
-  .priv-tag {
-    padding: 6px 12px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
+  
+  @media (min-width: 768px) {
+    .container {
+      padding: 24px;
+    }
+  }
+  
+  .panel {
+    display: none;
+  }
+  
+  .panel.active {
+    display: block;
+  }
+  
+  /* ========== MEMBERSHIP TIER STYLES ========== */
+  .membership-card {
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .membership-tier {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #c9a84c;
+    color: #1a1a1a;
+    padding: 6px 14px;
+    border-radius: 40px;
     font-size: 12px;
-    cursor: pointer;
-    background: white;
-    display: inline-block;
-    margin: 4px;
+    font-weight: 800;
   }
-  .priv-tag.sel {
-    background: #1a1a1a;
+  
+  .membership-tier.diamond { background: linear-gradient(135deg, #b9f2ff, #87ceeb); color: #003366; }
+  .membership-tier.vip { background: linear-gradient(135deg, #ffd700, #ffb347); color: #5c3d00; }
+  .membership-tier.privilege { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #333; }
+  
+  .loyalty-points {
+    font-size: 32px;
+    font-weight: 800;
     color: #c9a84c;
-    border-color: #c9a84c;
+    margin-top: 10px;
   }
-  .priv-grid {
+  
+  .progress-bar {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    height: 8px;
+    margin: 15px 0;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    background: #c9a84c;
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.3s;
+  }
+  
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  @media (min-width: 640px) {
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  .stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .stat-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  .stat-val {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  
+  /* Cards */
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  /* QR Code */
+  .qr-section {
+    text-align: center;
+  }
+  
+  #guest-qr-code {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  
+  #guest-qr-code canvas {
+    width: 200px !important;
+    height: 200px !important;
+  }
+  
+  @media (max-width: 480px) {
+    #guest-qr-code canvas {
+      width: 160px !important;
+      height: 160px !important;
+    }
+  }
+  
+  /* Privilege Grid - 1 column on mobile */
+  .privilege-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  @media (min-width: 480px) {
+    .privilege-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .privilege-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .privilege-item {
+    background: #f8f8f6;
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #c9a84c;
+  }
+  
+  /* Filter Bar */
+  .filter-bar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 4px;
+    gap: 10px;
+    margin-bottom: 16px;
   }
+  
+  .filter-btn {
+    background: #f0f0f0;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .filter-btn.active {
+    background: #1a1a1a;
+    color: #c9a84c;
+  }
+  
+  /* Table */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
   table.data {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    min-width: 600px;
   }
+  
   table.data th {
-    padding: 10px 12px;
+    padding: 12px;
     text-align: left;
-    font-size: 11px;
-    color: #888;
+    background: #f8f8f6;
+    font-weight: 600;
+  }
+  
+  table.data td {
+    padding: 12px;
     border-bottom: 1px solid #eee;
   }
-  table.data td {
-    padding: 12px 12px;
-    border-bottom: 1px solid #f5f4f0;
+  
+  /* Action Buttons */
+  .action-btns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
   }
+  
+  .btn-primary {
+    background: #1a1a1a;
+    color: #c9a84c;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background: #c9a84c;
+    color: #1a1a1a;
+    transform: translateY(-2px);
+  }
+  
+  .btn-ghost {
+    background: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  
+  .btn-whatsapp {
+    background: #25D366;
+    color: white;
+  }
+  
+  .btn-email {
+    background: #EA4335;
+    color: white;
+  }
+  
+  /* Badges */
   .badge {
     display: inline-block;
-    padding: 3px 9px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
   }
+  
   .badge-active { background: #e6f7ee; color: #1a7a45; }
   .badge-revoked { background: #fde8e8; color: #c0392b; }
+  .badge-vip { background: linear-gradient(135deg, #ffd700, #ffb347); color: #5c3d00; }
+  
+  /* Modal */
   .modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 200;
+    z-index: 1000;
     align-items: center;
     justify-content: center;
+    padding: 16px;
   }
-  .modal-overlay.open { display: flex; }
+  
+  .modal-overlay.open {
+    display: flex;
+  }
+  
   .modal-box {
     background: white;
-    border-radius: 12px;
+    border-radius: 28px;
     padding: 24px;
-    width: min(540px, 94vw);
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
   }
+  
+  /* Scan History */
+  .scan-history-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  /* Analytics Cards */
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  @media (min-width: 768px) {
+    .analytics-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  .analytics-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .analytics-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: #c9a84c;
+  }
+  
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Toast */
   .toast {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: #1a1a1a;
     color: #c9a84c;
     padding: 12px 20px;
-    border-radius: 8px;
+    border-radius: 40px;
     font-size: 13px;
     opacity: 0;
     transition: opacity 0.3s;
-    z-index: 999;
+    z-index: 2000;
+    text-align: center;
+    max-width: 90%;
   }
-  .toast.show { opacity: 1; }
+  
+  .toast.show {
+    opacity: 1;
+  }
+  
+  /* Utility */
+  .staff-only {
+    display: none;
+  }
+  
   .detail-row {
     display: flex;
     justify-content: space-between;
-    padding: 9px 0;
-    border-bottom: 1px solid #f5f4f0;
-    font-size: 13px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .detail-label { color: #888; }
-  .empty-state { text-align: center; padding: 32px; color: #aaa; }
+  
+  .detail-label {
+    color: #888;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+  }
+  
   .info-note {
     background: #e8f4f8;
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border-radius: 16px;
     font-size: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
-  .scan-message {
-    text-align: center;
-    padding: 20px;
-    background: #e8f4f8;
-    border-radius: 12px;
-    margin: 20px;
+  
+  .search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
   }
-  @media(max-width:600px) {
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
+  
+  .search-row input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #eee;
+    border-radius: 40px;
+    font-size: 14px;
+  }
+  
+  .priv-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .priv-tag {
+    background: #f0f0f0;
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .priv-tag.sel {
+    background: #1a1a1a;
+    color: #c9a84c;
   }
 </style>
 </head>
 <body>
 
+<!-- Login Page -->
 <div id="login-page" class="login-container">
   <div class="login-box">
-    <div class="login-logo"><div class="logo-badge">STEIGENBERGER</div><h2>Digital Guest Card System</h2><p>Hotel & Residence Doha</p></div>
+    <div class="login-logo">
+      <div class="logo-badge">STEIGENBERGER</div>
+      <h2>Digital Guest Card</h2>
+      <p>Hotel & Residence Doha</p>
+    </div>
     <div class="login-tabs">
-      <button class="login-tab active" onclick="switchLoginTab('guest')">Guest Login</button>
-      <button class="login-tab" onclick="switchLoginTab('staff')">Staff Login</button>
+      <button class="login-tab active" onclick="switchLoginTab('guest')">Guest</button>
+      <button class="login-tab" onclick="switchLoginTab('staff')">Staff</button>
     </div>
     <div id="login-error" class="error-msg" style="display:none;"></div>
+    
     <div id="guest-login-form" class="login-form">
       <div class="field"><label>Guest ID</label><input type="text" id="guest-id" placeholder="SHR-1001"></div>
       <div class="field"><label>Last Name</label><input type="text" id="guest-lastname" placeholder="Last name" onkeypress="if(event.key==='Enter')guestLogin()"></div>
-      <div class="info-note">ℹ️ Your Guest ID was provided at check-in. Or scan your QR code!</div>
-      <button class="login-btn" onclick="guestLogin()">Access My Digital Card</button>
+      <button class="login-btn" onclick="guestLogin()">Access My Card</button>
     </div>
+    
     <div id="staff-login-form" class="login-form" style="display:none;">
       <div class="field"><label>Username</label><input type="text" id="staff-username" placeholder="Username"></div>
       <div class="field"><label>Password</label><input type="password" id="staff-password" onkeypress="if(event.key==='Enter')staffLogin()"></div>
@@ -421,44 +746,213 @@
   </div>
 </div>
 
+<!-- Main App -->
 <div id="main-app">
-  <div class="header"><div class="logo"><div class="logo-badge">SHR</div><div><div class="logo-text">Steigenberger Doha</div><div class="logo-sub" id="app-subtitle">Digital Card System</div></div></div>
-  <div class="user-info"><div class="user-avatar" id="user-avatar">G</div><div class="user-details"><div class="user-name" id="user-name">Guest</div><div class="user-role" id="user-role">Guest</div></div><button class="logout-btn" onclick="logout()">Logout</button></div></div>
-  <div class="nav" id="main-nav">
-    <button class="nav-btn active" onclick="showPanel('guest-dashboard')">My Digital Card</button>
-    <button class="nav-btn staff-only" onclick="showPanel('staff-guests')">Guest Management</button>
-    <button class="nav-btn staff-only" onclick="showPanel('staff-add')">Add Guest</button>
-    <button class="nav-btn staff-only" onclick="showPanel('staff-scanner')">QR Scanner</button>
-    <button class="nav-btn staff-only" onclick="showPanel('staff-admin')">Admin Panel</button>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-badge">SHR</div>
+      <div class="logo-text">Steigenberger Doha</div>
+    </div>
+    <div class="user-info">
+      <div class="user-avatar" id="user-avatar">G</div>
+      <div class="user-details">
+        <div class="user-name" id="user-name">Guest</div>
+        <div class="user-role" id="user-role">Guest</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Exit</button>
+    </div>
   </div>
+  
+  <div class="nav" id="main-nav">
+    <button class="nav-btn active" onclick="showPanel('guest-dashboard')">My Card</button>
+    <button class="nav-btn staff-only" onclick="showPanel('staff-guests')">Guests</button>
+    <button class="nav-btn staff-only" onclick="showPanel('staff-add')">Add Guest</button>
+    <button class="nav-btn staff-only" onclick="showPanel('staff-scanner')">Scanner</button>
+    <button class="nav-btn staff-only" onclick="showPanel('staff-analytics')">Analytics</button>
+    <button class="nav-btn staff-only" onclick="showPanel('staff-admin')">Admin</button>
+  </div>
+  
   <div class="container">
-    <div class="panel active" id="panel-guest-dashboard"><div class="guest-welcome"><h1 id="guest-greeting">Welcome</h1><div class="guest-id-badge" id="guest-id-badge">Guest ID: ---</div></div>
-    <div class="stats-grid"><div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" id="guest-status">---</div></div><div class="stat-card"><div class="stat-label">Valid Until</div><div class="stat-val" id="guest-valid-until">---</div></div><div class="stat-card"><div class="stat-label">Room</div><div class="stat-val" id="guest-room">---</div></div><div class="stat-card"><div class="stat-label">Type</div><div class="stat-val" id="guest-type">---</div></div></div>
-    <div class="card"><div class="card-title">Your Digital QR Code</div><div id="guest-qr-code"></div><p style="font-size:12px; color:#666; margin-top:10px;">Scan this QR code with your phone to instantly access your digital card</p><button class="btn-primary btn-sm" onclick="downloadGuestQR()" style="margin-top:12px;">Download QR</button></div>
-    <div class="card"><div class="card-title">Privileges & Benefits</div><div id="guest-privileges" class="privilege-grid"></div></div>
-    <div class="card"><div class="card-title">Stay Information</div><div id="guest-stay-info"></div></div>
-    <div class="card"><div class="card-title">Need Assistance?</div><p style="font-size:13px;">📞 +974 4020 1666 | ✉️ info@steigenberger.qa</p></div></div>
-
-    <div class="panel" id="panel-staff-guests"><div class="card"><div class="card-title">All Guests</div><input type="text" id="staff-search" placeholder="Search by ID, Name, Room, Email..." oninput="renderStaffTable()" style="width:100%; margin-bottom:12px; padding:8px;"><div style="overflow-x:auto;"><table class="data"><thead><tr><th>ID</th><th>Name</th><th>Room</th><th>Status</th><th>Actions</th></thead><tbody id="staff-tbody"></tbody></table></div></div></div>
+    <!-- GUEST DASHBOARD -->
+    <div class="panel active" id="panel-guest-dashboard">
+      <div class="membership-card" id="membership-card">
+        <div class="membership-tier" id="membership-tier">Privilege Member</div>
+        <div style="font-size:14px; opacity:0.8;">Welcome back,</div>
+        <div style="font-size:24px; font-weight:700; margin:8px 0;" id="guest-name-display">Guest</div>
+        <div class="loyalty-points" id="loyalty-points">0 pts</div>
+        <div class="progress-bar"><div class="progress-fill" id="stay-progress" style="width:0%"></div></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span id="stay-dates">Check-in: --</span>
+          <span id="remaining-nights">-- nights left</span>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" id="guest-status">---</div></div>
+        <div class="stat-card"><div class="stat-label">Room</div><div class="stat-val" id="guest-room">---</div></div>
+        <div class="stat-card"><div class="stat-label">Type</div><div class="stat-val" id="guest-type">---</div></div>
+        <div class="stat-card"><div class="stat-label">Points</div><div class="stat-val" id="guest-points">0</div></div>
+      </div>
+      
+      <div class="qr-section card">
+        <div class="card-title">Digital Access QR</div>
+        <div id="guest-qr-code"></div>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+          <button class="btn-primary btn-sm" onclick="downloadGuestQR()">Download QR</button>
+          <button class="btn-primary btn-sm btn-whatsapp" onclick="shareViaWhatsApp()">📱 WhatsApp</button>
+          <button class="btn-primary btn-sm btn-email" onclick="shareViaEmail()">✉️ Email</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Privileges</div>
+        <div id="guest-privileges" class="privilege-grid"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Stay Information</div>
+        <div id="guest-stay-info"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Special Welcome Message</div>
+        <div id="welcome-message" style="font-size:14px; line-height:1.6; color:#666;"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">QR Scan History</div>
+        <div id="scan-history-list"></div>
+      </div>
+    </div>
     
-    <div class="panel" id="panel-staff-add"><div class="card"><div class="card-title">Add New Guest</div><div class="info-note">ℹ️ Guest ID is auto-generated. QR code will contain a link to the guest's digital card.</div><div class="form-grid"><div class="field"><label>Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div><div class="field"><label>First Name *</label><input id="f-first"></div><div class="field"><label>Last Name *</label><input id="f-last"></div><div class="field"><label>Room Number *</label><input id="f-room" placeholder="e.g., 101, B-12"></div><div class="field"><label>Email *</label><input id="f-email" type="email"></div><div class="field"><label>Phone/WhatsApp</label><input id="f-phone"></div><div class="field"><label>Nationality</label><input id="f-nationality"></div><div class="field"><label>Guest Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div><div class="field"><label>Check-in Date</label><input type="date" id="f-checkin"></div><div class="field"><label>Check-out Date</label><input type="date" id="f-checkout"></div></div><div class="card-title">Privileges (Click to select)</div><div class="priv-grid" id="priv-list"><div class="priv-tag" onclick="togglePriv(this)">🍳 Free breakfast</div><div class="priv-tag" onclick="togglePriv(this)">🏊 Pool access</div><div class="priv-tag" onclick="togglePriv(this)">💪 Gym access</div><div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div><div class="priv-tag" onclick="togglePriv(this)">🕐 Early check-in</div><div class="priv-tag" onclick="togglePriv(this)">✈️ Airport transfer</div><div class="priv-tag" onclick="togglePriv(this)">🍷 F&B discount 20%</div><div class="priv-tag" onclick="togglePriv(this)">⬆️ Room upgrade</div><div class="priv-tag" onclick="togglePriv(this)">🍾 Complimentary minibar</div><div class="priv-tag" onclick="togglePriv(this)">💼 Business lounge</div><div class="priv-tag" onclick="togglePriv(this)">📶 Premium Wi-Fi</div></div><textarea id="f-notes" rows="3" placeholder="Special notes or requests..." style="width:100%; margin-top:12px; padding:9px;"></textarea><button class="btn-primary" style="margin-top:16px;" onclick="staffAddGuest()">Save Guest & Generate QR Card</button></div></div>
+    <!-- STAFF: Guest Management -->
+    <div class="panel" id="panel-staff-guests">
+      <div class="card">
+        <div class="card-title">
+          Guest Management
+          <div style="display:flex; gap:8px;">
+            <button class="btn-ghost btn-sm" onclick="exportToCSV()">📄 Export CSV</button>
+            <button class="btn-ghost btn-sm" onclick="printGuestList()">🖨️ Print</button>
+          </div>
+        </div>
+        
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" onclick="setFilter('active')">Active</button>
+          <button class="filter-btn" onclick="setFilter('revoked')">Revoked</button>
+          <button class="filter-btn" onclick="setFilter('vip')">VIP Only</button>
+          <button class="filter-btn" onclick="setFilter('checkout-today')">Checkout Today</button>
+        </div>
+        
+        <div class="search-row">
+          <input type="text" id="staff-search" placeholder="Search by ID, Name, Room, Email..." oninput="renderStaffTable()">
+          <select id="sort-by" onchange="renderStaffTable()" style="padding:10px; border-radius:40px; border:2px solid #eee;">
+            <option value="room">Sort by Room</option>
+            <option value="name">Sort by Name</option>
+            <option value="id">Sort by ID</option>
+          </select>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="data">
+            <thead><tr><th>ID</th><th>Name</th><th>Room</th><th>Status</th><th>Scans</th><th>Actions</th></tr></thead>
+            <tbody id="staff-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     
-    <div class="panel" id="panel-staff-scanner"><div class="card"><div class="card-title">QR Scanner / Guest Lookup</div><div class="search-row" style="display:flex; gap:8px;"><input id="staff-scan-id" placeholder="Guest ID / Room / Name" style="flex:1;"><button class="btn-ghost" onclick="staffLookupGuest()">Lookup</button></div><div id="staff-scan-result"></div></div></div>
+    <!-- STAFF: Add Guest -->
+    <div class="panel" id="panel-staff-add">
+      <div class="card">
+        <div class="card-title">Register New Guest</div>
+        <div class="form-grid" style="display:grid; grid-template-columns:1fr; gap:12px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;">
+            <div class="field"><label>Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div>
+            <div class="field"><label>First Name *</label><input id="f-first"></div>
+            <div class="field"><label>Last Name *</label><input id="f-last"></div>
+            <div class="field"><label>Room *</label><input id="f-room"></div>
+            <div class="field"><label>Email *</label><input id="f-email" type="email"></div>
+            <div class="field"><label>Phone</label><input id="f-phone"></div>
+            <div class="field"><label>Nationality</label><input id="f-nationality"></div>
+            <div class="field"><label>Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div>
+            <div class="field"><label>Check-in</label><input type="date" id="f-checkin"></div>
+            <div class="field"><label>Check-out</label><input type="date" id="f-checkout"></div>
+          </div>
+          <div class="card-title">Privileges</div>
+          <div class="priv-grid" id="priv-list">
+            <div class="priv-tag" onclick="togglePriv(this)">🍳 Breakfast</div>
+            <div class="priv-tag" onclick="togglePriv(this)">🏊 Pool</div>
+            <div class="priv-tag" onclick="togglePriv(this)">💪 Gym</div>
+            <div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div>
+            <div class="priv-tag" onclick="togglePriv(this)">✈️ Transfer</div>
+            <div class="priv-tag" onclick="togglePriv(this)">🍷 Discount 20%</div>
+            <div class="priv-tag" onclick="togglePriv(this)">⬆️ Upgrade</div>
+            <div class="priv-tag" onclick="togglePriv(this)">💼 Lounge</div>
+          </div>
+          <textarea id="f-notes" rows="2" placeholder="Special notes..." style="padding:12px; border-radius:16px; border:2px solid #eee;"></textarea>
+          <button class="btn-primary" onclick="staffAddGuest()">Register Guest</button>
+        </div>
+      </div>
+    </div>
     
-    <div class="panel" id="panel-staff-admin"><div class="card"><div class="card-title">Staff Management</div><button class="btn-primary btn-sm" onclick="showAddStaffModal()">+ Add Staff Member</button><div style="margin-top:16px; overflow-x:auto;"><table class="data"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody id="staff-users-tbody"></tbody></table></div><div class="card-title" style="margin-top:16px;">Activity Log</div><div id="activity-log"></div></div></div>
+    <!-- STAFF: Scanner -->
+    <div class="panel" id="panel-staff-scanner">
+      <div class="card">
+        <div class="card-title">QR Scanner / Lookup</div>
+        <div class="search-row">
+          <input id="staff-scan-id" placeholder="Guest ID, Room, or Name">
+          <button class="btn-ghost" onclick="staffLookupGuest()">Search</button>
+        </div>
+        <div id="staff-scan-result"></div>
+      </div>
+    </div>
+    
+    <!-- STAFF: Analytics Dashboard -->
+    <div class="panel" id="panel-staff-analytics">
+      <div class="analytics-grid">
+        <div class="analytics-card"><div class="analytics-value" id="total-guests">0</div><div>Total Guests</div></div>
+        <div class="analytics-card"><div class="analytics-value" id="active-guests">0</div><div>Active</div></div>
+        <div class="analytics-card"><div class="analytics-value" id="total-scans">0</div><div>Total Scans</div></div>
+        <div class="analytics-card"><div class="analytics-value" id="vip-guests">0</div><div>VIP Members</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Weekly Activity</div>
+        <canvas id="activity-chart" style="max-height:300px;"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">Guest Type Distribution</div>
+        <canvas id="type-chart" style="max-height:300px;"></canvas>
+      </div>
+    </div>
+    
+    <!-- STAFF: Admin Panel -->
+    <div class="panel" id="panel-staff-admin">
+      <div class="card">
+        <div class="card-title">Staff Management</div>
+        <button class="btn-primary btn-sm" onclick="showAddStaffModal()">+ Add Staff</button>
+        <div class="table-responsive" style="margin-top:16px;">
+          <table class="data"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody id="staff-users-tbody"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">System Activity Log</div>
+        <div id="activity-log"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="addstaff-modal"><div class="modal-box"><div class="modal-title">Add Staff Member</div><input type="text" id="staff-username-new" placeholder="Username" style="width:100%; margin-bottom:8px; padding:8px;"><input type="text" id="staff-fullname-new" placeholder="Full Name" style="width:100%; margin-bottom:8px; padding:8px;"><input type="password" id="staff-password-new" placeholder="Password" style="width:100%; margin-bottom:8px; padding:8px;"><select id="staff-role-new" style="width:100%; padding:8px;"><option value="staff">Staff</option><option value="admin">Admin</option></select><div class="modal-footer" style="margin-top:16px;"><button class="btn-primary" onclick="addStaffMember()">Add</button><button class="btn-ghost" onclick="closeAddStaffModal()">Cancel</button></div></div></div>
+<!-- Modals -->
+<div class="modal-overlay" id="addstaff-modal"><div class="modal-box"><div class="card-title">Add Staff</div><input id="staff-username-new" placeholder="Username" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;"><input id="staff-fullname-new" placeholder="Full Name" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;"><input type="password" id="staff-password-new" placeholder="Password" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;"><select id="staff-role-new" style="width:100%; padding:12px; border-radius:12px;"><option value="staff">Staff</option><option value="admin">Admin</option></select><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn-primary" onclick="addStaffMember()">Add</button><button class="btn-ghost" onclick="closeAddStaffModal()">Cancel</button></div></div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================
-// SHEETDB API CONFIGURATION
+// CONFIGURATION
 // ============================================
 const SHEETDB_API = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
-
-// Get the base URL of your website (for QR codes)
 const BASE_URL = window.location.origin + window.location.pathname;
 
 // ============================================
@@ -466,80 +960,44 @@ const BASE_URL = window.location.origin + window.location.pathname;
 // ============================================
 let guests = [];
 let staffUsers = [
-  { id: "1", username: "admin", password: "admin123", fullname: "System Administrator", role: "admin", status: "active" },
+  { id: "1", username: "admin", password: "admin123", fullname: "System Admin", role: "admin", status: "active" },
   { id: "2", username: "reception", password: "reception123", fullname: "Reception Staff", role: "staff", status: "active" }
 ];
 let currentUser = null;
 let currentGuest = null;
 let activityLog = [];
-
-// ============================================
-// CHECK URL PARAMETERS FOR QR CODE SCAN
-// ============================================
-function checkForQRCodeScan() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const guestId = urlParams.get('guest');
-  const scan = urlParams.get('scan');
-  
-  if (guestId) {
-    // Find the guest by ID
-    const guest = guests.find(g => g.id === guestId);
-    if (guest && guest.status === 'Active') {
-      // Auto-login the guest
-      currentUser = { type: 'guest', data: guest };
-      currentGuest = guest;
-      
-      document.getElementById('login-page').style.display = 'none';
-      document.getElementById('main-app').classList.add('active');
-      document.getElementById('user-name').innerHTML = `${guest.title} ${guest.first} ${guest.last}`;
-      document.getElementById('user-role').innerHTML = guest.type;
-      document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
-      
-      document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
-      
-      loadGuestDashboard();
-      
-      // If it was a scan (from staff), increment scan count
-      if (scan === 'true') {
-        guest.scans++;
-        saveGuestsLocal();
-        showToast(`✨ QR Code scanned! Welcome ${guest.first}!`);
-        addActivityLog(`Guest ${guest.first} ${guest.last} accessed via QR scan`);
-      } else {
-        showToast(`🎫 Welcome back, ${guest.first}!`);
-      }
-      
-      // Remove the parameter from URL without reloading
-      window.history.replaceState({}, document.title, BASE_URL);
-      return true;
-    } else if (guest) {
-      showToast(`⚠️ Card is ${guest.status}. Please contact reception.`);
-    } else {
-      showToast(`❌ Guest not found. Please check your QR code.`);
-    }
-  }
-  return false;
-}
+let currentFilter = "all";
+let scanHistory = [];
+let loyaltyPoints = new Map();
+let activityChart = null;
+let typeChart = null;
 
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
 function generateGuestId() {
   let max = 1000;
-  guests.forEach(g => {
-    let num = parseInt(g.id.split('-')[1]);
-    if (num > max) max = num;
-  });
+  guests.forEach(g => { let num = parseInt(g.id.split('-')[1]); if (!isNaN(num) && num > max) max = num; });
   return `SHR-${max + 1}`;
+}
+
+function parsePrivileges(p) {
+  if (!p) return [];
+  if (Array.isArray(p)) return p;
+  if (typeof p === 'string') return p.split(',').map(s => s.trim()).filter(s => s);
+  return [];
+}
+
+function stringifyPrivileges(p) {
+  if (!p || !Array.isArray(p)) return '';
+  return p.join(',');
 }
 
 function getSelectedPrivileges() {
   return [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent);
 }
 
-function togglePriv(el) {
-  el.classList.toggle('sel');
-}
+function togglePriv(el) { el.classList.toggle('sel'); }
 
 function showToast(msg) {
   const toast = document.getElementById('toast');
@@ -549,186 +1007,359 @@ function showToast(msg) {
 }
 
 function addActivityLog(message) {
-  activityLog.unshift({
-    time: new Date().toLocaleString(),
-    message: message
-  });
+  const timestamp = new Date().toLocaleString();
+  activityLog.unshift({ time: timestamp, message });
   const logContainer = document.getElementById('activity-log');
   if (logContainer) {
-    logContainer.innerHTML = activityLog.slice(0, 20).map(log => `
-      <div class="activity-item">
-        <span>${log.message}</span>
-        <span class="activity-time">${log.time}</span>
-      </div>
-    `).join('');
-    if (activityLog.length === 0) {
-      logContainer.innerHTML = '<div class="empty-state">No activity yet</div>';
-    }
+    logContainer.innerHTML = activityLog.slice(0, 20).map(log => `<div class="scan-history-item"><span>${log.message}</span><span style="font-size:11px; color:#888;">${log.time}</span></div>`).join('');
+    if (activityLog.length === 0) logContainer.innerHTML = '<div class="empty-state">No activity</div>';
   }
 }
 
-function saveGuestsLocal() {
-  localStorage.setItem("shr_guests", JSON.stringify(guests));
+function saveGuestsLocal() { localStorage.setItem("shr_guests", JSON.stringify(guests)); }
+function saveScanHistory() { localStorage.setItem("shr_scans", JSON.stringify(scanHistory)); }
+function saveLoyaltyPoints() { localStorage.setItem("shr_loyalty", JSON.stringify([...loyaltyPoints])); }
+
+function getMembershipTier(type, nights) {
+  if (type === 'Diamond Member') return { tier: '💎 DIAMOND', color: 'diamond', multiplier: 2.5 };
+  if (type === 'VIP') return { tier: '⭐ VIP ELITE', color: 'vip', multiplier: 2.0 };
+  if (type === 'Privilege Guest') return { tier: '✨ PRIVILEGE', color: 'privilege', multiplier: 1.5 };
+  return { tier: '🏨 STANDARD', color: 'standard', multiplier: 1.0 };
+}
+
+function calculateLoyaltyPoints(guest) {
+  const nights = guest.checkin && guest.checkout ? Math.ceil((new Date(guest.checkout) - new Date(guest.checkin)) / (1000*60*60*24)) : 1;
+  const tier = getMembershipTier(guest.type, nights);
+  const basePoints = nights * 100;
+  const scanBonus = (guest.scans || 0) * 10;
+  return Math.floor(basePoints * tier.multiplier + scanBonus);
 }
 
 // ============================================
-// GOOGLE SHEETS SYNC
+// LOAD DATA
 // ============================================
 async function loadRemoteGuests() {
-  console.log("🟡 Loading guests from SheetDB...");
   try {
     const response = await fetch(SHEETDB_API);
     if (response.ok) {
       const data = await response.json();
       if (data && Array.isArray(data) && data.length > 0) {
         guests = data.map(row => ({
-          id: row.id || '',
-          title: row.title || 'Mr.',
-          first: row.first || '',
-          last: row.last || '',
-          room: row.room || '',
-          checkin: row.checkin || '',
-          checkout: row.checkout || '',
-          email: row.email || '',
-          phone: row.phone || '',
-          nationality: row.nationality || '',
-          type: row.type || 'Standard',
-          privileges: row.privileges ? (typeof row.privileges === 'string' ? row.privileges.split(',') : row.privileges) : [],
-          status: row.status || 'Active',
-          scans: parseInt(row.scans) || 0,
-          notes: row.notes || '',
-          issued: row.issued || '',
-          emailVerified: row.emailVerified === 'true' || row.emailVerified === true
+          id: row.id || '', title: row.title || 'Mr.', first: row.first || '', last: row.last || '',
+          room: row.room || '', checkin: row.checkin || '', checkout: row.checkout || '', email: row.email || '',
+          phone: row.phone || '', nationality: row.nationality || '', type: row.type || 'Standard',
+          privileges: parsePrivileges(row.privileges), status: row.status || 'Active',
+          scans: parseInt(row.scans) || 0, notes: row.notes || '', issued: row.issued || '',
+          emailVerified: row.emailVerified === 'true'
         }));
-        console.log("✅ Loaded", guests.length, "guests from SheetDB");
         saveGuestsLocal();
-        return true;
       }
     }
-  } catch(e) {
-    console.error("SheetDB load error:", e);
+  } catch(e) { console.log("SheetDB load error:", e); }
+  
+  if (!guests.length) {
+    const local = localStorage.getItem("shr_guests");
+    if (local) guests = JSON.parse(local);
+    else {
+      guests = [
+        { id:"SHR-1001", title:"Ms.", first:"Hodan", last:"Ahmed", room:"805", checkin:"2026-04-10", checkout:"2026-04-20", email:"hodan@example.com", phone:"+97450001234", type:"Diamond Member", privileges:["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status:"Active", scans:5, notes:"VIP guest", emailVerified:true },
+        { id:"SHR-1002", title:"Mr.", first:"John", last:"Smith", room:"1205", checkin:"2026-04-12", checkout:"2026-04-18", email:"john@example.com", type:"VIP", privileges:["🍳 Breakfast", "💪 Gym"], status:"Active", scans:3, notes:"Birthday", emailVerified:true }
+      ];
+    }
   }
   
-  const local = localStorage.getItem("shr_guests");
-  if (local) {
-    guests = JSON.parse(local);
-    console.log("📦 Loaded from localStorage:", guests.length, "guests");
-  } else {
-    guests = [
-      { id:"SHR-1001", title:"Ms.", first:"Hodan", last:"Ahmed", room:"805", checkin:"2026-04-10", checkout:"2026-04-20", email:"hodan@example.com", phone:"+97450001234", nationality:"Somalia", type:"Privilege Guest", privileges:["🍳 Free breakfast", "🏊 Pool access"], status:"Active", scans:3, notes:"VIP guest", issued:"2026-04-10", emailVerified:true },
-      { id:"SHR-1002", title:"Mr.", first:"John", last:"Smith", room:"1205", checkin:"2026-04-12", checkout:"2026-04-18", email:"john@example.com", phone:"+97451234567", nationality:"United Kingdom", type:"VIP", privileges:["🍳 Free breakfast", "💪 Gym access"], status:"Active", scans:2, notes:"Birthday celebration", issued:"2026-04-12", emailVerified:true }
-    ];
-  }
-  return false;
+  const savedScans = localStorage.getItem("shr_scans");
+  if (savedScans) scanHistory = JSON.parse(savedScans);
+  
+  const savedLoyalty = localStorage.getItem("shr_loyalty");
+  if (savedLoyalty) loyaltyPoints = new Map(JSON.parse(savedLoyalty));
 }
 
 // ============================================
-// STAFF ADD GUEST FUNCTION - UPDATED QR CODE
+// GUEST DASHBOARD
 // ============================================
+function loadGuestDashboard() {
+  if (!currentGuest) return;
+  const g = currentGuest;
+  const nights = g.checkin && g.checkout ? Math.ceil((new Date(g.checkout) - new Date(g.checkin)) / (1000*60*60*24)) : 1;
+  const nightsRemaining = g.checkout ? Math.max(0, Math.ceil((new Date(g.checkout) - new Date()) / (1000*60*60*24))) : 0;
+  const progressPercent = nights > 0 ? ((nights - nightsRemaining) / nights) * 100 : 0;
+  const points = calculateLoyaltyPoints(g);
+  const tier = getMembershipTier(g.type, nights);
+  
+  document.getElementById('guest-name-display').innerHTML = `${g.title} ${g.first} ${g.last}`;
+  document.getElementById('membership-tier').innerHTML = tier.tier;
+  document.getElementById('membership-tier').className = `membership-tier ${tier.color}`;
+  document.getElementById('loyalty-points').innerHTML = `${points} pts`;
+  document.getElementById('guest-points').innerHTML = points;
+  document.getElementById('stay-progress').style.width = `${Math.min(100, progressPercent)}%`;
+  document.getElementById('stay-dates').innerHTML = `📅 ${g.checkin || '--'} → ${g.checkout || '--'}`;
+  document.getElementById('remaining-nights').innerHTML = `🌙 ${nightsRemaining} nights left`;
+  document.getElementById('guest-status').innerHTML = g.status;
+  document.getElementById('guest-room').innerHTML = g.room;
+  document.getElementById('guest-type').innerHTML = g.type;
+  
+  const privArray = parsePrivileges(g.privileges);
+  document.getElementById('guest-privileges').innerHTML = privArray.length ? privArray.map(p => `<div class="privilege-item"><span>✓</span><span>${p}</span></div>`).join('') : '<div class="empty-state">No privileges</div>';
+  
+  document.getElementById('guest-stay-info').innerHTML = `
+    <div class="detail-row"><span class="detail-label">Check-in</span><span>${g.checkin || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Check-out</span><span>${g.checkout || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Email</span><span>${g.email || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Phone</span><span>${g.phone || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Total Scans</span><span>${g.scans || 0}</span></div>
+  `;
+  
+  const welcomeMessages = {
+    'Diamond Member': '🌟 Welcome to our Diamond Member! Enjoy complimentary champagne and exclusive lounge access.',
+    'VIP': '⭐ Welcome VIP guest! Your personal butler is at your service.',
+    'Privilege Guest': '✨ Welcome Privilege guest! Enjoy enhanced benefits during your stay.',
+    'Standard': '🏨 Welcome! We hope you enjoy your stay at Steigenberger.'
+  };
+  document.getElementById('welcome-message').innerHTML = welcomeMessages[g.type] || welcomeMessages.Standard;
+  
+  const guestScans = scanHistory.filter(s => s.guestId === g.id);
+  document.getElementById('scan-history-list').innerHTML = guestScans.length ? guestScans.slice(0, 10).map(s => `<div class="scan-history-item"><span>📍 ${s.location || 'Hotel'}</span><span>👤 ${s.scannedBy}</span><span>🕐 ${s.time}</span></div>`).join('') : '<div class="empty-state">No scan history yet</div>';
+  
+  generateQRCode(g);
+}
+
+function generateQRCode(guest) {
+  const qrUrl = `${BASE_URL}?guest=${guest.id}`;
+  const qrContainer = document.getElementById('guest-qr-code');
+  qrContainer.innerHTML = '<div id="qr-inner"></div>';
+  setTimeout(() => {
+    try {
+      new QRCode(document.getElementById('qr-inner'), { text: qrUrl, width: 180, height: 180 });
+    } catch(e) { qrContainer.innerHTML = `<div>${guest.id}</div>`; }
+  }, 100);
+}
+
+function downloadGuestQR() {
+  const canvas = document.querySelector('#guest-qr-code canvas');
+  if (canvas) { const link = document.createElement('a'); link.download = `QR_${currentGuest.id}.png`; link.href = canvas.toDataURL(); link.click(); showToast('QR downloaded'); }
+}
+
+function shareViaWhatsApp() {
+  const url = `${BASE_URL}?guest=${currentGuest.id}`;
+  window.open(`https://wa.me/?text=Your%20Steigenberger%20Digital%20Card%3A%20${encodeURIComponent(url)}`, '_blank');
+}
+
+function shareViaEmail() {
+  const url = `${BASE_URL}?guest=${currentGuest.id}`;
+  window.location.href = `mailto:${currentGuest.email}?subject=Your Digital Guest Card&body=Access your card here: ${url}`;
+}
+
+// ============================================
+// STAFF FUNCTIONS
+// ============================================
+function showPanel(panelId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${panelId}`).classList.add('active');
+  if (panelId === 'staff-guests') renderStaffTable();
+  if (panelId === 'staff-admin') renderStaffUsersTable();
+  if (panelId === 'staff-analytics') renderAnalytics();
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderStaffTable();
+}
+
+function renderStaffTable() {
+  const search = document.getElementById('staff-search')?.value.toLowerCase() || '';
+  const sortBy = document.getElementById('sort-by')?.value || 'room';
+  const today = new Date().toISOString().split('T')[0];
+  
+  let filtered = guests.filter(g => `${g.id} ${g.first} ${g.last} ${g.room} ${g.email}`.toLowerCase().includes(search));
+  
+  if (currentFilter === 'active') filtered = filtered.filter(g => g.status === 'Active');
+  else if (currentFilter === 'revoked') filtered = filtered.filter(g => g.status === 'Revoked');
+  else if (currentFilter === 'vip') filtered = filtered.filter(g => g.type === 'VIP' || g.type === 'Diamond Member');
+  else if (currentFilter === 'checkout-today') filtered = filtered.filter(g => g.checkout === today);
+  
+  filtered.sort((a, b) => {
+    if (sortBy === 'room') return a.room.localeCompare(b.room);
+    if (sortBy === 'name') return a.first.localeCompare(b.first);
+    return a.id.localeCompare(b.id);
+  });
+  
+  const tbody = document.getElementById('staff-tbody');
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">No guests</div></td></tr>'; return; }
+  
+  tbody.innerHTML = filtered.map(g => `
+    <tr>
+      <td><code>${g.id}</code></td>
+      <td><strong>${g.title} ${g.first} ${g.last}</strong><br><small>${g.email}</small></td>
+      <td>${g.room}</td>
+      <td><span class="badge badge-${g.status.toLowerCase()}">${g.status}</span></td>
+      <td>${g.scans || 0}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-ghost btn-sm" onclick="toggleGuestStatus('${g.id}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button>
+          <button class="btn-ghost btn-sm" onclick="resendQR('${g.id}')">📤 Resend QR</button>
+          <button class="btn-ghost btn-sm" onclick="viewGuestDetails('${g.id}')">View</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function toggleGuestStatus(id) {
+  const guest = guests.find(g => g.id === id);
+  if (guest) {
+    guest.status = guest.status === 'Active' ? 'Revoked' : 'Active';
+    saveGuestsLocal();
+    renderStaffTable();
+    addActivityLog(`${currentUser?.data?.fullname} changed ${guest.first} ${guest.last} to ${guest.status}`);
+    showToast(`Guest ${guest.id} is now ${guest.status}`);
+  }
+}
+
+function resendQR(guestId) {
+  const guest = guests.find(g => g.id === guestId);
+  if (guest && guest.email) {
+    shareViaEmail();
+    showToast(`QR link sent to ${guest.email}`);
+    addActivityLog(`QR resent to ${guest.first} ${guest.last}`);
+  } else { showToast('No email on file'); }
+}
+
+function viewGuestDetails(id) {
+  const g = guests.find(g => g.id === id);
+  if (!g) return;
+  alert(`Guest: ${g.title} ${g.first} ${g.last}\nID: ${g.id}\nRoom: ${g.room}\nType: ${g.type}\nStatus: ${g.status}\nPrivileges: ${parsePrivileges(g.privileges).join(', ')}\nScans: ${g.scans}`);
+}
+
+function staffLookupGuest() {
+  const query = document.getElementById('staff-scan-id').value.trim().toLowerCase();
+  const guest = guests.find(g => g.id.toLowerCase() === query || g.room.toLowerCase() === query || `${g.first} ${g.last}`.toLowerCase().includes(query));
+  
+  if (guest) {
+    guest.scans++;
+    scanHistory.unshift({ guestId: guest.id, time: new Date().toLocaleString(), scannedBy: currentUser?.data?.fullname || 'Staff', location: 'Hotel Reception' });
+    saveGuestsLocal();
+    saveScanHistory();
+    addActivityLog(`${currentUser?.data?.fullname} scanned ${guest.first} ${guest.last}`);
+    
+    document.getElementById('staff-scan-result').innerHTML = `
+      <div class="card" style="margin-top:16px;">
+        <div style="font-weight:700;">${guest.title} ${guest.first} ${guest.last}</div>
+        <div style="color:#c9a84c;">${guest.id} | Room ${guest.room}</div>
+        <div class="detail-row"><span>Status</span><span class="badge badge-${guest.status.toLowerCase()}">${guest.status}</span></div>
+        <div class="detail-row"><span>Privileges</span><span>${parsePrivileges(guest.privileges).slice(0,3).join(', ')}</span></div>
+        <div class="detail-row"><span>Total Scans</span><span>${guest.scans}</span></div>
+        <div style="margin-top:12px;"><button class="btn-primary btn-sm" onclick="shareViaWhatsApp()">📱 Send QR</button></div>
+      </div>
+    `;
+    showToast(`Scanned ${guest.first} ${guest.last}`);
+  } else {
+    document.getElementById('staff-scan-result').innerHTML = '<div class="empty-state">Guest not found</div>';
+  }
+}
+
 async function staffAddGuest() {
   const first = document.getElementById('f-first').value.trim();
   const last = document.getElementById('f-last').value.trim();
   const room = document.getElementById('f-room').value.trim();
   const email = document.getElementById('f-email').value.trim();
-  
-  if (!first || !last || !room || !email) {
-    showToast('Please fill required fields: First name, Last name, Room number, Email');
-    return;
-  }
+  if (!first || !last || !room || !email) { showToast('Required fields missing'); return; }
   
   const newId = generateGuestId();
   const newGuest = {
-    id: newId,
-    title: document.getElementById('f-title').value,
-    first: first,
-    last: last,
-    room: room,
-    checkin: document.getElementById('f-checkin').value,
-    checkout: document.getElementById('f-checkout').value,
-    email: email,
-    phone: document.getElementById('f-phone').value.trim(),
-    nationality: document.getElementById('f-nationality').value.trim(),
-    type: document.getElementById('f-type').value,
-    privileges: getSelectedPrivileges().join(','),
-    status: 'Active',
-    scans: 0,
-    notes: document.getElementById('f-notes').value.trim(),
-    issued: new Date().toISOString().split('T')[0],
-    emailVerified: false
+    id: newId, title: document.getElementById('f-title').value, first, last, room,
+    checkin: document.getElementById('f-checkin').value, checkout: document.getElementById('f-checkout').value,
+    email, phone: document.getElementById('f-phone').value.trim(), nationality: document.getElementById('f-nationality').value.trim(),
+    type: document.getElementById('f-type').value, privileges: getSelectedPrivileges(),
+    status: 'Active', scans: 0, notes: document.getElementById('f-notes').value.trim(),
+    issued: new Date().toISOString().split('T')[0], emailVerified: false
   };
-
-  showToast("Saving to Google Sheets...");
-  
-  try {
-    const response = await fetch(SHEETDB_API, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newGuest)
-    });
-
-    if (response.ok) {
-      console.log("SheetDB response: OK");
-      showToast(`✅ Guest ${newId} synced to Google Sheets!`);
-      addActivityLog(`Guest ${first} ${last} (${newId}) added and synced to cloud`);
-    } else {
-      showToast("⚠️ Saved locally, but cloud sync failed");
-    }
-  } catch (error) {
-    console.error('SheetDB Error:', error);
-    showToast("⚠️ Network error - saved locally only");
-  }
   
   guests.push(newGuest);
   saveGuestsLocal();
-  
-  // Clear form
-  document.getElementById('f-first').value = '';
-  document.getElementById('f-last').value = '';
-  document.getElementById('f-room').value = '';
-  document.getElementById('f-email').value = '';
-  document.getElementById('f-phone').value = '';
-  document.getElementById('f-nationality').value = '';
+  document.getElementById('f-first').value = ''; document.getElementById('f-last').value = '';
+  document.getElementById('f-room').value = ''; document.getElementById('f-email').value = '';
+  document.getElementById('f-phone').value = ''; document.getElementById('f-nationality').value = '';
   document.getElementById('f-notes').value = '';
   document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
-  
-  const today = new Date().toISOString().split('T')[0];
-  const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-  document.getElementById('f-checkin').value = today;
-  document.getElementById('f-checkout').value = nextWeek;
-  
   renderStaffTable();
-  showToast(`🎉 Guest ${first} ${last} added! QR code contains direct link to their card.`);
+  addActivityLog(`${currentUser?.data?.fullname} added ${first} ${last} (${newId})`);
+  showToast(`Guest ${first} ${last} added! ID: ${newId}`);
+}
+
+function exportToCSV() {
+  let csv = "ID,Name,Room,Type,Status,Scans,Email,Check-in,Check-out\n";
+  guests.forEach(g => {
+    csv += `${g.id},${g.title} ${g.first} ${g.last},${g.room},${g.type},${g.status},${g.scans},${g.email},${g.checkin},${g.checkout}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `guests_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+  showToast('CSV exported');
+}
+
+function printGuestList() { window.print(); }
+
+// ============================================
+// ANALYTICS
+// ============================================
+function renderAnalytics() {
+  const total = guests.length;
+  const active = guests.filter(g => g.status === 'Active').length;
+  const totalScans = guests.reduce((sum, g) => sum + (g.scans || 0), 0);
+  const vip = guests.filter(g => g.type === 'VIP' || g.type === 'Diamond Member').length;
+  document.getElementById('total-guests').innerHTML = total;
+  document.getElementById('active-guests').innerHTML = active;
+  document.getElementById('total-scans').innerHTML = totalScans;
+  document.getElementById('vip-guests').innerHTML = vip;
+  
+  const typeCounts = { 'Standard': 0, 'Privilege Guest': 0, 'VIP': 0, 'Diamond Member': 0 };
+  guests.forEach(g => { if (typeCounts[g.type] !== undefined) typeCounts[g.type]++; });
+  
+  const ctx1 = document.getElementById('activity-chart')?.getContext('2d');
+  if (ctx1) {
+    if (activityChart) activityChart.destroy();
+    activityChart = new Chart(ctx1, { type: 'line', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Scans', data: [12, 19, 15, 17, 24, 30, 20], borderColor: '#c9a84c', tension: 0.4 }] } });
+  }
+  
+  const ctx2 = document.getElementById('type-chart')?.getContext('2d');
+  if (ctx2) {
+    if (typeChart) typeChart.destroy();
+    typeChart = new Chart(ctx2, { type: 'doughnut', data: { labels: Object.keys(typeCounts), datasets: [{ data: Object.values(typeCounts), backgroundColor: ['#c9a84c', '#e0a800', '#ffd700', '#b9f2ff'] }] } });
+  }
 }
 
 // ============================================
-// GENERATE QR CODE WITH URL (UPDATED)
+// STAFF ADMIN
 // ============================================
-function generateGuestQRCode(guest) {
-  // Create URL that points directly to this guest's digital card
-  // When scanned, it will open the page with ?guest=ID parameter
-  const qrUrl = `${BASE_URL}?guest=${guest.id}&scan=true`;
-  
-  const qrContainer = document.getElementById('guest-qr-code');
-  qrContainer.innerHTML = '<div id="qr-inner"></div>';
-  
-  setTimeout(() => {
-    try {
-      new QRCode(document.getElementById('qr-inner'), {
-        text: qrUrl,
-        width: 180,
-        height: 180,
-        colorDark: '#1a1a1a',
-        colorLight: '#ffffff'
-      });
-      console.log("QR Code generated with URL:", qrUrl);
-    } catch(e) {
-      qrContainer.innerHTML = `<div style="padding:20px; background:#f0f0f0; border-radius:8px;">${guest.id}</div>`;
-      console.error("QR Error:", e);
-    }
-  }, 100);
+function renderStaffUsersTable() {
+  const tbody = document.getElementById('staff-users-tbody');
+  tbody.innerHTML = staffUsers.map(u => `<tr><td>${u.username}</td><td><span class="badge">${u.role}</span></td><td><button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')">Reset</button></td></tr>`).join('');
+}
+
+function showAddStaffModal() { document.getElementById('addstaff-modal').classList.add('open'); }
+function closeAddStaffModal() { document.getElementById('addstaff-modal').classList.remove('open'); }
+
+function addStaffMember() {
+  const username = document.getElementById('staff-username-new').value.trim();
+  const fullname = document.getElementById('staff-fullname-new').value.trim();
+  const password = document.getElementById('staff-password-new').value;
+  const role = document.getElementById('staff-role-new').value;
+  if (!username || !fullname || !password) { showToast('Fill all fields'); return; }
+  if (staffUsers.find(u => u.username === username)) { showToast('Username exists'); return; }
+  staffUsers.push({ id: Date.now().toString(), username, password, fullname, role, status: 'active' });
+  renderStaffUsersTable();
+  closeAddStaffModal();
+  showToast(`Staff ${username} added`);
+}
+
+function resetStaffPassword(id) {
+  const user = staffUsers.find(u => u.id === id);
+  if (user) { const newPass = prompt('New password:'); if (newPass && newPass.length >= 4) { user.password = newPass; showToast('Password reset'); renderStaffUsersTable(); } }
 }
 
 // ============================================
@@ -738,317 +1369,83 @@ function switchLoginTab(tab) {
   const guestForm = document.getElementById('guest-login-form');
   const staffForm = document.getElementById('staff-login-form');
   const tabs = document.querySelectorAll('.login-tab');
-  
-  if (tab === 'guest') {
-    guestForm.style.display = 'block';
-    staffForm.style.display = 'none';
-    tabs[0].classList.add('active');
-    tabs[1].classList.remove('active');
-  } else {
-    guestForm.style.display = 'none';
-    staffForm.style.display = 'block';
-    tabs[0].classList.remove('active');
-    tabs[1].classList.add('active');
-  }
+  if (tab === 'guest') { guestForm.style.display = 'block'; staffForm.style.display = 'none'; tabs[0].classList.add('active'); tabs[1].classList.remove('active'); }
+  else { guestForm.style.display = 'none'; staffForm.style.display = 'block'; tabs[0].classList.remove('active'); tabs[1].classList.add('active'); }
 }
 
 function guestLogin() {
-  const guestId = document.getElementById('guest-id').value.trim().toUpperCase();
-  const lastName = document.getElementById('guest-lastname').value.trim();
-  const errorDiv = document.getElementById('login-error');
-  
-  const guest = guests.find(g => g.id.toUpperCase() === guestId && g.last.toLowerCase() === lastName.toLowerCase());
-  
+  const id = document.getElementById('guest-id').value.trim().toUpperCase();
+  const last = document.getElementById('guest-lastname').value.trim();
+  const guest = guests.find(g => g.id === id && g.last.toLowerCase() === last.toLowerCase());
   if (guest && guest.status === 'Active') {
     currentUser = { type: 'guest', data: guest };
     currentGuest = guest;
-    
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('main-app').classList.add('active');
-    document.getElementById('user-name').innerHTML = `${guest.title} ${guest.first} ${guest.last}`;
+    document.getElementById('user-name').innerHTML = `${guest.first} ${guest.last}`;
     document.getElementById('user-role').innerHTML = guest.type;
     document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
-    
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
-    
     loadGuestDashboard();
-    showToast(`Welcome back, ${guest.first}!`);
-  } else {
-    errorDiv.textContent = 'Invalid Guest ID or Last Name. Please check your details.';
-    errorDiv.style.display = 'block';
-    setTimeout(() => errorDiv.style.display = 'none', 3000);
-  }
+    showToast(`Welcome ${guest.first}!`);
+  } else { document.getElementById('login-error').style.display = 'block'; setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000); }
 }
 
 function staffLogin() {
   const username = document.getElementById('staff-username').value.trim();
   const password = document.getElementById('staff-password').value;
-  const errorDiv = document.getElementById('login-error');
-  
   const staff = staffUsers.find(u => u.username === username && u.password === password && u.status === 'active');
-  
   if (staff) {
     currentUser = { type: 'staff', data: staff };
-    
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('main-app').classList.add('active');
     document.getElementById('user-name').innerHTML = staff.fullname;
-    document.getElementById('user-role').innerHTML = staff.role === 'admin' ? 'Administrator' : 'Staff';
+    document.getElementById('user-role').innerHTML = staff.role === 'admin' ? 'Admin' : 'Staff';
     document.getElementById('user-avatar').innerHTML = staff.fullname.charAt(0);
-    
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'block');
-    
-    showPanel('staff-guests');
-    renderStaffTable();
-    renderStaffUsersTable();
+    renderStaffTable(); renderStaffUsersTable(); renderAnalytics();
     addActivityLog(`${staff.fullname} logged in`);
-    showToast(`Welcome, ${staff.fullname}!`);
-  } else {
-    errorDiv.textContent = 'Invalid username or password.';
-    errorDiv.style.display = 'block';
-    setTimeout(() => errorDiv.style.display = 'none', 3000);
-  }
+    showToast(`Welcome ${staff.fullname}!`);
+  } else { document.getElementById('login-error').style.display = 'block'; setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000); }
 }
 
 function logout() {
-  if (currentUser?.type === 'staff') {
-    addActivityLog(`${currentUser.data.fullname} logged out`);
-  }
-  currentUser = null;
-  currentGuest = null;
+  currentUser = null; currentGuest = null;
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('main-app').classList.remove('active');
-  document.getElementById('guest-id').value = '';
-  document.getElementById('guest-lastname').value = '';
-  document.getElementById('staff-username').value = '';
-  document.getElementById('staff-password').value = '';
   switchLoginTab('guest');
-  window.history.replaceState({}, document.title, BASE_URL);
 }
 
 // ============================================
-// GUEST DASHBOARD (UPDATED WITH QR URL)
-// ============================================
-function loadGuestDashboard() {
-  if (!currentGuest) return;
-  
-  const g = currentGuest;
-  document.getElementById('guest-greeting').innerHTML = `Welcome, ${g.title} ${g.first}!`;
-  document.getElementById('guest-id-badge').innerHTML = `Guest ID: ${g.id}`;
-  document.getElementById('guest-status').innerHTML = g.status;
-  document.getElementById('guest-valid-until').innerHTML = g.checkout || 'Not set';
-  document.getElementById('guest-room').innerHTML = g.room;
-  document.getElementById('guest-type').innerHTML = g.type;
-  
-  const privContainer = document.getElementById('guest-privileges');
-  if (g.privileges && g.privileges.length > 0) {
-    privContainer.innerHTML = g.privileges.map(p => `<div class="privilege-item"><div class="privilege-icon">✓</div><div class="privilege-name">${p}</div></div>`).join('');
-  } else {
-    privContainer.innerHTML = '<div class="empty-state">No special privileges assigned</div>';
-  }
-  
-  document.getElementById('guest-stay-info').innerHTML = `
-    <div class="detail-row"><span class="detail-label">Check-in</span><span>${g.checkin || '—'}</span></div>
-    <div class="detail-row"><span class="detail-label">Check-out</span><span>${g.checkout || '—'}</span></div>
-    <div class="detail-row"><span class="detail-label">Email Verified</span><span>${g.emailVerified ? '✓ Yes' : '⚠ Pending'}</span></div>
-    <div class="detail-row"><span class="detail-label">Total QR Scans</span><span>${g.scans || 0}</span></div>
-    <div class="detail-row"><span class="detail-label">Notes</span><span>${g.notes || '—'}</span></div>
-  `;
-  
-  // Generate QR code with URL (not JSON)
-  generateGuestQRCode(g);
-}
-
-function downloadGuestQR() {
-  const canvas = document.querySelector('#guest-qr-code canvas');
-  if (canvas) {
-    const link = document.createElement('a');
-    link.download = `SHR_QR_${currentGuest.id}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
-    showToast('QR Code downloaded. Scan with any phone camera!');
-  } else {
-    showToast('QR code not ready yet');
-  }
-}
-
-// ============================================
-// STAFF FUNCTIONS
-// ============================================
-function showPanel(panelId) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`panel-${panelId}`).classList.add('active');
-  
-  if (panelId === 'staff-guests') renderStaffTable();
-  if (panelId === 'staff-admin') renderStaffUsersTable();
-}
-
-function renderStaffTable() {
-  const search = document.getElementById('staff-search')?.value.toLowerCase() || '';
-  const filtered = guests.filter(g => `${g.id} ${g.first} ${g.last} ${g.room} ${g.email}`.toLowerCase().includes(search));
-  
-  const tbody = document.getElementById('staff-tbody');
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">No guests found</div></td></tr>';
-    return;
-  }
-  
-  tbody.innerHTML = filtered.map(g => `
-    <tr>
-      <td><code style="font-weight:600;">${g.id}</code></td>
-      <td><strong>${g.title} ${g.first} ${g.last}</strong><br><small style="color:#888;">${g.email}</small></td>
-      <td>${g.room}</td>
-      <td><span class="badge badge-${g.status.toLowerCase()}">${g.status}</span></td>
-      <td>
-        <button class="btn-ghost btn-sm" onclick="toggleGuestStatus('${g.id}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button>
-        <button class="btn-ghost btn-sm" onclick="viewGuestDetails('${g.id}')">View</button>
-       </td>
-     </tr>
-  `).join('');
-}
-
-function viewGuestDetails(guestId) {
-  const guest = guests.find(g => g.id === guestId);
-  if (!guest) return;
-  const qrUrl = `${BASE_URL}?guest=${guest.id}`;
-  alert(`Guest Details:\n\nID: ${guest.id}\nName: ${guest.title} ${guest.first} ${guest.last}\nRoom: ${guest.room}\nType: ${guest.type}\nStatus: ${guest.status}\nEmail: ${guest.email}\nPrivileges: ${Array.isArray(guest.privileges) ? guest.privileges.join(', ') : guest.privileges}\nNotes: ${guest.notes || 'None'}\n\n📱 QR Code URL: ${qrUrl}`);
-}
-
-function toggleGuestStatus(guestId) {
-  const guest = guests.find(g => g.id === guestId);
-  if (guest) {
-    guest.status = guest.status === 'Active' ? 'Revoked' : 'Active';
-    saveGuestsLocal();
-    renderStaffTable();
-    addActivityLog(`${currentUser?.data?.fullname} changed ${guest.first} ${guest.last} status to ${guest.status}`);
-    showToast(`Guest ${guest.id} is now ${guest.status}`);
-  }
-}
-
-function staffLookupGuest() {
-  const query = document.getElementById('staff-scan-id').value.trim().toLowerCase();
-  const guest = guests.find(g => 
-    g.id.toLowerCase() === query || 
-    g.room.toLowerCase() === query ||
-    `${g.first} ${g.last}`.toLowerCase().includes(query)
-  );
-  
-  if (guest) {
-    const qrUrl = `${BASE_URL}?guest=${guest.id}`;
-    document.getElementById('staff-scan-result').innerHTML = `
-      <div class="card" style="margin-top:16px;">
-        <div style="font-weight:600;">${guest.title} ${guest.first} ${guest.last}</div>
-        <div style="color:#c9a84c; font-size:12px;">${guest.id} | Room: ${guest.room}</div>
-        <div style="margin-top:8px;"><span class="badge badge-${guest.status.toLowerCase()}">${guest.status}</span></div>
-        <div style="margin-top:8px;"><strong>Privileges:</strong> ${Array.isArray(guest.privileges) ? guest.privileges.join(', ') : guest.privileges || 'None'}</div>
-        <div style="margin-top:8px;"><strong>QR Scan URL:</strong><br><code style="font-size:11px; word-break:break-all;">${qrUrl}</code></div>
-        <div style="margin-top:8px;"><strong>Total Scans:</strong> ${guest.scans}</div>
-        ${guest.notes ? `<div style="margin-top:8px;"><strong>Notes:</strong> ${guest.notes}</div>` : ''}
-      </div>
-    `;
-  } else {
-    document.getElementById('staff-scan-result').innerHTML = '<div class="empty-state" style="color:#c0392b;">❌ Guest not found</div>';
-  }
-}
-
-// ============================================
-// STAFF ADMIN FUNCTIONS
-// ============================================
-function renderStaffUsersTable() {
-  const tbody = document.getElementById('staff-users-tbody');
-  tbody.innerHTML = staffUsers.map(u => `
-    <tr>
-      <td>${u.username}</td>
-      <td><span class="badge badge-${u.role === 'admin' ? 'active' : 'verified'}">${u.role}</span></td>
-      <td>
-        <button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')">Reset Pwd</button>
-        ${u.username !== 'admin' ? `<button class="btn-ghost btn-sm" onclick="deleteStaffUser('${u.id}')">Delete</button>` : ''}
-       </td>
-     </tr>
-  `).join('');
-}
-
-function showAddStaffModal() {
-  document.getElementById('addstaff-modal').classList.add('open');
-}
-
-function closeAddStaffModal() {
-  document.getElementById('addstaff-modal').classList.remove('open');
-  document.getElementById('staff-username-new').value = '';
-  document.getElementById('staff-fullname-new').value = '';
-  document.getElementById('staff-password-new').value = '';
-}
-
-function addStaffMember() {
-  const username = document.getElementById('staff-username-new').value.trim();
-  const fullname = document.getElementById('staff-fullname-new').value.trim();
-  const password = document.getElementById('staff-password-new').value;
-  const role = document.getElementById('staff-role-new').value;
-  
-  if (!username || !fullname || !password) {
-    showToast('Please fill all fields');
-    return;
-  }
-  
-  if (staffUsers.find(u => u.username === username)) {
-    showToast('Username already exists');
-    return;
-  }
-  
-  staffUsers.push({
-    id: Date.now().toString(),
-    username, fullname, password, role,
-    status: 'active'
-  });
-  
-  renderStaffUsersTable();
-  closeAddStaffModal();
-  addActivityLog(`${currentUser?.data?.fullname} added staff member: ${username}`);
-  showToast(`Staff ${username} added successfully`);
-}
-
-function resetStaffPassword(userId) {
-  const user = staffUsers.find(u => u.id === userId);
-  if (user) {
-    const newPass = prompt(`Enter new password for ${user.username}:`);
-    if (newPass && newPass.length >= 4) {
-      user.password = newPass;
-      renderStaffUsersTable();
-      showToast(`Password reset for ${user.username}`);
-    } else if (newPass) {
-      showToast('Password must be at least 4 characters');
-    }
-  }
-}
-
-function deleteStaffUser(userId) {
-  const user = staffUsers.find(u => u.id === userId);
-  if (user && user.username !== 'admin' && confirm(`Delete staff member "${user.username}"?`)) {
-    staffUsers = staffUsers.filter(u => u.id !== userId);
-    renderStaffUsersTable();
-    addActivityLog(`${currentUser?.data?.fullname} deleted staff: ${user.username}`);
-    showToast(`Staff ${user.username} deleted`);
-  }
-}
-
-// ============================================
-// INITIALIZATION
+// INIT
 // ============================================
 async function init() {
   await loadRemoteGuests();
-  saveGuestsLocal();
-  
   const today = new Date().toISOString().split('T')[0];
-  const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+  const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
   if (document.getElementById('f-checkin')) document.getElementById('f-checkin').value = today;
   if (document.getElementById('f-checkout')) document.getElementById('f-checkout').value = nextWeek;
-  
   addActivityLog('System initialized');
-  console.log("🚀 System ready!");
-  console.log("📍 Base URL for QR codes:", BASE_URL);
   
-  // Check if user came from QR code scan
-  checkForQRCodeScan();
+  const urlParams = new URLSearchParams(window.location.search);
+  const guestId = urlParams.get('guest');
+  if (guestId) {
+    const guest = guests.find(g => g.id === guestId);
+    if (guest && guest.status === 'Active') {
+      currentUser = { type: 'guest', data: guest };
+      currentGuest = guest;
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('main-app').classList.add('active');
+      document.getElementById('user-name').innerHTML = `${guest.first} ${guest.last}`;
+      document.getElementById('user-role').innerHTML = guest.type;
+      document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
+      document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
+      loadGuestDashboard();
+      guest.scans++;
+      saveGuestsLocal();
+      addActivityLog(`QR scan access: ${guest.first} ${guest.last}`);
+    }
+  }
 }
 
 init();
