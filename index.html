@@ -371,6 +371,20 @@
     max-width: 500px;
   }
   .session-info { font-size: 10px; color: #888; margin-top: 4px; }
+  
+  /* Sync status indicator */
+  .sync-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #c9a84c;
+    color: #1a1a1a;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 1000;
+  }
 </style>
 </head>
 <body>
@@ -402,6 +416,7 @@
 </div>
 
 <div id="main-app">
+  <div class="sync-status" id="sync-status">● Online</div>
   <div class="header">
     <div class="logo"><div class="logo-badge">SHR</div><div>Steigenberger Doha</div></div>
     <div class="user-info">
@@ -456,7 +471,7 @@
         <div class="search-row">
           <input type="text" id="staff-search" placeholder="Search..." oninput="renderTable()">
           <button class="btn-primary btn-sm" onclick="manualSyncToSheet()">🔄 Sync Now</button>
-          <button class="btn-ghost btn-sm" onclick="testSheetDBConnection()">📡 Test Connection</button>
+          <button class="btn-ghost btn-sm" onclick="testConnection()">📡 Test</button>
         </div>
         <div class="table-responsive">
           <table class="data">
@@ -567,9 +582,9 @@
 
 <script>
 // ============================================
-// YOUR SHEETDB API - UPDATE THIS
+// GOOGLE APPS SCRIPT URL - REPLACE WITH YOURS!
 // ============================================
-const SHEETDB_URL = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec";
 
 // ============================================
 // DATA
@@ -588,77 +603,62 @@ let activityChart = null;
 let typeChart = null;
 
 // ============================================
-// TEST SHEETDB CONNECTION
+// GOOGLE APPS SCRIPTS FUNCTIONS
 // ============================================
-async function testSheetDBConnection() {
-  showToast("🔍 Testing SheetDB connection...");
+async function testConnection() {
+  showToast("🔍 Testing Google Sheets connection...");
   try {
-    const response = await fetch(SHEETDB_URL);
-    console.log("SheetDB Response Status:", response.status);
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=getGuests`);
     const data = await response.json();
-    console.log("SheetDB Data:", data);
-    
     if (response.ok) {
-      if (Array.isArray(data)) {
-        showToast(`✅ Connected! Found ${data.length} records in sheet`);
-      } else {
-        showToast(`⚠️ Connected but data format: ${typeof data}`);
-      }
+      showToast(`✅ Connected! Found ${data.length} guests in Google Sheets`);
+      document.getElementById('sync-status').innerHTML = '✅ Connected';
+      document.getElementById('sync-status').style.background = '#4caf50';
     } else {
-      showToast(`❌ Error: ${response.status} - Check SheetDB URL`);
+      showToast(`❌ Error: ${data.error || 'Check your Apps Script URL'}`);
+      document.getElementById('sync-status').innerHTML = '❌ Offline';
+      document.getElementById('sync-status').style.background = '#f44336';
     }
   } catch(e) {
-    console.error("Connection error:", e);
     showToast(`❌ Connection failed: ${e.message}`);
+    document.getElementById('sync-status').innerHTML = '❌ Offline';
+    document.getElementById('sync-status').style.background = '#f44336';
   }
 }
 
-// ============================================
-// FIXED: LOAD FROM SHEETDB
-// ============================================
-async function loadFromSheetDB() {
+async function loadFromGoogleSheets() {
   showToast("🔄 Loading from Google Sheets...");
-  console.log("Loading from:", SHEETDB_URL);
-  
   try {
-    const response = await fetch(SHEETDB_URL);
-    console.log("Response status:", response.status);
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=getGuests`);
+    const data = await response.json();
     
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Data received:", data);
-      
-      if (data && Array.isArray(data) && data.length > 0) {
+    if (response.ok && Array.isArray(data)) {
+      if (data.length > 0) {
         guests = data.map(row => ({
-          id: row.id || row.ID || generateId(),
+          id: row.id || '',
           title: row.title || 'Mr.',
-          first: row.first || row.First || '',
-          last: row.last || row.Last || '',
-          room: row.room || row.Room || '',
-          checkin: row.checkin || row.Checkin || '',
-          checkout: row.checkout || row.Checkout || '',
-          email: row.email || row.Email || '',
-          phone: row.phone || row.Phone || '',
+          first: row.first || '',
+          last: row.last || '',
+          room: row.room || '',
+          checkin: row.checkin || '',
+          checkout: row.checkout || '',
+          email: row.email || '',
+          phone: row.phone || '',
           nationality: row.nationality || '',
-          type: row.type || row.Type || 'Standard',
+          type: row.type || 'Standard',
           privileges: row.privileges ? (typeof row.privileges === 'string' ? row.privileges.split(',').map(s=>s.trim()) : row.privileges) : [],
-          status: row.status || row.Status || 'Active',
-          scans: parseInt(row.scans || row.Scans || 0),
+          status: row.status || 'Active',
+          scans: parseInt(row.scans) || 0,
           notes: row.notes || '',
-          issued: row.issued || new Date().toISOString().split('T')[0],
+          issued: row.issued || '',
           emailVerified: row.emailVerified === 'true'
         }));
         saveLocal();
         showToast(`✅ Loaded ${guests.length} guests from Google Sheets`);
-        console.log("Guests loaded successfully:", guests.length);
+        document.getElementById('sync-status').innerHTML = '✅ Synced';
+        document.getElementById('sync-status').style.background = '#4caf50';
         return true;
-      } else {
-        console.log("No data in SheetDB, using defaults");
-        showToast("📭 No data in Google Sheets, using defaults");
       }
-    } else {
-      console.error("SheetDB error:", response.status);
-      showToast(`⚠️ SheetDB error: ${response.status}`);
     }
   } catch(e) {
     console.error("Load error:", e);
@@ -670,106 +670,71 @@ async function loadFromSheetDB() {
   if (local) {
     guests = JSON.parse(local);
     showToast(`📦 Loaded ${guests.length} guests from local storage`);
-    console.log("Loaded from localStorage:", guests.length);
   } else {
     guests = [
       { id: "SHR-1001", title: "Ms.", first: "Hodan", last: "Ahmed", room: "805", checkin: "2026-04-10", checkout: "2026-04-20", email: "hodan@example.com", phone: "+97450001234", type: "Diamond Member", privileges: ["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status: "Active", scans: 5, notes: "VIP guest" },
       { id: "SHR-1002", title: "Mr.", first: "John", last: "Smith", room: "1205", checkin: "2026-04-12", checkout: "2026-04-18", email: "john@example.com", type: "VIP", privileges: ["🍳 Breakfast", "💪 Gym"], status: "Active", scans: 3, notes: "Birthday" }
     ];
     saveLocal();
-    showToast(`📝 Created ${guests.length} default guests`);
   }
   return false;
 }
 
-// ============================================
-// FIXED: SAVE SINGLE GUEST TO SHEETDB
-// ============================================
-async function saveGuestToSheetDB(guest) {
-  console.log("Saving guest to SheetDB:", guest.id);
-  
-  const guestData = {
-    id: guest.id,
-    title: guest.title,
-    first: guest.first,
-    last: guest.last,
-    room: guest.room,
-    checkin: guest.checkin,
-    checkout: guest.checkout,
-    email: guest.email,
-    phone: guest.phone || '',
-    nationality: guest.nationality || '',
-    type: guest.type,
-    privileges: Array.isArray(guest.privileges) ? guest.privileges.join(',') : guest.privileges,
-    status: guest.status,
-    scans: guest.scans || 0,
-    notes: guest.notes || '',
-    issued: guest.issued || new Date().toISOString().split('T')[0],
-    emailVerified: guest.emailVerified || false
-  };
-  
+async function addGuestToGoogleSheets(guest) {
+  showToast(`💾 Saving ${guest.first} ${guest.last} to Google Sheets...`);
   try {
-    // Try to update existing first
-    const checkResponse = await fetch(`${SHEETDB_URL}/id/${guest.id}`);
-    const existing = await checkResponse.json();
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'addGuest',
+        guest: {
+          id: guest.id,
+          title: guest.title,
+          first: guest.first,
+          last: guest.last,
+          room: guest.room,
+          checkin: guest.checkin,
+          checkout: guest.checkout,
+          email: guest.email,
+          phone: guest.phone || '',
+          nationality: guest.nationality || '',
+          type: guest.type,
+          privileges: Array.isArray(guest.privileges) ? guest.privileges.join(',') : guest.privileges,
+          status: guest.status,
+          scans: guest.scans || 0,
+          notes: guest.notes || '',
+          issued: guest.issued || new Date().toISOString().split('T')[0],
+          emailVerified: guest.emailVerified || false
+        }
+      })
+    });
     
-    let response;
-    if (existing && existing.length > 0) {
-      // Update existing
-      response = await fetch(`${SHEETDB_URL}/id/${guest.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(guestData)
-      });
-      console.log("Updated existing guest");
-    } else {
-      // Add new
-      response = await fetch(SHEETDB_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(guestData)
-      });
-      console.log("Added new guest");
-    }
-    
-    if (response.ok) {
-      console.log("✅ Guest saved to SheetDB:", guest.id);
+    const result = await response.json();
+    if (result.success) {
+      showToast(`✅ Guest saved to Google Sheets!`);
       return true;
     } else {
-      const errorText = await response.text();
-      console.error("SheetDB save error:", errorText);
+      showToast(`⚠️ Cloud save failed: ${result.error}`);
       return false;
     }
   } catch(e) {
     console.error("Save error:", e);
+    showToast(`⚠️ Network error: ${e.message}`);
     return false;
   }
 }
 
-// ============================================
-// FIXED: MANUAL SYNC ALL GUESTS
-// ============================================
 async function manualSyncToSheet() {
   showToast("🔄 Syncing all guests to Google Sheets...");
   let successCount = 0;
-  let failCount = 0;
   
   for (const guest of guests) {
-    const success = await saveGuestToSheetDB(guest);
-    if (success) {
-      successCount++;
-    } else {
-      failCount++;
-    }
+    const success = await addGuestToGoogleSheets(guest);
+    if (success) successCount++;
   }
   
-  if (successCount > 0) {
-    showToast(`✅ Synced ${successCount} guests to Google Sheets${failCount > 0 ? ` (${failCount} failed)` : ''}`);
-  } else {
-    showToast(`❌ Sync failed! Check SheetDB connection`);
-  }
-  
-  addLog(`Manual sync: ${successCount} succeeded, ${failCount} failed`);
+  showToast(`✅ Synced ${successCount} of ${guests.length} guests`);
 }
 
 // ============================================
@@ -803,11 +768,6 @@ function parsePrivileges(p) {
   return [];
 }
 
-function stringifyPrivileges(p) {
-  if (!p || !Array.isArray(p)) return '';
-  return p.join(',');
-}
-
 function saveLocal() {
   localStorage.setItem('steigenberger_guests', JSON.stringify(guests));
   localStorage.setItem('steigenberger_scans', JSON.stringify(scanHistory));
@@ -824,8 +784,6 @@ function saveSession() {
       timestamp: Date.now()
     };
     localStorage.setItem('steigenberger_session', JSON.stringify(sessionData));
-  } else {
-    localStorage.removeItem('steigenberger_session');
   }
 }
 
@@ -836,10 +794,8 @@ function loadSession() {
       const session = JSON.parse(saved);
       if (Date.now() - session.timestamp < 24 * 60 * 60 * 1000) {
         return session;
-      } else {
-        localStorage.removeItem('steigenberger_session');
       }
-    } catch(e) { console.error("Session load error:", e); }
+    } catch(e) {}
   }
   return null;
 }
@@ -854,19 +810,16 @@ async function restoreSession() {
       currentUser = { type: 'guest', data: guest };
       currentGuest = guest;
       applyUserSession();
-      showToast(`🔐 Welcome back, ${guest.first}!`);
       return true;
     }
   } else if (session.type === 'staff') {
-    const staff = staffUsers.find(s => s.id === session.data.id && s.username === session.data.username);
+    const staff = staffUsers.find(s => s.id === session.data.id);
     if (staff) {
       currentUser = { type: 'staff', data: staff };
       applyUserSession();
-      showToast(`🔐 Welcome back, ${staff.fullname}!`);
       return true;
     }
   }
-  localStorage.removeItem('steigenberger_session');
   return false;
 }
 
@@ -879,32 +832,22 @@ function applyUserSession() {
     document.getElementById('user-name').innerHTML = `${guest.first} ${guest.last}`;
     document.getElementById('user-role').innerHTML = guest.type;
     document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
-    document.getElementById('session-info').innerHTML = '● Guest session';
-    
     document.querySelectorAll('.guest-only').forEach(btn => btn.style.display = 'block');
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
     document.querySelectorAll('.admin-only').forEach(btn => btn.style.display = 'none');
-    
     loadGuestDashboard();
   } else if (currentUser.type === 'staff') {
     const staff = currentUser.data;
     const isAdmin = staff.role === 'admin';
-    
     document.getElementById('user-name').innerHTML = staff.fullname;
     document.getElementById('user-role').innerHTML = isAdmin ? 'Administrator' : 'Staff';
     document.getElementById('user-avatar').innerHTML = staff.fullname.charAt(0);
-    document.getElementById('session-info').innerHTML = isAdmin ? '● Admin session' : '● Staff session';
-    
     document.querySelectorAll('.guest-only').forEach(btn => btn.style.display = 'none');
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'block');
-    
     if (isAdmin) {
       document.querySelectorAll('.admin-only').forEach(btn => btn.style.display = 'block');
       renderAnalytics();
-    } else {
-      document.querySelectorAll('.admin-only').forEach(btn => btn.style.display = 'none');
     }
-    
     renderTable();
     renderStaffUsers();
   }
@@ -969,7 +912,7 @@ function renderTable() {
   
   const tbody = document.getElementById('staff-tbody');
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">No guests</div></tr></tr>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">No guests</div></td></tr>';
     return;
   }
   
@@ -997,7 +940,7 @@ function toggleStatus(id) {
   if (guest) {
     guest.status = guest.status === 'Active' ? 'Revoked' : 'Active';
     saveLocal();
-    saveGuestToSheetDB(guest);
+    addGuestToGoogleSheets(guest);
     renderTable();
     showToast(`${guest.first} ${guest.last} is now ${guest.status}`);
   }
@@ -1039,12 +982,11 @@ async function addGuest() {
   guests.push(newGuest);
   saveLocal();
   
-  // Try to save to SheetDB
-  const saved = await saveGuestToSheetDB(newGuest);
+  const saved = await addGuestToGoogleSheets(newGuest);
   if (saved) {
     showToast(`✅ Guest ${first} ${last} added and synced to Google Sheets!`);
   } else {
-    showToast(`⚠️ Guest ${first} ${last} added locally only (SheetDB sync failed)`);
+    showToast(`⚠️ Guest ${first} ${last} added locally only`);
   }
   
   // Clear form
@@ -1105,7 +1047,7 @@ async function onScanSuccess(decodedText) {
     if (guest) {
       guest.scans = (guest.scans || 0) + 1;
       saveLocal();
-      await saveGuestToSheetDB(guest);
+      await addGuestToGoogleSheets(guest);
       
       document.getElementById('scan-result').innerHTML = `
         <div class="card" style="margin-top:16px; background:#e6f7ee;">
@@ -1137,7 +1079,7 @@ function manualLookup() {
   if (guest) {
     guest.scans = (guest.scans || 0) + 1;
     saveLocal();
-    saveGuestToSheetDB(guest);
+    addGuestToGoogleSheets(guest);
     document.getElementById('scan-result').innerHTML = `
       <div class="card" style="margin-top:16px;">
         <div style="font-weight:700;">${guest.title} ${guest.first} ${guest.last}</div>
@@ -1317,7 +1259,8 @@ function showPanel(panelId) {
 // INITIALIZATION
 // ============================================
 async function init() {
-  await loadFromSheetDB();
+  // First try to load from Google Sheets
+  await loadFromGoogleSheets();
   
   const today = new Date().toISOString().split('T')[0];
   const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
@@ -1338,14 +1281,13 @@ async function init() {
         applyUserSession();
         guest.scans++;
         saveLocal();
-        await saveGuestToSheetDB(guest);
+        await addGuestToGoogleSheets(guest);
         showToast(`Welcome ${guest.first}!`);
       }
     }
   }
   
   console.log("✅ System ready!");
-  console.log("SheetDB URL:", SHEETDB_URL);
 }
 
 init();
