@@ -6,11 +6,11 @@
 <title>Steigenberger Digital Guest Card</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; }
   
-  /* Login */
   .login-container {
     min-height: 100vh;
     display: flex;
@@ -81,7 +81,6 @@
     display: none;
   }
   
-  /* Main App */
   #main-app { display: none; }
   #main-app.active { display: block; }
   
@@ -318,8 +317,10 @@
   }
   .toast.show { opacity: 1; }
   
+  .guest-only { display: block; }
   .staff-only { display: none; }
   .admin-only { display: none; }
+  
   .detail-row {
     display: flex;
     justify-content: space-between;
@@ -328,38 +329,6 @@
   }
   .detail-label { color: #888; }
   .empty-state { text-align: center; padding: 40px; color: #aaa; }
-  .info-note {
-    background: #e8f4f8;
-    padding: 12px 16px;
-    border-radius: 16px;
-    font-size: 12px;
-    margin-bottom: 16px;
-  }
-  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box {
-    background: white;
-    border-radius: 28px;
-    padding: 24px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .session-info {
-    font-size: 10px;
-    color: #888;
-    margin-top: 4px;
-  }
   
   .analytics-grid {
     display: grid;
@@ -382,6 +351,26 @@
     color: #c9a84c;
   }
   canvas { max-width: 100%; height: auto; }
+  
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: white;
+    border-radius: 28px;
+    padding: 24px;
+    width: 100%;
+    max-width: 500px;
+  }
+  .session-info { font-size: 10px; color: #888; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -427,52 +416,35 @@
   </div>
   
   <div class="nav" id="main-nav">
-    <!-- Guest only button -->
     <button class="nav-btn guest-only active" onclick="showPanel('guest-dashboard')">My Card</button>
-    
-    <!-- Staff buttons (visible to both staff and admin) -->
     <button class="nav-btn staff-only" onclick="showPanel('staff-guests')">Guests</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-add')">Add Guest</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-scanner')">Scanner</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-admin')">Staff Admin</button>
-    
-    <!-- Admin only button (Dashboard/Analytics) -->
     <button class="nav-btn admin-only" onclick="showPanel('staff-analytics')">📊 Dashboard</button>
   </div>
   
   <div class="container">
-    <!-- GUEST DASHBOARD (Only for guests) -->
     <div class="panel active" id="panel-guest-dashboard">
       <div class="card" style="background: linear-gradient(135deg, #1a1a1a, #2d2d2d); color: white;">
         <h2 id="guest-name">Welcome, Guest!</h2>
-        <div class="guest-id-badge" id="guest-id" style="background:#c9a84c; display:inline-block; padding:6px 14px; border-radius:20px; margin-top:12px;">ID: ---</div>
+        <div id="guest-id" style="background:#c9a84c; display:inline-block; padding:6px 14px; border-radius:20px; margin-top:12px; color:#1a1a1a;">ID: ---</div>
       </div>
-      
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" id="guest-status">---</div></div>
         <div class="stat-card"><div class="stat-label">Room</div><div class="stat-val" id="guest-room">---</div></div>
         <div class="stat-card"><div class="stat-label">Type</div><div class="stat-val" id="guest-type">---</div></div>
         <div class="stat-card"><div class="stat-label">Scans</div><div class="stat-val" id="guest-scans">0</div></div>
       </div>
-      
       <div class="qr-section card">
         <div class="card-title">Your QR Code</div>
         <div id="guest-qr-code"></div>
         <button class="btn-primary btn-sm" onclick="downloadQR()" style="margin-top:16px;">Download QR</button>
       </div>
-      
-      <div class="card">
-        <div class="card-title">Privileges</div>
-        <div id="guest-privileges" class="privilege-grid"></div>
-      </div>
-      
-      <div class="card">
-        <div class="card-title">Stay Info</div>
-        <div id="guest-stay-info"></div>
-      </div>
+      <div class="card"><div class="card-title">Privileges</div><div id="guest-privileges" class="privilege-grid"></div></div>
+      <div class="card"><div class="card-title">Stay Info</div><div id="guest-stay-info"></div></div>
     </div>
     
-    <!-- STAFF: Guest Management (Staff & Admin) -->
     <div class="panel" id="panel-staff-guests">
       <div class="card">
         <div class="card-title">Guest Management</div>
@@ -483,7 +455,8 @@
         </div>
         <div class="search-row">
           <input type="text" id="staff-search" placeholder="Search..." oninput="renderTable()">
-          <button class="btn-primary btn-sm" onclick="syncToSheetDB()">🔄 Sync Now</button>
+          <button class="btn-primary btn-sm" onclick="manualSyncToSheet()">🔄 Sync Now</button>
+          <button class="btn-ghost btn-sm" onclick="testSheetDBConnection()">📡 Test Connection</button>
         </div>
         <div class="table-responsive">
           <table class="data">
@@ -494,7 +467,6 @@
       </div>
     </div>
     
-    <!-- STAFF: Add Guest (Staff & Admin) -->
     <div class="panel" id="panel-staff-add">
       <div class="card">
         <div class="card-title">Register New Guest</div>
@@ -523,7 +495,6 @@
       </div>
     </div>
     
-    <!-- STAFF: Scanner (Staff & Admin) -->
     <div class="panel" id="panel-staff-scanner">
       <div class="card">
         <div class="card-title">📷 Camera Scanner</div>
@@ -545,7 +516,6 @@
       </div>
     </div>
     
-    <!-- STAFF: Admin Panel (Staff & Admin) -->
     <div class="panel" id="panel-staff-admin">
       <div class="card">
         <div class="card-title">Staff Management</div>
@@ -560,7 +530,6 @@
       </div>
     </div>
     
-    <!-- ADMIN ONLY: Analytics Dashboard -->
     <div class="panel" id="panel-staff-analytics">
       <div class="analytics-grid">
         <div class="analytics-card"><div class="analytics-value" id="total-guests">0</div><div>Total Guests</div></div>
@@ -596,10 +565,9 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 // ============================================
-// SHEETDB API
+// YOUR SHEETDB API - UPDATE THIS
 // ============================================
 const SHEETDB_URL = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
 
@@ -618,6 +586,232 @@ let scanHistory = [];
 let html5Scanner = null;
 let activityChart = null;
 let typeChart = null;
+
+// ============================================
+// TEST SHEETDB CONNECTION
+// ============================================
+async function testSheetDBConnection() {
+  showToast("🔍 Testing SheetDB connection...");
+  try {
+    const response = await fetch(SHEETDB_URL);
+    console.log("SheetDB Response Status:", response.status);
+    const data = await response.json();
+    console.log("SheetDB Data:", data);
+    
+    if (response.ok) {
+      if (Array.isArray(data)) {
+        showToast(`✅ Connected! Found ${data.length} records in sheet`);
+      } else {
+        showToast(`⚠️ Connected but data format: ${typeof data}`);
+      }
+    } else {
+      showToast(`❌ Error: ${response.status} - Check SheetDB URL`);
+    }
+  } catch(e) {
+    console.error("Connection error:", e);
+    showToast(`❌ Connection failed: ${e.message}`);
+  }
+}
+
+// ============================================
+// FIXED: LOAD FROM SHEETDB
+// ============================================
+async function loadFromSheetDB() {
+  showToast("🔄 Loading from Google Sheets...");
+  console.log("Loading from:", SHEETDB_URL);
+  
+  try {
+    const response = await fetch(SHEETDB_URL);
+    console.log("Response status:", response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Data received:", data);
+      
+      if (data && Array.isArray(data) && data.length > 0) {
+        guests = data.map(row => ({
+          id: row.id || row.ID || generateId(),
+          title: row.title || 'Mr.',
+          first: row.first || row.First || '',
+          last: row.last || row.Last || '',
+          room: row.room || row.Room || '',
+          checkin: row.checkin || row.Checkin || '',
+          checkout: row.checkout || row.Checkout || '',
+          email: row.email || row.Email || '',
+          phone: row.phone || row.Phone || '',
+          nationality: row.nationality || '',
+          type: row.type || row.Type || 'Standard',
+          privileges: row.privileges ? (typeof row.privileges === 'string' ? row.privileges.split(',').map(s=>s.trim()) : row.privileges) : [],
+          status: row.status || row.Status || 'Active',
+          scans: parseInt(row.scans || row.Scans || 0),
+          notes: row.notes || '',
+          issued: row.issued || new Date().toISOString().split('T')[0],
+          emailVerified: row.emailVerified === 'true'
+        }));
+        saveLocal();
+        showToast(`✅ Loaded ${guests.length} guests from Google Sheets`);
+        console.log("Guests loaded successfully:", guests.length);
+        return true;
+      } else {
+        console.log("No data in SheetDB, using defaults");
+        showToast("📭 No data in Google Sheets, using defaults");
+      }
+    } else {
+      console.error("SheetDB error:", response.status);
+      showToast(`⚠️ SheetDB error: ${response.status}`);
+    }
+  } catch(e) {
+    console.error("Load error:", e);
+    showToast("⚠️ Cannot connect to Google Sheets");
+  }
+  
+  // Fallback to localStorage
+  const local = localStorage.getItem('steigenberger_guests');
+  if (local) {
+    guests = JSON.parse(local);
+    showToast(`📦 Loaded ${guests.length} guests from local storage`);
+    console.log("Loaded from localStorage:", guests.length);
+  } else {
+    guests = [
+      { id: "SHR-1001", title: "Ms.", first: "Hodan", last: "Ahmed", room: "805", checkin: "2026-04-10", checkout: "2026-04-20", email: "hodan@example.com", phone: "+97450001234", type: "Diamond Member", privileges: ["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status: "Active", scans: 5, notes: "VIP guest" },
+      { id: "SHR-1002", title: "Mr.", first: "John", last: "Smith", room: "1205", checkin: "2026-04-12", checkout: "2026-04-18", email: "john@example.com", type: "VIP", privileges: ["🍳 Breakfast", "💪 Gym"], status: "Active", scans: 3, notes: "Birthday" }
+    ];
+    saveLocal();
+    showToast(`📝 Created ${guests.length} default guests`);
+  }
+  return false;
+}
+
+// ============================================
+// FIXED: SAVE SINGLE GUEST TO SHEETDB
+// ============================================
+async function saveGuestToSheetDB(guest) {
+  console.log("Saving guest to SheetDB:", guest.id);
+  
+  const guestData = {
+    id: guest.id,
+    title: guest.title,
+    first: guest.first,
+    last: guest.last,
+    room: guest.room,
+    checkin: guest.checkin,
+    checkout: guest.checkout,
+    email: guest.email,
+    phone: guest.phone || '',
+    nationality: guest.nationality || '',
+    type: guest.type,
+    privileges: Array.isArray(guest.privileges) ? guest.privileges.join(',') : guest.privileges,
+    status: guest.status,
+    scans: guest.scans || 0,
+    notes: guest.notes || '',
+    issued: guest.issued || new Date().toISOString().split('T')[0],
+    emailVerified: guest.emailVerified || false
+  };
+  
+  try {
+    // Try to update existing first
+    const checkResponse = await fetch(`${SHEETDB_URL}/id/${guest.id}`);
+    const existing = await checkResponse.json();
+    
+    let response;
+    if (existing && existing.length > 0) {
+      // Update existing
+      response = await fetch(`${SHEETDB_URL}/id/${guest.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(guestData)
+      });
+      console.log("Updated existing guest");
+    } else {
+      // Add new
+      response = await fetch(SHEETDB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(guestData)
+      });
+      console.log("Added new guest");
+    }
+    
+    if (response.ok) {
+      console.log("✅ Guest saved to SheetDB:", guest.id);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error("SheetDB save error:", errorText);
+      return false;
+    }
+  } catch(e) {
+    console.error("Save error:", e);
+    return false;
+  }
+}
+
+// ============================================
+// FIXED: MANUAL SYNC ALL GUESTS
+// ============================================
+async function manualSyncToSheet() {
+  showToast("🔄 Syncing all guests to Google Sheets...");
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (const guest of guests) {
+    const success = await saveGuestToSheetDB(guest);
+    if (success) {
+      successCount++;
+    } else {
+      failCount++;
+    }
+  }
+  
+  if (successCount > 0) {
+    showToast(`✅ Synced ${successCount} guests to Google Sheets${failCount > 0 ? ` (${failCount} failed)` : ''}`);
+  } else {
+    showToast(`❌ Sync failed! Check SheetDB connection`);
+  }
+  
+  addLog(`Manual sync: ${successCount} succeeded, ${failCount} failed`);
+}
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+function addLog(msg) {
+  const timestamp = new Date().toLocaleString();
+  const logDiv = document.getElementById('activity-log');
+  if (logDiv) {
+    logDiv.innerHTML = `<div style="padding:8px; border-bottom:1px solid #eee;">${timestamp}: ${msg}</div>` + (logDiv.innerHTML || '');
+  }
+}
+
+function generateId() {
+  let max = 1000;
+  guests.forEach(g => { let n = parseInt(g.id.split('-')[1]); if (n > max) max = n; });
+  return `SHR-${max + 1}`;
+}
+
+function parsePrivileges(p) {
+  if (!p) return [];
+  if (Array.isArray(p)) return p;
+  if (typeof p === 'string') return p.split(',').map(s => s.trim()).filter(s => s);
+  return [];
+}
+
+function stringifyPrivileges(p) {
+  if (!p || !Array.isArray(p)) return '';
+  return p.join(',');
+}
+
+function saveLocal() {
+  localStorage.setItem('steigenberger_guests', JSON.stringify(guests));
+  localStorage.setItem('steigenberger_scans', JSON.stringify(scanHistory));
+}
 
 // ============================================
 // SESSION MANAGEMENT
@@ -687,7 +881,6 @@ function applyUserSession() {
     document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
     document.getElementById('session-info').innerHTML = '● Guest session';
     
-    // Show only guest button, hide staff and admin buttons
     document.querySelectorAll('.guest-only').forEach(btn => btn.style.display = 'block');
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
     document.querySelectorAll('.admin-only').forEach(btn => btn.style.display = 'none');
@@ -702,153 +895,19 @@ function applyUserSession() {
     document.getElementById('user-avatar').innerHTML = staff.fullname.charAt(0);
     document.getElementById('session-info').innerHTML = isAdmin ? '● Admin session' : '● Staff session';
     
-    // Hide guest button
     document.querySelectorAll('.guest-only').forEach(btn => btn.style.display = 'none');
-    
-    // Show staff buttons for both staff and admin
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'block');
     
-    // Show admin-only dashboard button ONLY for admins
     if (isAdmin) {
       document.querySelectorAll('.admin-only').forEach(btn => btn.style.display = 'block');
+      renderAnalytics();
     } else {
       document.querySelectorAll('.admin-only').forEach(btn => btn.style.display = 'none');
     }
     
     renderTable();
     renderStaffUsers();
-    if (isAdmin) {
-      renderAnalytics();
-    }
   }
-}
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-function addLog(msg) {
-  const timestamp = new Date().toLocaleString();
-  const logDiv = document.getElementById('activity-log');
-  if (logDiv) {
-    logDiv.innerHTML = `<div style="padding:8px; border-bottom:1px solid #eee;">${timestamp}: ${msg}</div>` + (logDiv.innerHTML || '');
-  }
-}
-
-function generateId() {
-  let max = 1000;
-  guests.forEach(g => { let n = parseInt(g.id.split('-')[1]); if (n > max) max = n; });
-  return `SHR-${max + 1}`;
-}
-
-function parsePrivileges(p) {
-  if (!p) return [];
-  if (Array.isArray(p)) return p;
-  if (typeof p === 'string') return p.split(',').map(s => s.trim()).filter(s => s);
-  return [];
-}
-
-function stringifyPrivileges(p) {
-  if (!p || !Array.isArray(p)) return '';
-  return p.join(',');
-}
-
-function saveLocal() {
-  localStorage.setItem('steigenberger_guests', JSON.stringify(guests));
-  localStorage.setItem('steigenberger_scans', JSON.stringify(scanHistory));
-}
-
-// ============================================
-// GOOGLE SHEETS SYNC
-// ============================================
-async function loadFromSheetDB() {
-  try {
-    const response = await fetch(SHEETDB_URL);
-    if (response.ok) {
-      const data = await response.json();
-      if (data && Array.isArray(data) && data.length > 0) {
-        guests = data.map(row => ({
-          id: row.id || '',
-          title: row.title || 'Mr.',
-          first: row.first || '',
-          last: row.last || '',
-          room: row.room || '',
-          checkin: row.checkin || '',
-          checkout: row.checkout || '',
-          email: row.email || '',
-          phone: row.phone || '',
-          nationality: row.nationality || '',
-          type: row.type || 'Standard',
-          privileges: parsePrivileges(row.privileges),
-          status: row.status || 'Active',
-          scans: parseInt(row.scans) || 0,
-          notes: row.notes || '',
-          issued: row.issued || new Date().toISOString().split('T')[0],
-          emailVerified: row.emailVerified === 'true'
-        }));
-        saveLocal();
-        return true;
-      }
-    }
-  } catch(e) { console.error("Load error:", e); }
-  
-  const local = localStorage.getItem('steigenberger_guests');
-  if (local) {
-    guests = JSON.parse(local);
-  } else {
-    guests = [
-      { id: "SHR-1001", title: "Ms.", first: "Hodan", last: "Ahmed", room: "805", checkin: "2026-04-10", checkout: "2026-04-20", email: "hodan@example.com", phone: "+97450001234", type: "Diamond Member", privileges: ["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status: "Active", scans: 5, notes: "VIP guest" },
-      { id: "SHR-1002", title: "Mr.", first: "John", last: "Smith", room: "1205", checkin: "2026-04-12", checkout: "2026-04-18", email: "john@example.com", type: "VIP", privileges: ["🍳 Breakfast", "💪 Gym"], status: "Active", scans: 3, notes: "Birthday" }
-    ];
-    saveLocal();
-  }
-  return false;
-}
-
-async function syncToSheetDB() {
-  showToast("🔄 Syncing to Google Sheets...");
-  let successCount = 0;
-  
-  for (const guest of guests) {
-    try {
-      const guestData = {
-        id: guest.id, title: guest.title, first: guest.first, last: guest.last,
-        room: guest.room, checkin: guest.checkin, checkout: guest.checkout,
-        email: guest.email, phone: guest.phone || '', nationality: guest.nationality || '',
-        type: guest.type, privileges: stringifyPrivileges(guest.privileges),
-        status: guest.status, scans: guest.scans || 0, notes: guest.notes || '',
-        issued: guest.issued || new Date().toISOString().split('T')[0],
-        emailVerified: guest.emailVerified || false
-      };
-      
-      const checkRes = await fetch(`${SHEETDB_URL}/id/${guest.id}`);
-      const exists = await checkRes.json();
-      
-      let response;
-      if (exists && exists.length > 0) {
-        response = await fetch(`${SHEETDB_URL}/id/${guest.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(guestData)
-        });
-      } else {
-        response = await fetch(SHEETDB_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(guestData)
-        });
-      }
-      if (response.ok) successCount++;
-    } catch(e) { console.error("Sync error:", e); }
-  }
-  if (successCount > 0) showToast(`✅ Synced ${successCount} guests`);
-  else showToast("⚠️ Sync failed");
 }
 
 // ============================================
@@ -938,7 +997,7 @@ function toggleStatus(id) {
   if (guest) {
     guest.status = guest.status === 'Active' ? 'Revoked' : 'Active';
     saveLocal();
-    syncToSheetDB();
+    saveGuestToSheetDB(guest);
     renderTable();
     showToast(`${guest.first} ${guest.last} is now ${guest.status}`);
   }
@@ -956,6 +1015,8 @@ async function addGuest() {
   }
   
   const newId = generateId();
+  const selectedPrivs = [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent);
+  
   const newGuest = {
     id: newId,
     title: document.getElementById('f-title').value,
@@ -968,7 +1029,7 @@ async function addGuest() {
     phone: document.getElementById('f-phone').value.trim(),
     nationality: '',
     type: document.getElementById('f-type').value,
-    privileges: [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent),
+    privileges: selectedPrivs,
     status: 'Active',
     scans: 0,
     notes: document.getElementById('f-notes').value.trim(),
@@ -977,8 +1038,16 @@ async function addGuest() {
   
   guests.push(newGuest);
   saveLocal();
-  await syncToSheetDB();
   
+  // Try to save to SheetDB
+  const saved = await saveGuestToSheetDB(newGuest);
+  if (saved) {
+    showToast(`✅ Guest ${first} ${last} added and synced to Google Sheets!`);
+  } else {
+    showToast(`⚠️ Guest ${first} ${last} added locally only (SheetDB sync failed)`);
+  }
+  
+  // Clear form
   document.getElementById('f-first').value = '';
   document.getElementById('f-last').value = '';
   document.getElementById('f-room').value = '';
@@ -988,8 +1057,7 @@ async function addGuest() {
   document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
   
   renderTable();
-  showToast(`✅ Guest ${first} ${last} added! ID: ${newId}`);
-  addLog(`${currentUser?.data?.fullname} added ${first} ${last}`);
+  addLog(`${currentUser?.data?.fullname} added ${first} ${last} (${newId})`);
 }
 
 function togglePriv(el) { el.classList.toggle('sel'); }
@@ -1037,7 +1105,7 @@ async function onScanSuccess(decodedText) {
     if (guest) {
       guest.scans = (guest.scans || 0) + 1;
       saveLocal();
-      await syncToSheetDB();
+      await saveGuestToSheetDB(guest);
       
       document.getElementById('scan-result').innerHTML = `
         <div class="card" style="margin-top:16px; background:#e6f7ee;">
@@ -1069,7 +1137,7 @@ function manualLookup() {
   if (guest) {
     guest.scans = (guest.scans || 0) + 1;
     saveLocal();
-    syncToSheetDB();
+    saveGuestToSheetDB(guest);
     document.getElementById('scan-result').innerHTML = `
       <div class="card" style="margin-top:16px;">
         <div style="font-weight:700;">${guest.title} ${guest.first} ${guest.last}</div>
@@ -1085,7 +1153,7 @@ function manualLookup() {
 }
 
 // ============================================
-// ADMIN ONLY: ANALYTICS DASHBOARD
+// ADMIN ANALYTICS
 // ============================================
 function renderAnalytics() {
   const total = guests.length;
@@ -1230,10 +1298,6 @@ function logout() {
   localStorage.removeItem('steigenberger_session');
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('main-app').classList.remove('active');
-  document.getElementById('guest-id').value = '';
-  document.getElementById('guest-lastname').value = '';
-  document.getElementById('staff-username').value = '';
-  document.getElementById('staff-password').value = '';
   switchTab('guest');
   showToast("Logged out successfully");
 }
@@ -1274,13 +1338,14 @@ async function init() {
         applyUserSession();
         guest.scans++;
         saveLocal();
-        await syncToSheetDB();
+        await saveGuestToSheetDB(guest);
         showToast(`Welcome ${guest.first}!`);
       }
     }
   }
   
-  console.log("✅ System ready! Role-based access enabled");
+  console.log("✅ System ready!");
+  console.log("SheetDB URL:", SHEETDB_URL);
 }
 
 init();
