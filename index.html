@@ -2,26 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-<title>Steigenberger Enterprise Digital Guest Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Steigenberger Digital Guest Card | Fixed Database Sync</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f4f0; }
   
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f5f4f0;
-    color: #1a1a1a;
-    min-height: 100vh;
-  }
-  
-  /* ========== LOGIN STYLES ========== */
+  /* Login Styles */
   .login-container {
     min-height: 100vh;
     display: flex;
@@ -30,7 +19,6 @@
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     padding: 20px;
   }
-  
   .login-box {
     background: white;
     border-radius: 32px;
@@ -39,18 +27,7 @@
     max-width: 420px;
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
   }
-  
-  @media (min-width: 480px) {
-    .login-box {
-      padding: 48px 40px;
-    }
-  }
-  
-  .login-logo {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  
+  .login-logo { text-align: center; margin-bottom: 32px; }
   .login-logo .logo-badge {
     background: linear-gradient(135deg, #c9a84c, #b8942a);
     color: #1a1a1a;
@@ -59,14 +36,7 @@
     padding: 10px 20px;
     border-radius: 40px;
     display: inline-block;
-    letter-spacing: 2px;
   }
-  
-  .login-logo h2 {
-    margin-top: 20px;
-    font-size: 24px;
-  }
-  
   .login-tabs {
     display: flex;
     gap: 12px;
@@ -75,7 +45,6 @@
     padding: 6px;
     border-radius: 60px;
   }
-  
   .login-tab {
     flex: 1;
     text-align: center;
@@ -85,37 +54,21 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    color: #888;
-    transition: all 0.2s;
     border-radius: 40px;
   }
-  
-  .login-tab.active {
-    background: #1a1a1a;
-    color: #c9a84c;
-  }
-  
-  .login-form .field {
-    margin-bottom: 20px;
-  }
-  
+  .login-tab.active { background: #1a1a1a; color: #c9a84c; }
+  .login-form .field { margin-bottom: 20px; }
   .login-form input {
     width: 100%;
     padding: 14px 16px;
     border: 2px solid #e5e5e5;
     border-radius: 16px;
     font-size: 16px;
-    transition: all 0.2s;
   }
-  
-  .login-form input:focus {
-    outline: none;
-    border-color: #c9a84c;
-  }
-  
+  .login-form input:focus { outline: none; border-color: #c9a84c; }
   .login-btn {
     width: 100%;
-    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    background: #1a1a1a;
     color: #c9a84c;
     border: none;
     padding: 16px;
@@ -123,24 +76,13 @@
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
   }
+  .error-msg { background: #fde8e8; color: #c0392b; padding: 12px; border-radius: 12px; margin-bottom: 16px; display: none; }
   
-  .login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-  }
+  /* Main App */
+  #main-app { display: none; }
+  #main-app.active { display: block; }
   
-  /* ========== MAIN APP ========== */
-  #main-app {
-    display: none;
-  }
-  
-  #main-app.active {
-    display: block;
-  }
-  
-  /* Header - Fixed for mobile */
   .header {
     background: #1a1a1a;
     padding: 12px 16px;
@@ -151,30 +93,10 @@
     top: 0;
     z-index: 100;
   }
+  @media (min-width: 768px) { .header { flex-direction: row; align-items: center; justify-content: space-between; } }
   
-  @media (min-width: 768px) {
-    .header {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-    }
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .logo-badge {
-    background: linear-gradient(135deg, #c9a84c, #b8942a);
-    color: #1a1a1a;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 6px 12px;
-    border-radius: 8px;
-  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-badge { background: linear-gradient(135deg, #c9a84c, #b8942a); color: #1a1a1a; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; }
   
   .user-info {
     display: flex;
@@ -183,15 +105,7 @@
     background: #2a2a2a;
     padding: 8px 16px;
     border-radius: 60px;
-    width: 100%;
   }
-  
-  @media (min-width: 768px) {
-    .user-info {
-      width: auto;
-    }
-  }
-  
   .user-avatar {
     width: 40px;
     height: 40px;
@@ -201,53 +115,18 @@
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    color: #1a1a1a;
   }
+  .user-name { color: white; font-size: 14px; font-weight: 600; }
+  .user-role { color: #c9a84c; font-size: 11px; }
+  .logout-btn { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
   
-  .user-details {
-    flex: 1;
-  }
-  
-  .user-name {
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  
-  .user-role {
-    color: #c9a84c;
-    font-size: 11px;
-  }
-  
-  .logout-btn {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 40px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  
-  /* Navigation - Scrollable on mobile */
   .nav {
     display: flex;
     gap: 6px;
     background: #1a1a1a;
     padding: 0 16px 12px 16px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
   }
-  
-  @media (min-width: 768px) {
-    .nav {
-      flex-wrap: wrap;
-      overflow-x: visible;
-      padding: 0 24px 12px 24px;
-    }
-  }
-  
   .nav-btn {
     background: rgba(255,255,255,0.05);
     color: #aaa;
@@ -258,36 +137,16 @@
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.2s;
   }
+  .nav-btn.active { background: #c9a84c; color: #1a1a1a; }
   
-  .nav-btn.active {
-    background: #c9a84c;
-    color: #1a1a1a;
-  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+  @media (min-width: 768px) { .container { padding: 24px; } }
   
-  /* Container */
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 16px;
-  }
+  .panel { display: none; }
+  .panel.active { display: block; }
   
-  @media (min-width: 768px) {
-    .container {
-      padding: 24px;
-    }
-  }
-  
-  .panel {
-    display: none;
-  }
-  
-  .panel.active {
-    display: block;
-  }
-  
-  /* ========== MEMBERSHIP TIER STYLES ========== */
+  /* Cards */
   .membership-card {
     background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
     border-radius: 24px;
@@ -295,9 +154,7 @@
     margin-bottom: 20px;
     color: white;
     position: relative;
-    overflow: hidden;
   }
-  
   .membership-tier {
     position: absolute;
     top: 20px;
@@ -309,46 +166,17 @@
     font-size: 12px;
     font-weight: 800;
   }
+  .loyalty-points { font-size: 32px; font-weight: 800; color: #c9a84c; margin-top: 10px; }
+  .progress-bar { background: rgba(255,255,255,0.2); border-radius: 20px; height: 8px; margin: 15px 0; overflow: hidden; }
+  .progress-fill { background: #c9a84c; height: 100%; border-radius: 20px; transition: width 0.3s; }
   
-  .membership-tier.diamond { background: linear-gradient(135deg, #b9f2ff, #87ceeb); color: #003366; }
-  .membership-tier.vip { background: linear-gradient(135deg, #ffd700, #ffb347); color: #5c3d00; }
-  .membership-tier.privilege { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #333; }
-  
-  .loyalty-points {
-    font-size: 32px;
-    font-weight: 800;
-    color: #c9a84c;
-    margin-top: 10px;
-  }
-  
-  .progress-bar {
-    background: rgba(255,255,255,0.2);
-    border-radius: 20px;
-    height: 8px;
-    margin: 15px 0;
-    overflow: hidden;
-  }
-  
-  .progress-fill {
-    background: #c9a84c;
-    height: 100%;
-    border-radius: 20px;
-    transition: width 0.3s;
-  }
-  
-  /* Stats Grid */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 20px;
   }
-  
-  @media (min-width: 640px) {
-    .stats-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
+  @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
   
   .stat-card {
     background: white;
@@ -357,21 +185,9 @@
     text-align: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
+  .stat-label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-val { font-size: 24px; font-weight: 700; }
   
-  .stat-label {
-    font-size: 11px;
-    color: #888;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  
-  .stat-val {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1a1a1a;
-  }
-  
-  /* Cards */
   .card {
     background: white;
     border-radius: 20px;
@@ -379,62 +195,25 @@
     margin-bottom: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-  
   .card-title {
     font-size: 13px;
     font-weight: 700;
     color: #888;
     text-transform: uppercase;
-    letter-spacing: 1px;
     margin-bottom: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
   }
   
-  /* QR Code */
-  .qr-section {
-    text-align: center;
-  }
-  
-  #guest-qr-code {
-    display: flex;
-    justify-content: center;
-    margin: 16px 0;
-  }
-  
-  #guest-qr-code canvas {
-    width: 200px !important;
-    height: 200px !important;
-  }
-  
-  @media (max-width: 480px) {
-    #guest-qr-code canvas {
-      width: 160px !important;
-      height: 160px !important;
-    }
-  }
-  
-  /* Privilege Grid - 1 column on mobile */
   .privilege-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  
-  @media (min-width: 480px) {
-    .privilege-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  @media (min-width: 768px) {
-    .privilege-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
+  @media (min-width: 480px) { .privilege-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 768px) { .privilege-grid { grid-template-columns: repeat(3, 1fr); } }
   
   .privilege-item {
     background: #f8f8f6;
@@ -446,291 +225,65 @@
     border-left: 4px solid #c9a84c;
   }
   
-  /* Filter Bar */
-  .filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .filter-btn { background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 40px; font-size: 12px; cursor: pointer; }
+  .filter-btn.active { background: #1a1a1a; color: #c9a84c; }
   
-  .filter-btn {
-    background: #f0f0f0;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 40px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  .table-responsive { overflow-x: auto; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+  table.data th, table.data td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
   
-  .filter-btn.active {
-    background: #1a1a1a;
-    color: #c9a84c;
-  }
+  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-primary { background: #1a1a1a; color: #c9a84c; border: none; padding: 10px 20px; border-radius: 40px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-ghost { background: #f0f0f0; color: #333; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-whatsapp { background: #25D366; color: white; }
+  .btn-email { background: #EA4335; color: white; }
   
-  /* Table */
-  .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  table.data {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    min-width: 600px;
-  }
-  
-  table.data th {
-    padding: 12px;
-    text-align: left;
-    background: #f8f8f6;
-    font-weight: 600;
-  }
-  
-  table.data td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  /* Action Buttons */
-  .action-btns {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  
-  .btn-primary {
-    background: #1a1a1a;
-    color: #c9a84c;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 40px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .btn-primary:hover {
-    background: #c9a84c;
-    color: #1a1a1a;
-    transform: translateY(-2px);
-  }
-  
-  .btn-ghost {
-    background: #f0f0f0;
-    color: #333;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 40px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  
-  .btn-sm {
-    padding: 6px 12px;
-    font-size: 11px;
-  }
-  
-  .btn-whatsapp {
-    background: #25D366;
-    color: white;
-  }
-  
-  .btn-email {
-    background: #EA4335;
-    color: white;
-  }
-  
-  /* Badges */
-  .badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .badge-active { background: #e6f7ee; color: #1a7a45; }
   .badge-revoked { background: #fde8e8; color: #c0392b; }
-  .badge-vip { background: linear-gradient(135deg, #ffd700, #ffb347); color: #5c3d00; }
   
-  /* Modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-row input { flex: 1; padding: 12px 16px; border: 2px solid #eee; border-radius: 40px; }
   
-  .modal-overlay.open {
-    display: flex;
-  }
+  .priv-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .priv-tag { background: #f0f0f0; padding: 8px 16px; border-radius: 40px; font-size: 12px; cursor: pointer; }
+  .priv-tag.sel { background: #1a1a1a; color: #c9a84c; }
   
-  .modal-box {
-    background: white;
-    border-radius: 28px;
-    padding: 24px;
-    width: 100%;
-    max-width: 500px;
-    max-height: 85vh;
-    overflow-y: auto;
-  }
+  .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; gap: 8px; }
+  .detail-label { color: #888; }
+  .empty-state { text-align: center; padding: 40px; color: #aaa; }
+  .info-note { background: #e8f4f8; padding: 12px 16px; border-radius: 16px; font-size: 12px; margin-bottom: 16px; }
   
-  /* Scan History */
-  .scan-history-item {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: white; border-radius: 28px; padding: 24px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
   
-  /* Analytics Cards */
-  .analytics-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #c9a84c; padding: 12px 20px; border-radius: 40px; font-size: 13px; opacity: 0; transition: opacity 0.3s; z-index: 2000; text-align: center; max-width: 90%; }
+  .toast.show { opacity: 1; }
   
-  @media (min-width: 768px) {
-    .analytics-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
+  .staff-only { display: none; }
+  .sync-status { background: #e6f7ee; color: #1a7a45; padding: 8px 16px; border-radius: 40px; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; }
+  .sync-status.error { background: #fde8e8; color: #c0392b; }
   
-  .analytics-card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .analytics-value {
-    font-size: 36px;
-    font-weight: 800;
-    color: #c9a84c;
-  }
-  
-  canvas {
-    max-width: 100%;
-    height: auto;
-  }
-  
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1a1a1a;
-    color: #c9a84c;
-    padding: 12px 20px;
-    border-radius: 40px;
-    font-size: 13px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 2000;
-    text-align: center;
-    max-width: 90%;
-  }
-  
-  .toast.show {
-    opacity: 1;
-  }
-  
-  /* Utility */
-  .staff-only {
-    display: none;
-  }
-  
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .detail-label {
-    color: #888;
-  }
-  
-  .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #aaa;
-  }
-  
-  .info-note {
-    background: #e8f4f8;
-    padding: 12px 16px;
-    border-radius: 16px;
-    font-size: 12px;
-    margin-bottom: 16px;
-  }
-  
-  .search-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-  
-  .search-row input {
-    flex: 1;
-    padding: 12px 16px;
-    border: 2px solid #eee;
-    border-radius: 40px;
-    font-size: 14px;
-  }
-  
-  .priv-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .priv-tag {
-    background: #f0f0f0;
-    padding: 8px 16px;
-    border-radius: 40px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .priv-tag.sel {
-    background: #1a1a1a;
-    color: #c9a84c;
-  }
+  canvas { max-width: 100%; height: auto; }
 </style>
 </head>
 <body>
 
-<!-- Login Page -->
 <div id="login-page" class="login-container">
   <div class="login-box">
     <div class="login-logo">
       <div class="logo-badge">STEIGENBERGER</div>
-      <h2>Digital Guest Card</h2>
-      <p>Hotel & Residence Doha</p>
+      <h2 style="margin-top:20px;">Digital Guest Card</h2>
+      <p style="color:#666; margin-top:8px;">Hotel & Residence Doha</p>
     </div>
     <div class="login-tabs">
       <button class="login-tab active" onclick="switchLoginTab('guest')">Guest</button>
       <button class="login-tab" onclick="switchLoginTab('staff')">Staff</button>
     </div>
-    <div id="login-error" class="error-msg" style="display:none;"></div>
+    <div id="login-error" class="error-msg"></div>
     
     <div id="guest-login-form" class="login-form">
       <div class="field"><label>Guest ID</label><input type="text" id="guest-id" placeholder="SHR-1001"></div>
@@ -746,7 +299,6 @@
   </div>
 </div>
 
-<!-- Main App -->
 <div id="main-app">
   <div class="header">
     <div class="logo">
@@ -768,15 +320,14 @@
     <button class="nav-btn staff-only" onclick="showPanel('staff-guests')">Guests</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-add')">Add Guest</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-scanner')">Scanner</button>
-    <button class="nav-btn staff-only" onclick="showPanel('staff-analytics')">Analytics</button>
     <button class="nav-btn staff-only" onclick="showPanel('staff-admin')">Admin</button>
   </div>
   
   <div class="container">
     <!-- GUEST DASHBOARD -->
     <div class="panel active" id="panel-guest-dashboard">
-      <div class="membership-card" id="membership-card">
-        <div class="membership-tier" id="membership-tier">Privilege Member</div>
+      <div class="membership-card">
+        <div class="membership-tier" id="membership-tier">Member</div>
         <div style="font-size:14px; opacity:0.8;">Welcome back,</div>
         <div style="font-size:24px; font-weight:700; margin:8px 0;" id="guest-name-display">Guest</div>
         <div class="loyalty-points" id="loyalty-points">0 pts</div>
@@ -791,16 +342,16 @@
         <div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" id="guest-status">---</div></div>
         <div class="stat-card"><div class="stat-label">Room</div><div class="stat-val" id="guest-room">---</div></div>
         <div class="stat-card"><div class="stat-label">Type</div><div class="stat-val" id="guest-type">---</div></div>
-        <div class="stat-card"><div class="stat-label">Points</div><div class="stat-val" id="guest-points">0</div></div>
+        <div class="stat-card"><div class="stat-label">Scans</div><div class="stat-val" id="guest-scans">0</div></div>
       </div>
       
-      <div class="qr-section card">
+      <div class="card" style="text-align:center;">
         <div class="card-title">Digital Access QR</div>
         <div id="guest-qr-code"></div>
         <div style="display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
           <button class="btn-primary btn-sm" onclick="downloadGuestQR()">Download QR</button>
-          <button class="btn-primary btn-sm btn-whatsapp" onclick="shareViaWhatsApp()">📱 WhatsApp</button>
-          <button class="btn-primary btn-sm btn-email" onclick="shareViaEmail()">✉️ Email</button>
+          <button class="btn-primary btn-sm btn-whatsapp" onclick="shareViaWhatsApp()">WhatsApp</button>
+          <button class="btn-primary btn-sm btn-email" onclick="shareViaEmail()">Email</button>
         </div>
       </div>
       
@@ -813,16 +364,6 @@
         <div class="card-title">Stay Information</div>
         <div id="guest-stay-info"></div>
       </div>
-      
-      <div class="card">
-        <div class="card-title">Special Welcome Message</div>
-        <div id="welcome-message" style="font-size:14px; line-height:1.6; color:#666;"></div>
-      </div>
-      
-      <div class="card">
-        <div class="card-title">QR Scan History</div>
-        <div id="scan-history-list"></div>
-      </div>
     </div>
     
     <!-- STAFF: Guest Management -->
@@ -830,29 +371,19 @@
       <div class="card">
         <div class="card-title">
           Guest Management
-          <div style="display:flex; gap:8px;">
-            <button class="btn-ghost btn-sm" onclick="exportToCSV()">📄 Export CSV</button>
-            <button class="btn-ghost btn-sm" onclick="printGuestList()">🖨️ Print</button>
-          </div>
+          <div id="sync-status" class="sync-status">🔄 Checking sync...</div>
         </div>
-        
         <div class="filter-bar">
           <button class="filter-btn active" onclick="setFilter('all')">All</button>
           <button class="filter-btn" onclick="setFilter('active')">Active</button>
           <button class="filter-btn" onclick="setFilter('revoked')">Revoked</button>
-          <button class="filter-btn" onclick="setFilter('vip')">VIP Only</button>
-          <button class="filter-btn" onclick="setFilter('checkout-today')">Checkout Today</button>
+          <button class="filter-btn" onclick="setFilter('vip')">VIP</button>
         </div>
-        
         <div class="search-row">
-          <input type="text" id="staff-search" placeholder="Search by ID, Name, Room, Email..." oninput="renderStaffTable()">
-          <select id="sort-by" onchange="renderStaffTable()" style="padding:10px; border-radius:40px; border:2px solid #eee;">
-            <option value="room">Sort by Room</option>
-            <option value="name">Sort by Name</option>
-            <option value="id">Sort by ID</option>
-          </select>
+          <input type="text" id="staff-search" placeholder="Search..." oninput="renderStaffTable()">
+          <button class="btn-ghost" onclick="syncToSheetDB()">🔄 Sync Now</button>
+          <button class="btn-ghost" onclick="exportToCSV()">📄 Export</button>
         </div>
-        
         <div class="table-responsive">
           <table class="data">
             <thead><tr><th>ID</th><th>Name</th><th>Room</th><th>Status</th><th>Scans</th><th>Actions</th></tr></thead>
@@ -866,33 +397,30 @@
     <div class="panel" id="panel-staff-add">
       <div class="card">
         <div class="card-title">Register New Guest</div>
-        <div class="form-grid" style="display:grid; grid-template-columns:1fr; gap:12px;">
-          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;">
-            <div class="field"><label>Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div>
-            <div class="field"><label>First Name *</label><input id="f-first"></div>
-            <div class="field"><label>Last Name *</label><input id="f-last"></div>
-            <div class="field"><label>Room *</label><input id="f-room"></div>
-            <div class="field"><label>Email *</label><input id="f-email" type="email"></div>
-            <div class="field"><label>Phone</label><input id="f-phone"></div>
-            <div class="field"><label>Nationality</label><input id="f-nationality"></div>
-            <div class="field"><label>Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div>
-            <div class="field"><label>Check-in</label><input type="date" id="f-checkin"></div>
-            <div class="field"><label>Check-out</label><input type="date" id="f-checkout"></div>
-          </div>
-          <div class="card-title">Privileges</div>
-          <div class="priv-grid" id="priv-list">
-            <div class="priv-tag" onclick="togglePriv(this)">🍳 Breakfast</div>
-            <div class="priv-tag" onclick="togglePriv(this)">🏊 Pool</div>
-            <div class="priv-tag" onclick="togglePriv(this)">💪 Gym</div>
-            <div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div>
-            <div class="priv-tag" onclick="togglePriv(this)">✈️ Transfer</div>
-            <div class="priv-tag" onclick="togglePriv(this)">🍷 Discount 20%</div>
-            <div class="priv-tag" onclick="togglePriv(this)">⬆️ Upgrade</div>
-            <div class="priv-tag" onclick="togglePriv(this)">💼 Lounge</div>
-          </div>
-          <textarea id="f-notes" rows="2" placeholder="Special notes..." style="padding:12px; border-radius:16px; border:2px solid #eee;"></textarea>
-          <button class="btn-primary" onclick="staffAddGuest()">Register Guest</button>
+        <div class="info-note">✅ Guest will be synced to Google Sheets automatically</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;">
+          <div class="field"><label>Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></div>
+          <div class="field"><label>First Name *</label><input id="f-first"></div>
+          <div class="field"><label>Last Name *</label><input id="f-last"></div>
+          <div class="field"><label>Room *</label><input id="f-room"></div>
+          <div class="field"><label>Email *</label><input id="f-email" type="email"></div>
+          <div class="field"><label>Phone</label><input id="f-phone"></div>
+          <div class="field"><label>Nationality</label><input id="f-nationality"></div>
+          <div class="field"><label>Type</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div>
+          <div class="field"><label>Check-in</label><input type="date" id="f-checkin"></div>
+          <div class="field"><label>Check-out</label><input type="date" id="f-checkout"></div>
         </div>
+        <div class="card-title" style="margin-top:16px;">Privileges</div>
+        <div class="priv-grid" id="priv-list">
+          <div class="priv-tag" onclick="togglePriv(this)">🍳 Breakfast</div>
+          <div class="priv-tag" onclick="togglePriv(this)">🏊 Pool</div>
+          <div class="priv-tag" onclick="togglePriv(this)">💪 Gym</div>
+          <div class="priv-tag" onclick="togglePriv(this)">⏰ Late checkout</div>
+          <div class="priv-tag" onclick="togglePriv(this)">✈️ Transfer</div>
+          <div class="priv-tag" onclick="togglePriv(this)">🍷 Discount</div>
+        </div>
+        <textarea id="f-notes" rows="2" placeholder="Special notes..." style="width:100%; margin-top:12px; padding:12px; border-radius:16px; border:2px solid #eee;"></textarea>
+        <button class="btn-primary" style="margin-top:16px; width:100%;" onclick="staffAddGuest()">➕ Register Guest & Sync to Sheet</button>
       </div>
     </div>
     
@@ -908,25 +436,7 @@
       </div>
     </div>
     
-    <!-- STAFF: Analytics Dashboard -->
-    <div class="panel" id="panel-staff-analytics">
-      <div class="analytics-grid">
-        <div class="analytics-card"><div class="analytics-value" id="total-guests">0</div><div>Total Guests</div></div>
-        <div class="analytics-card"><div class="analytics-value" id="active-guests">0</div><div>Active</div></div>
-        <div class="analytics-card"><div class="analytics-value" id="total-scans">0</div><div>Total Scans</div></div>
-        <div class="analytics-card"><div class="analytics-value" id="vip-guests">0</div><div>VIP Members</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Weekly Activity</div>
-        <canvas id="activity-chart" style="max-height:300px;"></canvas>
-      </div>
-      <div class="card">
-        <div class="card-title">Guest Type Distribution</div>
-        <canvas id="type-chart" style="max-height:300px;"></canvas>
-      </div>
-    </div>
-    
-    <!-- STAFF: Admin Panel -->
+    <!-- STAFF: Admin -->
     <div class="panel" id="panel-staff-admin">
       <div class="card">
         <div class="card-title">Staff Management</div>
@@ -936,21 +446,32 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title">System Activity Log</div>
+        <div class="card-title">Activity Log</div>
         <div id="activity-log"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modals -->
-<div class="modal-overlay" id="addstaff-modal"><div class="modal-box"><div class="card-title">Add Staff</div><input id="staff-username-new" placeholder="Username" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;"><input id="staff-fullname-new" placeholder="Full Name" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;"><input type="password" id="staff-password-new" placeholder="Password" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;"><select id="staff-role-new" style="width:100%; padding:12px; border-radius:12px;"><option value="staff">Staff</option><option value="admin">Admin</option></select><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn-primary" onclick="addStaffMember()">Add</button><button class="btn-ghost" onclick="closeAddStaffModal()">Cancel</button></div></div></div>
+<div class="modal-overlay" id="addstaff-modal">
+  <div class="modal-box">
+    <div class="card-title">Add Staff</div>
+    <input id="staff-username-new" placeholder="Username" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;">
+    <input id="staff-fullname-new" placeholder="Full Name" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;">
+    <input type="password" id="staff-password-new" placeholder="Password" style="width:100%; margin:8px 0; padding:12px; border-radius:12px; border:2px solid #eee;">
+    <select id="staff-role-new" style="width:100%; padding:12px; border-radius:12px;"><option value="staff">Staff</option><option value="admin">Admin</option></select>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn-primary" onclick="addStaffMember()">Add</button>
+      <button class="btn-ghost" onclick="closeAddStaffModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================
-// CONFIGURATION
+// ✅ FIXED SHEETDB CONFIGURATION
 // ============================================
 const SHEETDB_API = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
 const BASE_URL = window.location.origin + window.location.pathname;
@@ -968,9 +489,6 @@ let currentGuest = null;
 let activityLog = [];
 let currentFilter = "all";
 let scanHistory = [];
-let loyaltyPoints = new Map();
-let activityChart = null;
-let typeChart = null;
 
 // ============================================
 // HELPER FUNCTIONS
@@ -1011,68 +529,169 @@ function addActivityLog(message) {
   activityLog.unshift({ time: timestamp, message });
   const logContainer = document.getElementById('activity-log');
   if (logContainer) {
-    logContainer.innerHTML = activityLog.slice(0, 20).map(log => `<div class="scan-history-item"><span>${log.message}</span><span style="font-size:11px; color:#888;">${log.time}</span></div>`).join('');
-    if (activityLog.length === 0) logContainer.innerHTML = '<div class="empty-state">No activity</div>';
+    logContainer.innerHTML = activityLog.slice(0, 20).map(log => `<div class="detail-row"><span>${log.message}</span><span style="font-size:11px; color:#888;">${log.time}</span></div>`).join('');
   }
 }
 
-function saveGuestsLocal() { localStorage.setItem("shr_guests", JSON.stringify(guests)); }
-function saveScanHistory() { localStorage.setItem("shr_scans", JSON.stringify(scanHistory)); }
-function saveLoyaltyPoints() { localStorage.setItem("shr_loyalty", JSON.stringify([...loyaltyPoints])); }
-
-function getMembershipTier(type, nights) {
-  if (type === 'Diamond Member') return { tier: '💎 DIAMOND', color: 'diamond', multiplier: 2.5 };
-  if (type === 'VIP') return { tier: '⭐ VIP ELITE', color: 'vip', multiplier: 2.0 };
-  if (type === 'Privilege Guest') return { tier: '✨ PRIVILEGE', color: 'privilege', multiplier: 1.5 };
-  return { tier: '🏨 STANDARD', color: 'standard', multiplier: 1.0 };
-}
-
-function calculateLoyaltyPoints(guest) {
-  const nights = guest.checkin && guest.checkout ? Math.ceil((new Date(guest.checkout) - new Date(guest.checkin)) / (1000*60*60*24)) : 1;
-  const tier = getMembershipTier(guest.type, nights);
-  const basePoints = nights * 100;
-  const scanBonus = (guest.scans || 0) * 10;
-  return Math.floor(basePoints * tier.multiplier + scanBonus);
+function saveGuestsLocal() { 
+  localStorage.setItem("shr_guests", JSON.stringify(guests)); 
 }
 
 // ============================================
-// LOAD DATA
+// ✅ FIXED SHEETDB SYNC FUNCTIONS
 // ============================================
-async function loadRemoteGuests() {
+async function testSheetDBConnection() {
+  const statusDiv = document.getElementById('sync-status');
   try {
     const response = await fetch(SHEETDB_API);
     if (response.ok) {
       const data = await response.json();
+      statusDiv.innerHTML = '✅ Connected to SheetDB';
+      statusDiv.className = 'sync-status';
+      console.log("✅ SheetDB connection successful, data:", data);
+      return true;
+    } else {
+      statusDiv.innerHTML = '⚠️ SheetDB connection failed';
+      statusDiv.className = 'sync-status error';
+      return false;
+    }
+  } catch(e) {
+    statusDiv.innerHTML = '❌ Cannot connect to SheetDB';
+    statusDiv.className = 'sync-status error';
+    console.error("SheetDB connection error:", e);
+    return false;
+  }
+}
+
+async function loadFromSheetDB() {
+  try {
+    console.log("🟡 Loading from SheetDB...");
+    const response = await fetch(SHEETDB_API);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log("🟡 SheetDB returned:", data);
+      
       if (data && Array.isArray(data) && data.length > 0) {
         guests = data.map(row => ({
-          id: row.id || '', title: row.title || 'Mr.', first: row.first || '', last: row.last || '',
-          room: row.room || '', checkin: row.checkin || '', checkout: row.checkout || '', email: row.email || '',
-          phone: row.phone || '', nationality: row.nationality || '', type: row.type || 'Standard',
-          privileges: parsePrivileges(row.privileges), status: row.status || 'Active',
-          scans: parseInt(row.scans) || 0, notes: row.notes || '', issued: row.issued || '',
+          id: row.id || '',
+          title: row.title || 'Mr.',
+          first: row.first || '',
+          last: row.last || '',
+          room: row.room || '',
+          checkin: row.checkin || '',
+          checkout: row.checkout || '',
+          email: row.email || '',
+          phone: row.phone || '',
+          nationality: row.nationality || '',
+          type: row.type || 'Standard',
+          privileges: parsePrivileges(row.privileges),
+          status: row.status || 'Active',
+          scans: parseInt(row.scans) || 0,
+          notes: row.notes || '',
+          issued: row.issued || '',
           emailVerified: row.emailVerified === 'true'
         }));
         saveGuestsLocal();
+        console.log("✅ Loaded", guests.length, "guests from SheetDB");
+        showToast(`✅ Loaded ${guests.length} guests from cloud`);
+        return true;
       }
     }
-  } catch(e) { console.log("SheetDB load error:", e); }
+  } catch(e) {
+    console.error("SheetDB load error:", e);
+  }
   
-  if (!guests.length) {
-    const local = localStorage.getItem("shr_guests");
-    if (local) guests = JSON.parse(local);
-    else {
-      guests = [
-        { id:"SHR-1001", title:"Ms.", first:"Hodan", last:"Ahmed", room:"805", checkin:"2026-04-10", checkout:"2026-04-20", email:"hodan@example.com", phone:"+97450001234", type:"Diamond Member", privileges:["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status:"Active", scans:5, notes:"VIP guest", emailVerified:true },
-        { id:"SHR-1002", title:"Mr.", first:"John", last:"Smith", room:"1205", checkin:"2026-04-12", checkout:"2026-04-18", email:"john@example.com", type:"VIP", privileges:["🍳 Breakfast", "💪 Gym"], status:"Active", scans:3, notes:"Birthday", emailVerified:true }
-      ];
+  // Fallback to localStorage
+  const local = localStorage.getItem("shr_guests");
+  if (local) {
+    guests = JSON.parse(local);
+    console.log("📦 Loaded from localStorage:", guests.length, "guests");
+    showToast(`📦 Using local data (${guests.length} guests)`);
+  } else {
+    // Default data
+    guests = [
+      { id:"SHR-1001", title:"Ms.", first:"Hodan", last:"Ahmed", room:"805", checkin:"2026-04-10", checkout:"2026-04-20", email:"hodan@example.com", phone:"+97450001234", nationality:"Somalia", type:"Diamond Member", privileges:["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status:"Active", scans:5, notes:"VIP guest", issued:"2026-04-10", emailVerified:true },
+      { id:"SHR-1002", title:"Mr.", first:"John", last:"Smith", room:"1205", checkin:"2026-04-12", checkout:"2026-04-18", email:"john@example.com", phone:"+97451234567", nationality:"UK", type:"VIP", privileges:["🍳 Breakfast", "💪 Gym"], status:"Active", scans:3, notes:"Birthday", issued:"2026-04-12", emailVerified:true }
+    ];
+    saveGuestsLocal();
+  }
+  return false;
+}
+
+async function syncToSheetDB() {
+  const statusDiv = document.getElementById('sync-status');
+  statusDiv.innerHTML = '🔄 Syncing to SheetDB...';
+  statusDiv.className = 'sync-status';
+  
+  let successCount = 0;
+  
+  for (const guest of guests) {
+    try {
+      // First check if guest exists
+      const checkResponse = await fetch(`${SHEETDB_API}/id/${guest.id}`);
+      const exists = await checkResponse.json();
+      
+      const guestData = {
+        id: guest.id,
+        title: guest.title,
+        first: guest.first,
+        last: guest.last,
+        room: guest.room,
+        checkin: guest.checkin,
+        checkout: guest.checkout,
+        email: guest.email,
+        phone: guest.phone || '',
+        nationality: guest.nationality || '',
+        type: guest.type,
+        privileges: stringifyPrivileges(guest.privileges),
+        status: guest.status,
+        scans: guest.scans || 0,
+        notes: guest.notes || '',
+        issued: guest.issued || new Date().toISOString().split('T')[0],
+        emailVerified: guest.emailVerified || false
+      };
+      
+      let response;
+      if (exists && exists.length > 0) {
+        // Update existing
+        response = await fetch(`${SHEETDB_API}/id/${guest.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(guestData)
+        });
+      } else {
+        // Create new
+        response = await fetch(SHEETDB_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(guestData)
+        });
+      }
+      
+      if (response.ok) {
+        successCount++;
+        console.log(`✅ Synced ${guest.id}: ${guest.first} ${guest.last}`);
+      } else {
+        console.error(`❌ Failed to sync ${guest.id}:`, await response.text());
+      }
+    } catch(e) {
+      console.error(`❌ Error syncing ${guest.id}:`, e);
     }
   }
   
-  const savedScans = localStorage.getItem("shr_scans");
-  if (savedScans) scanHistory = JSON.parse(savedScans);
+  if (successCount === guests.length) {
+    statusDiv.innerHTML = `✅ Synced ${successCount}/${guests.length} guests to SheetDB`;
+    statusDiv.className = 'sync-status';
+    showToast(`✅ All ${successCount} guests synced to cloud!`);
+  } else {
+    statusDiv.innerHTML = `⚠️ Synced ${successCount}/${guests.length} guests`;
+    statusDiv.className = 'sync-status error';
+    showToast(`⚠️ Synced ${successCount}/${guests.length} guests`);
+  }
   
-  const savedLoyalty = localStorage.getItem("shr_loyalty");
-  if (savedLoyalty) loyaltyPoints = new Map(JSON.parse(savedLoyalty));
+  addActivityLog(`Synced ${successCount} guests to SheetDB`);
+  renderStaffTable();
 }
 
 // ============================================
@@ -1084,20 +703,18 @@ function loadGuestDashboard() {
   const nights = g.checkin && g.checkout ? Math.ceil((new Date(g.checkout) - new Date(g.checkin)) / (1000*60*60*24)) : 1;
   const nightsRemaining = g.checkout ? Math.max(0, Math.ceil((new Date(g.checkout) - new Date()) / (1000*60*60*24))) : 0;
   const progressPercent = nights > 0 ? ((nights - nightsRemaining) / nights) * 100 : 0;
-  const points = calculateLoyaltyPoints(g);
-  const tier = getMembershipTier(g.type, nights);
+  const points = (nights * 100) + ((g.scans || 0) * 10);
   
   document.getElementById('guest-name-display').innerHTML = `${g.title} ${g.first} ${g.last}`;
-  document.getElementById('membership-tier').innerHTML = tier.tier;
-  document.getElementById('membership-tier').className = `membership-tier ${tier.color}`;
+  document.getElementById('membership-tier').innerHTML = g.type === 'Diamond Member' ? '💎 DIAMOND' : (g.type === 'VIP' ? '⭐ VIP' : (g.type === 'Privilege Guest' ? '✨ PRIVILEGE' : '🏨 STANDARD'));
   document.getElementById('loyalty-points').innerHTML = `${points} pts`;
-  document.getElementById('guest-points').innerHTML = points;
   document.getElementById('stay-progress').style.width = `${Math.min(100, progressPercent)}%`;
   document.getElementById('stay-dates').innerHTML = `📅 ${g.checkin || '--'} → ${g.checkout || '--'}`;
   document.getElementById('remaining-nights').innerHTML = `🌙 ${nightsRemaining} nights left`;
   document.getElementById('guest-status').innerHTML = g.status;
   document.getElementById('guest-room').innerHTML = g.room;
   document.getElementById('guest-type').innerHTML = g.type;
+  document.getElementById('guest-scans').innerHTML = g.scans || 0;
   
   const privArray = parsePrivileges(g.privileges);
   document.getElementById('guest-privileges').innerHTML = privArray.length ? privArray.map(p => `<div class="privilege-item"><span>✓</span><span>${p}</span></div>`).join('') : '<div class="empty-state">No privileges</div>';
@@ -1107,19 +724,8 @@ function loadGuestDashboard() {
     <div class="detail-row"><span class="detail-label">Check-out</span><span>${g.checkout || '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Email</span><span>${g.email || '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Phone</span><span>${g.phone || '—'}</span></div>
-    <div class="detail-row"><span class="detail-label">Total Scans</span><span>${g.scans || 0}</span></div>
+    <div class="detail-row"><span class="detail-label">Notes</span><span>${g.notes || '—'}</span></div>
   `;
-  
-  const welcomeMessages = {
-    'Diamond Member': '🌟 Welcome to our Diamond Member! Enjoy complimentary champagne and exclusive lounge access.',
-    'VIP': '⭐ Welcome VIP guest! Your personal butler is at your service.',
-    'Privilege Guest': '✨ Welcome Privilege guest! Enjoy enhanced benefits during your stay.',
-    'Standard': '🏨 Welcome! We hope you enjoy your stay at Steigenberger.'
-  };
-  document.getElementById('welcome-message').innerHTML = welcomeMessages[g.type] || welcomeMessages.Standard;
-  
-  const guestScans = scanHistory.filter(s => s.guestId === g.id);
-  document.getElementById('scan-history-list').innerHTML = guestScans.length ? guestScans.slice(0, 10).map(s => `<div class="scan-history-item"><span>📍 ${s.location || 'Hotel'}</span><span>👤 ${s.scannedBy}</span><span>🕐 ${s.time}</span></div>`).join('') : '<div class="empty-state">No scan history yet</div>';
   
   generateQRCode(g);
 }
@@ -1158,36 +764,26 @@ function showPanel(panelId) {
   document.getElementById(`panel-${panelId}`).classList.add('active');
   if (panelId === 'staff-guests') renderStaffTable();
   if (panelId === 'staff-admin') renderStaffUsersTable();
-  if (panelId === 'staff-analytics') renderAnalytics();
 }
 
 function setFilter(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
   renderStaffTable();
 }
 
 function renderStaffTable() {
   const search = document.getElementById('staff-search')?.value.toLowerCase() || '';
-  const sortBy = document.getElementById('sort-by')?.value || 'room';
-  const today = new Date().toISOString().split('T')[0];
   
   let filtered = guests.filter(g => `${g.id} ${g.first} ${g.last} ${g.room} ${g.email}`.toLowerCase().includes(search));
   
   if (currentFilter === 'active') filtered = filtered.filter(g => g.status === 'Active');
   else if (currentFilter === 'revoked') filtered = filtered.filter(g => g.status === 'Revoked');
   else if (currentFilter === 'vip') filtered = filtered.filter(g => g.type === 'VIP' || g.type === 'Diamond Member');
-  else if (currentFilter === 'checkout-today') filtered = filtered.filter(g => g.checkout === today);
-  
-  filtered.sort((a, b) => {
-    if (sortBy === 'room') return a.room.localeCompare(b.room);
-    if (sortBy === 'name') return a.first.localeCompare(b.first);
-    return a.id.localeCompare(b.id);
-  });
   
   const tbody = document.getElementById('staff-tbody');
-  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">No guests</div></td></tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">No guests found</div></td></tr>'; return; }
   
   tbody.innerHTML = filtered.map(g => `
     <tr>
@@ -1199,7 +795,6 @@ function renderStaffTable() {
       <td>
         <div class="action-btns">
           <button class="btn-ghost btn-sm" onclick="toggleGuestStatus('${g.id}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button>
-          <button class="btn-ghost btn-sm" onclick="resendQR('${g.id}')">📤 Resend QR</button>
           <button class="btn-ghost btn-sm" onclick="viewGuestDetails('${g.id}')">View</button>
         </div>
       </td>
@@ -1212,19 +807,11 @@ function toggleGuestStatus(id) {
   if (guest) {
     guest.status = guest.status === 'Active' ? 'Revoked' : 'Active';
     saveGuestsLocal();
+    syncToSheetDB();
     renderStaffTable();
     addActivityLog(`${currentUser?.data?.fullname} changed ${guest.first} ${guest.last} to ${guest.status}`);
     showToast(`Guest ${guest.id} is now ${guest.status}`);
   }
-}
-
-function resendQR(guestId) {
-  const guest = guests.find(g => g.id === guestId);
-  if (guest && guest.email) {
-    shareViaEmail();
-    showToast(`QR link sent to ${guest.email}`);
-    addActivityLog(`QR resent to ${guest.first} ${guest.last}`);
-  } else { showToast('No email on file'); }
 }
 
 function viewGuestDetails(id) {
@@ -1239,9 +826,7 @@ function staffLookupGuest() {
   
   if (guest) {
     guest.scans++;
-    scanHistory.unshift({ guestId: guest.id, time: new Date().toLocaleString(), scannedBy: currentUser?.data?.fullname || 'Staff', location: 'Hotel Reception' });
     saveGuestsLocal();
-    saveScanHistory();
     addActivityLog(`${currentUser?.data?.fullname} scanned ${guest.first} ${guest.last}`);
     
     document.getElementById('staff-scan-result').innerHTML = `
@@ -1251,7 +836,6 @@ function staffLookupGuest() {
         <div class="detail-row"><span>Status</span><span class="badge badge-${guest.status.toLowerCase()}">${guest.status}</span></div>
         <div class="detail-row"><span>Privileges</span><span>${parsePrivileges(guest.privileges).slice(0,3).join(', ')}</span></div>
         <div class="detail-row"><span>Total Scans</span><span>${guest.scans}</span></div>
-        <div style="margin-top:12px;"><button class="btn-primary btn-sm" onclick="shareViaWhatsApp()">📱 Send QR</button></div>
       </div>
     `;
     showToast(`Scanned ${guest.first} ${guest.last}`);
@@ -1265,34 +849,55 @@ async function staffAddGuest() {
   const last = document.getElementById('f-last').value.trim();
   const room = document.getElementById('f-room').value.trim();
   const email = document.getElementById('f-email').value.trim();
+  
   if (!first || !last || !room || !email) { showToast('Required fields missing'); return; }
   
   const newId = generateGuestId();
   const newGuest = {
-    id: newId, title: document.getElementById('f-title').value, first, last, room,
-    checkin: document.getElementById('f-checkin').value, checkout: document.getElementById('f-checkout').value,
-    email, phone: document.getElementById('f-phone').value.trim(), nationality: document.getElementById('f-nationality').value.trim(),
-    type: document.getElementById('f-type').value, privileges: getSelectedPrivileges(),
-    status: 'Active', scans: 0, notes: document.getElementById('f-notes').value.trim(),
-    issued: new Date().toISOString().split('T')[0], emailVerified: false
+    id: newId,
+    title: document.getElementById('f-title').value,
+    first: first,
+    last: last,
+    room: room,
+    checkin: document.getElementById('f-checkin').value,
+    checkout: document.getElementById('f-checkout').value,
+    email: email,
+    phone: document.getElementById('f-phone').value.trim(),
+    nationality: document.getElementById('f-nationality').value.trim(),
+    type: document.getElementById('f-type').value,
+    privileges: getSelectedPrivileges(),
+    status: 'Active',
+    scans: 0,
+    notes: document.getElementById('f-notes').value.trim(),
+    issued: new Date().toISOString().split('T')[0],
+    emailVerified: false
   };
   
   guests.push(newGuest);
   saveGuestsLocal();
-  document.getElementById('f-first').value = ''; document.getElementById('f-last').value = '';
-  document.getElementById('f-room').value = ''; document.getElementById('f-email').value = '';
-  document.getElementById('f-phone').value = ''; document.getElementById('f-nationality').value = '';
+  
+  // Clear form
+  document.getElementById('f-first').value = '';
+  document.getElementById('f-last').value = '';
+  document.getElementById('f-room').value = '';
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-nationality').value = '';
   document.getElementById('f-notes').value = '';
   document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
+  
   renderStaffTable();
   addActivityLog(`${currentUser?.data?.fullname} added ${first} ${last} (${newId})`);
-  showToast(`Guest ${first} ${last} added! ID: ${newId}`);
+  showToast(`✅ Guest ${first} ${last} added!`);
+  
+  // Auto-sync to SheetDB
+  await syncToSheetDB();
 }
 
 function exportToCSV() {
   let csv = "ID,Name,Room,Type,Status,Scans,Email,Check-in,Check-out\n";
   guests.forEach(g => {
-    csv += `${g.id},${g.title} ${g.first} ${g.last},${g.room},${g.type},${g.status},${g.scans},${g.email},${g.checkin},${g.checkout}\n`;
+    csv += `"${g.id}","${g.title} ${g.first} ${g.last}","${g.room}","${g.type}","${g.status}",${g.scans || 0},"${g.email}","${g.checkin || ''}","${g.checkout || ''}"\n`;
   });
   const blob = new Blob([csv], { type: 'text/csv' });
   const link = document.createElement('a');
@@ -1302,43 +907,20 @@ function exportToCSV() {
   showToast('CSV exported');
 }
 
-function printGuestList() { window.print(); }
-
-// ============================================
-// ANALYTICS
-// ============================================
-function renderAnalytics() {
-  const total = guests.length;
-  const active = guests.filter(g => g.status === 'Active').length;
-  const totalScans = guests.reduce((sum, g) => sum + (g.scans || 0), 0);
-  const vip = guests.filter(g => g.type === 'VIP' || g.type === 'Diamond Member').length;
-  document.getElementById('total-guests').innerHTML = total;
-  document.getElementById('active-guests').innerHTML = active;
-  document.getElementById('total-scans').innerHTML = totalScans;
-  document.getElementById('vip-guests').innerHTML = vip;
-  
-  const typeCounts = { 'Standard': 0, 'Privilege Guest': 0, 'VIP': 0, 'Diamond Member': 0 };
-  guests.forEach(g => { if (typeCounts[g.type] !== undefined) typeCounts[g.type]++; });
-  
-  const ctx1 = document.getElementById('activity-chart')?.getContext('2d');
-  if (ctx1) {
-    if (activityChart) activityChart.destroy();
-    activityChart = new Chart(ctx1, { type: 'line', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Scans', data: [12, 19, 15, 17, 24, 30, 20], borderColor: '#c9a84c', tension: 0.4 }] } });
-  }
-  
-  const ctx2 = document.getElementById('type-chart')?.getContext('2d');
-  if (ctx2) {
-    if (typeChart) typeChart.destroy();
-    typeChart = new Chart(ctx2, { type: 'doughnut', data: { labels: Object.keys(typeCounts), datasets: [{ data: Object.values(typeCounts), backgroundColor: ['#c9a84c', '#e0a800', '#ffd700', '#b9f2ff'] }] } });
-  }
-}
-
 // ============================================
 // STAFF ADMIN
 // ============================================
 function renderStaffUsersTable() {
   const tbody = document.getElementById('staff-users-tbody');
-  tbody.innerHTML = staffUsers.map(u => `<tr><td>${u.username}</td><td><span class="badge">${u.role}</span></td><td><button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')">Reset</button></td></tr>`).join('');
+  tbody.innerHTML = staffUsers.map(u => `
+    <tr>
+      <td>${u.username}</td>
+      <td><span class="badge badge-active">${u.role}</span></td>
+      <td><button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')">Reset</button>
+         ${u.username !== 'admin' ? `<button class="btn-ghost btn-sm" onclick="deleteStaffUser('${u.id}')">Delete</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
 }
 
 function showAddStaffModal() { document.getElementById('addstaff-modal').classList.add('open'); }
@@ -1359,7 +941,13 @@ function addStaffMember() {
 
 function resetStaffPassword(id) {
   const user = staffUsers.find(u => u.id === id);
-  if (user) { const newPass = prompt('New password:'); if (newPass && newPass.length >= 4) { user.password = newPass; showToast('Password reset'); renderStaffUsersTable(); } }
+  if (user) { const newPass = prompt('New password (min 4 chars):'); if (newPass && newPass.length >= 4) { user.password = newPass; showToast('Password reset'); renderStaffUsersTable(); } }
+}
+
+function deleteStaffUser(id) {
+  staffUsers = staffUsers.filter(u => u.id !== id);
+  renderStaffUsersTable();
+  showToast('Staff deleted');
 }
 
 // ============================================
@@ -1377,6 +965,8 @@ function guestLogin() {
   const id = document.getElementById('guest-id').value.trim().toUpperCase();
   const last = document.getElementById('guest-lastname').value.trim();
   const guest = guests.find(g => g.id === id && g.last.toLowerCase() === last.toLowerCase());
+  const errorDiv = document.getElementById('login-error');
+  
   if (guest && guest.status === 'Active') {
     currentUser = { type: 'guest', data: guest };
     currentGuest = guest;
@@ -1388,13 +978,19 @@ function guestLogin() {
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
     loadGuestDashboard();
     showToast(`Welcome ${guest.first}!`);
-  } else { document.getElementById('login-error').style.display = 'block'; setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000); }
+  } else {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = 'Invalid Guest ID or Last Name';
+    setTimeout(() => errorDiv.style.display = 'none', 3000);
+  }
 }
 
 function staffLogin() {
   const username = document.getElementById('staff-username').value.trim();
   const password = document.getElementById('staff-password').value;
   const staff = staffUsers.find(u => u.username === username && u.password === password && u.status === 'active');
+  const errorDiv = document.getElementById('login-error');
+  
   if (staff) {
     currentUser = { type: 'staff', data: staff };
     document.getElementById('login-page').style.display = 'none';
@@ -1403,30 +999,46 @@ function staffLogin() {
     document.getElementById('user-role').innerHTML = staff.role === 'admin' ? 'Admin' : 'Staff';
     document.getElementById('user-avatar').innerHTML = staff.fullname.charAt(0);
     document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'block');
-    renderStaffTable(); renderStaffUsersTable(); renderAnalytics();
+    renderStaffTable();
+    renderStaffUsersTable();
     addActivityLog(`${staff.fullname} logged in`);
     showToast(`Welcome ${staff.fullname}!`);
-  } else { document.getElementById('login-error').style.display = 'block'; setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000); }
+  } else {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = 'Invalid username or password';
+    setTimeout(() => errorDiv.style.display = 'none', 3000);
+  }
 }
 
 function logout() {
-  currentUser = null; currentGuest = null;
+  currentUser = null;
+  currentGuest = null;
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('main-app').classList.remove('active');
   switchLoginTab('guest');
 }
 
 // ============================================
-// INIT
+// INITIALIZATION
 // ============================================
 async function init() {
-  await loadRemoteGuests();
+  console.log("🚀 Initializing system...");
+  
+  // Test connection first
+  await testSheetDBConnection();
+  
+  // Load data
+  await loadFromSheetDB();
+  
+  // Set default dates
   const today = new Date().toISOString().split('T')[0];
   const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
   if (document.getElementById('f-checkin')) document.getElementById('f-checkin').value = today;
   if (document.getElementById('f-checkout')) document.getElementById('f-checkout').value = nextWeek;
+  
   addActivityLog('System initialized');
   
+  // Check for QR scan
   const urlParams = new URLSearchParams(window.location.search);
   const guestId = urlParams.get('guest');
   if (guestId) {
@@ -1443,9 +1055,12 @@ async function init() {
       loadGuestDashboard();
       guest.scans++;
       saveGuestsLocal();
-      addActivityLog(`QR scan access: ${guest.first} ${guest.last}`);
+      addActivityLog(`QR scan: ${guest.first} ${guest.last}`);
     }
   }
+  
+  console.log("✅ System ready!");
+  showToast("System ready! Database sync enabled.");
 }
 
 init();
