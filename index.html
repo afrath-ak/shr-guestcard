@@ -353,6 +353,13 @@
     width: 100%;
     max-width: 500px;
   }
+  
+  /* Session indicator */
+  .session-info {
+    font-size: 10px;
+    color: #888;
+    margin-top: 4px;
+  }
 </style>
 </head>
 <body>
@@ -388,7 +395,11 @@
     <div class="logo"><div class="logo-badge">SHR</div><div>Steigenberger Doha</div></div>
     <div class="user-info">
       <div class="user-avatar" id="user-avatar">G</div>
-      <div><div class="user-name" id="user-name">Guest</div><div class="user-role" id="user-role">Guest</div></div>
+      <div>
+        <div class="user-name" id="user-name">Guest</div>
+        <div class="user-role" id="user-role">Guest</div>
+        <div class="session-info" id="session-info">● Session active</div>
+      </div>
       <button class="logout-btn" onclick="logout()">Exit</button>
     </div>
   </div>
@@ -541,7 +552,7 @@
 
 <script>
 // ============================================
-// YOUR SHEETDB API - UPDATE THIS WITH YOUR KEY
+// SHEETDB API
 // ============================================
 const SHEETDB_URL = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
 
@@ -558,6 +569,102 @@ let currentGuest = null;
 let currentFilter = "all";
 let scanHistory = [];
 let html5Scanner = null;
+
+// ============================================
+// SESSION MANAGEMENT - FIXED!
+// ============================================
+
+// Save session to localStorage
+function saveSession() {
+  if (currentUser) {
+    const sessionData = {
+      type: currentUser.type,
+      data: currentUser.type === 'guest' ? { ...currentUser.data } : { ...currentUser.data },
+      timestamp: Date.now()
+    };
+    localStorage.setItem('steigenberger_session', JSON.stringify(sessionData));
+    console.log("✅ Session saved:", sessionData.type);
+  } else {
+    localStorage.removeItem('steigenberger_session');
+  }
+}
+
+// Load session from localStorage
+function loadSession() {
+  const saved = localStorage.getItem('steigenberger_session');
+  if (saved) {
+    try {
+      const session = JSON.parse(saved);
+      // Check if session is not too old (24 hours)
+      if (Date.now() - session.timestamp < 24 * 60 * 60 * 1000) {
+        console.log("🟡 Found saved session:", session.type);
+        return session;
+      } else {
+        console.log("🟡 Session expired");
+        localStorage.removeItem('steigenberger_session');
+      }
+    } catch(e) {
+      console.error("Session load error:", e);
+    }
+  }
+  return null;
+}
+
+// Restore session after page refresh
+async function restoreSession() {
+  const session = loadSession();
+  if (!session) return false;
+  
+  if (session.type === 'guest') {
+    const guest = guests.find(g => g.id === session.data.id);
+    if (guest && guest.status === 'Active') {
+      currentUser = { type: 'guest', data: guest };
+      currentGuest = guest;
+      applyUserSession();
+      showToast(`🔐 Welcome back, ${guest.first}! (Session restored)`);
+      addLog(`Session restored for guest: ${guest.first} ${guest.last}`);
+      return true;
+    }
+  } else if (session.type === 'staff') {
+    const staff = staffUsers.find(s => s.id === session.data.id && s.username === session.data.username);
+    if (staff) {
+      currentUser = { type: 'staff', data: staff };
+      applyUserSession();
+      showToast(`🔐 Welcome back, ${staff.fullname}! (Session restored)`);
+      addLog(`Session restored for staff: ${staff.fullname}`);
+      return true;
+    }
+  }
+  
+  // Session invalid, clear it
+  localStorage.removeItem('steigenberger_session');
+  return false;
+}
+
+// Apply user session to UI
+function applyUserSession() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('main-app').classList.add('active');
+  
+  if (currentUser.type === 'guest') {
+    const guest = currentUser.data;
+    document.getElementById('user-name').innerHTML = `${guest.first} ${guest.last}`;
+    document.getElementById('user-role').innerHTML = guest.type;
+    document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
+    document.getElementById('session-info').innerHTML = '● Session active';
+    document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
+    loadGuestDashboard();
+  } else if (currentUser.type === 'staff') {
+    const staff = currentUser.data;
+    document.getElementById('user-name').innerHTML = staff.fullname;
+    document.getElementById('user-role').innerHTML = staff.role === 'admin' ? 'Admin' : 'Staff';
+    document.getElementById('user-avatar').innerHTML = staff.fullname.charAt(0);
+    document.getElementById('session-info').innerHTML = '● Staff session active';
+    document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'block');
+    renderTable();
+    renderStaffUsers();
+  }
+}
 
 // ============================================
 // HELPER FUNCTIONS
@@ -601,20 +708,14 @@ function saveLocal() {
 }
 
 // ============================================
-// GOOGLE SHEETS SYNC - FIXED VERSION
+// GOOGLE SHEETS SYNC
 // ============================================
 async function loadFromSheetDB() {
   showToast("🔄 Loading from Google Sheets...");
-  console.log("Loading from:", SHEETDB_URL);
-  
   try {
     const response = await fetch(SHEETDB_URL);
-    console.log("Response status:", response.status);
-    
     if (response.ok) {
       const data = await response.json();
-      console.log("Data received:", data);
-      
       if (data && Array.isArray(data) && data.length > 0) {
         guests = data.map(row => ({
           id: row.id || '',
@@ -636,28 +737,19 @@ async function loadFromSheetDB() {
           emailVerified: row.emailVerified === 'true'
         }));
         saveLocal();
-        showToast(`✅ Loaded ${guests.length} guests from Google Sheets`);
-        console.log("Guests loaded:", guests.length);
+        showToast(`✅ Loaded ${guests.length} guests`);
         return true;
-      } else {
-        console.log("No data in SheetDB, using defaults");
       }
-    } else {
-      console.error("SheetDB error:", response.status);
-      showToast("⚠️ Cannot connect to Google Sheets");
     }
   } catch(e) {
     console.error("Load error:", e);
-    showToast("⚠️ Network error loading from Google Sheets");
   }
   
-  // Fallback to localStorage
   const local = localStorage.getItem('steigenberger_guests');
   if (local) {
     guests = JSON.parse(local);
-    showToast(`📦 Loaded ${guests.length} guests from local storage`);
+    showToast(`📦 Loaded ${guests.length} guests locally`);
   } else {
-    // Default data
     guests = [
       { id: "SHR-1001", title: "Ms.", first: "Hodan", last: "Ahmed", room: "805", checkin: "2026-04-10", checkout: "2026-04-20", email: "hodan@example.com", phone: "+97450001234", type: "Diamond Member", privileges: ["🍳 Breakfast", "🏊 Pool", "💪 Gym"], status: "Active", scans: 5, notes: "VIP guest" },
       { id: "SHR-1002", title: "Mr.", first: "John", last: "Smith", room: "1205", checkin: "2026-04-12", checkout: "2026-04-18", email: "john@example.com", type: "VIP", privileges: ["🍳 Breakfast", "💪 Gym"], status: "Active", scans: 3, notes: "Birthday" }
@@ -674,26 +766,15 @@ async function syncToSheetDB() {
   for (const guest of guests) {
     try {
       const guestData = {
-        id: guest.id,
-        title: guest.title,
-        first: guest.first,
-        last: guest.last,
-        room: guest.room,
-        checkin: guest.checkin,
-        checkout: guest.checkout,
-        email: guest.email,
-        phone: guest.phone || '',
-        nationality: guest.nationality || '',
-        type: guest.type,
-        privileges: stringifyPrivileges(guest.privileges),
-        status: guest.status,
-        scans: guest.scans || 0,
-        notes: guest.notes || '',
+        id: guest.id, title: guest.title, first: guest.first, last: guest.last,
+        room: guest.room, checkin: guest.checkin, checkout: guest.checkout,
+        email: guest.email, phone: guest.phone || '', nationality: guest.nationality || '',
+        type: guest.type, privileges: stringifyPrivileges(guest.privileges),
+        status: guest.status, scans: guest.scans || 0, notes: guest.notes || '',
         issued: guest.issued || new Date().toISOString().split('T')[0],
         emailVerified: guest.emailVerified || false
       };
       
-      // Check if exists
       const checkRes = await fetch(`${SHEETDB_URL}/id/${guest.id}`);
       const exists = await checkRes.json();
       
@@ -713,39 +794,22 @@ async function syncToSheetDB() {
       }
       
       if (response.ok) successCount++;
-    } catch(e) {
-      console.error("Sync error for", guest.id, e);
-    }
+    } catch(e) { console.error("Sync error:", e); }
   }
   
-  if (successCount > 0) {
-    showToast(`✅ Synced ${successCount} guests to Google Sheets`);
-    addLog(`Synced ${successCount} guests to Google Sheets`);
-  } else {
-    showToast("⚠️ Sync failed - check your SheetDB URL");
-  }
+  if (successCount > 0) showToast(`✅ Synced ${successCount} guests`);
+  else showToast("⚠️ Sync failed");
 }
 
 async function addGuestToSheetDB(guest) {
   try {
     const guestData = {
-      id: guest.id,
-      title: guest.title,
-      first: guest.first,
-      last: guest.last,
-      room: guest.room,
-      checkin: guest.checkin,
-      checkout: guest.checkout,
-      email: guest.email,
-      phone: guest.phone || '',
-      nationality: guest.nationality || '',
-      type: guest.type,
-      privileges: stringifyPrivileges(guest.privileges),
-      status: guest.status,
-      scans: 0,
-      notes: guest.notes || '',
-      issued: new Date().toISOString().split('T')[0],
-      emailVerified: false
+      id: guest.id, title: guest.title, first: guest.first, last: guest.last,
+      room: guest.room, checkin: guest.checkin, checkout: guest.checkout,
+      email: guest.email, phone: guest.phone || '', nationality: guest.nationality || '',
+      type: guest.type, privileges: stringifyPrivileges(guest.privileges),
+      status: guest.status, scans: 0, notes: guest.notes || '',
+      issued: new Date().toISOString().split('T')[0], emailVerified: false
     };
     
     const response = await fetch(SHEETDB_URL, {
@@ -754,17 +818,9 @@ async function addGuestToSheetDB(guest) {
       body: JSON.stringify(guestData)
     });
     
-    if (response.ok) {
-      showToast(`✅ Guest ${guest.id} saved to Google Sheets`);
-      return true;
-    } else {
-      console.error("SheetDB POST error:", await response.text());
-      showToast("⚠️ Cloud save failed, saved locally");
-      return false;
-    }
+    return response.ok;
   } catch(e) {
     console.error("Sync error:", e);
-    showToast("⚠️ Network error - saved locally");
     return false;
   }
 }
@@ -898,7 +954,6 @@ async function addGuest() {
   saveLocal();
   await addGuestToSheetDB(newGuest);
   
-  // Clear form
   document.getElementById('f-first').value = '';
   document.getElementById('f-last').value = '';
   document.getElementById('f-room').value = '';
@@ -928,10 +983,9 @@ async function startScanner() {
       onScanSuccess,
       onScanError
     );
-    showToast("✅ Camera ready - scan QR code");
+    showToast("✅ Camera ready");
   } catch(e) {
     showToast("❌ Camera access denied");
-    console.error(e);
   }
 }
 
@@ -944,9 +998,7 @@ function stopScanner() {
 }
 
 async function onScanSuccess(decodedText) {
-  console.log("Scanned:", decodedText);
   let guestId = null;
-  
   if (decodedText.includes('guest=')) {
     const match = decodedText.match(/guest=([^&]+)/);
     if (match) guestId = match[1];
@@ -976,8 +1028,6 @@ async function onScanSuccess(decodedText) {
       document.getElementById('scan-result').innerHTML = `<div class="card" style="background:#fde8e8;">❌ Guest not found</div>`;
       showToast("Guest not found");
     }
-  } else {
-    showToast("Invalid QR code");
   }
 }
 
@@ -1006,7 +1056,6 @@ function manualLookup() {
     showToast(`Found: ${guest.first} ${guest.last}`);
   } else {
     document.getElementById('scan-result').innerHTML = `<div class="card">❌ Guest not found</div>`;
-    showToast("Guest not found");
   }
 }
 
@@ -1075,14 +1124,10 @@ function guestLogin() {
   if (guest && guest.status === 'Active') {
     currentUser = { type: 'guest', data: guest };
     currentGuest = guest;
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('main-app').classList.add('active');
-    document.getElementById('user-name').innerHTML = `${guest.first} ${guest.last}`;
-    document.getElementById('user-role').innerHTML = guest.type;
-    document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
-    document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
-    loadGuestDashboard();
+    saveSession(); // Save session
+    applyUserSession();
     showToast(`Welcome ${guest.first}!`);
+    addLog(`${guest.first} ${guest.last} logged in`);
   } else {
     const err = document.getElementById('login-error');
     err.textContent = 'Invalid ID or Last Name';
@@ -1098,14 +1143,8 @@ function staffLogin() {
   
   if (staff) {
     currentUser = { type: 'staff', data: staff };
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('main-app').classList.add('active');
-    document.getElementById('user-name').innerHTML = staff.fullname;
-    document.getElementById('user-role').innerHTML = staff.role === 'admin' ? 'Admin' : 'Staff';
-    document.getElementById('user-avatar').innerHTML = staff.fullname.charAt(0);
-    document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'block');
-    renderTable();
-    renderStaffUsers();
+    saveSession(); // Save session
+    applyUserSession();
     addLog(`${staff.fullname} logged in`);
     showToast(`Welcome ${staff.fullname}!`);
   } else {
@@ -1120,9 +1159,15 @@ function logout() {
   stopScanner();
   currentUser = null;
   currentGuest = null;
+  localStorage.removeItem('steigenberger_session'); // Clear session
   document.getElementById('login-page').style.display = 'flex';
   document.getElementById('main-app').classList.remove('active');
+  document.getElementById('guest-id').value = '';
+  document.getElementById('guest-lastname').value = '';
+  document.getElementById('staff-username').value = '';
+  document.getElementById('staff-password').value = '';
   switchTab('guest');
+  showToast("Logged out successfully");
 }
 
 function showPanel(panelId) {
@@ -1136,7 +1181,7 @@ function showPanel(panelId) {
 }
 
 // ============================================
-// INIT
+// INITIALIZATION
 // ============================================
 async function init() {
   await loadFromSheetDB();
@@ -1146,29 +1191,29 @@ async function init() {
   if (document.getElementById('f-checkin')) document.getElementById('f-checkin').value = today;
   if (document.getElementById('f-checkout')) document.getElementById('f-checkout').value = nextWeek;
   
-  // Check URL for QR scan
-  const params = new URLSearchParams(window.location.search);
-  const guestId = params.get('guest');
-  if (guestId) {
-    const guest = guests.find(g => g.id === guestId);
-    if (guest && guest.status === 'Active') {
-      currentUser = { type: 'guest', data: guest };
-      currentGuest = guest;
-      document.getElementById('login-page').style.display = 'none';
-      document.getElementById('main-app').classList.add('active');
-      document.getElementById('user-name').innerHTML = `${guest.first} ${guest.last}`;
-      document.getElementById('user-role').innerHTML = guest.type;
-      document.getElementById('user-avatar').innerHTML = guest.first.charAt(0);
-      document.querySelectorAll('.staff-only').forEach(btn => btn.style.display = 'none');
-      loadGuestDashboard();
-      guest.scans++;
-      saveLocal();
-      await syncToSheetDB();
-      showToast(`Welcome ${guest.first}!`);
+  // Try to restore previous session FIRST
+  const sessionRestored = await restoreSession();
+  
+  // If no session restored, check URL for QR scan
+  if (!sessionRestored) {
+    const params = new URLSearchParams(window.location.search);
+    const guestId = params.get('guest');
+    if (guestId) {
+      const guest = guests.find(g => g.id === guestId);
+      if (guest && guest.status === 'Active') {
+        currentUser = { type: 'guest', data: guest };
+        currentGuest = guest;
+        saveSession(); // Save session from QR scan
+        applyUserSession();
+        guest.scans++;
+        saveLocal();
+        await syncToSheetDB();
+        showToast(`Welcome ${guest.first}!`);
+      }
     }
   }
   
-  console.log("✅ System ready! SheetDB URL:", SHEETDB_URL);
+  console.log("✅ System ready! Session persistence enabled");
 }
 
 init();
