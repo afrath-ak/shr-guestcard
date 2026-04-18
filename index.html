@@ -138,18 +138,6 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 .toast.err  { background: #7f1d1d; color: #fca5a5; border-color: #fca5a5; }
 .toast.ok   { background: #14532d; color: #bbf7d0; border-color: #86efac; }
 
-/* ── SYNC STATUS — Inline in sidebar header, not floating ── */
-.sync-status-inline {
-  display: none; /* managed by JS */
-  align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 20px;
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 0.05em;
-  background: rgba(201,168,76,0.1); color: var(--gold);
-  border: 1px solid rgba(201,168,76,0.2);
-  margin-top: 8px;
-}
-.sync-status-inline.visible { display: flex; }
 /* Hide old floating sync status permanently */
 .sync-status { display: none !important; }
 
@@ -942,44 +930,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .analytics-mini-val { font-size: 20px; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; }
 .analytics-mini-label { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
-/* Extra button variants */
-.btn-danger {
-  background: var(--danger); color: #fff; border: none;
-  border-radius: 8px; padding: 8px 16px; font-size: 13px;
-  font-family: inherit; font-weight: 600; cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-danger:hover { background: #991b1b; }
-.btn-danger.btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn-teal {
-  background: var(--teal); color: #fff; border: none;
-  border-radius: 8px; padding: 8px 16px; font-size: 13px;
-  font-family: inherit; font-weight: 600; cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-teal:hover { background: #0a6665; }
-.btn-teal.btn-sm { padding: 6px 12px; font-size: 12px; }
-
-/* Sidebar nav collapse animation */
-#sidebar-nav-collapsible {
-  overflow: hidden;
-  transition: max-height 0.35s ease, opacity 0.25s ease;
-  max-height: 600px; opacity: 1;
-}
-#sidebar-nav-collapsible.collapsed { max-height: 0; opacity: 0; }
-
-/* Staff badge */
-.badge-staff { background: var(--teal-light); color: var(--teal); }
-.badge-admin { background: var(--gold-pale); color: var(--gold-dark); }
-
-/* Guest ID validation states */
-#guest-id-validation.valid   { color: var(--success); }
-#guest-id-validation.invalid { color: var(--danger); }
-
-@media (max-width: 600px) {
-  #admin-quick-stats { grid-template-columns: repeat(2,1fr); }
-}
-
 </style>
 </head>
 <body>
@@ -1307,57 +1257,54 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <button class="mobile-nav-btn active" onclick="showPanel('guest-dashboard')" aria-label="My Card">My Card</button>
   </nav>
   <nav class="mobile-nav staff-only" id="mobile-nav-staff" aria-label="Staff navigation" style="display:none;">
-    <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-analytics')">Analytics</button>
-    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests')">Guests</button>
-    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add')">Add Guest</button>
-    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner')">Scanner</button>
-    <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-admin')">Team Admin</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-analytics', event)">Analytics</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests', event)">Guests</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add', event)">Add Guest</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner', event)">Scanner</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-admin', event)">Team Admin</button>
   </nav>
 
   <div class="app-body">
 
-    <!-- LEFT SIDEBAR (staff only, desktop) -->
+    <!-- ── LEFT SIDEBAR (staff only, desktop) ── -->
     <aside class="sidebar staff-only" id="main-sidebar" style="display:none;" aria-label="Staff navigation">
+      <div class="sidebar-section-label">Navigation</div>
+      <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
 
-      <!-- Nav toggle button -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <div class="sidebar-section-label" style="margin-bottom:0;">Navigation</div>
-        <button id="nav-toggle-btn" onclick="toggleSidebarNav()"
-          style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold);
-                 border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;
-                 letter-spacing:0.06em;font-family:inherit;transition:all 0.2s;"
-          aria-label="Toggle navigation" aria-expanded="true">Hide</button>
-      </div>
-
-      <nav class="sidebar-nav" id="sidebar-nav-collapsible" role="navigation" aria-label="Main navigation">
-
+        <!-- Analytics FIRST as requested -->
         <button class="sidebar-btn sidebar-analytics admin-only" id="nav-analytics"
           onclick="showPanel('staff-analytics')" aria-label="Analytics dashboard">
-          <span class="sidebar-icon">📊</span>Analytics
+          <span class="sidebar-icon">📊</span>
+          Analytics
         </button>
 
         <button class="sidebar-btn" id="nav-guests"
           onclick="showPanel('staff-guests')" aria-label="Guest management">
-          <span class="sidebar-icon">👥</span>Guests
+          <span class="sidebar-icon">👥</span>
+          Guests
         </button>
 
         <button class="sidebar-btn" id="nav-add"
           onclick="showPanel('staff-add')" aria-label="Add new guest">
-          <span class="sidebar-icon">➕</span>Add Guest
+          <span class="sidebar-icon">➕</span>
+          Add Guest
         </button>
 
         <button class="sidebar-btn" id="nav-scanner"
           onclick="showPanel('staff-scanner')" aria-label="QR code scanner">
-          <span class="sidebar-icon">📷</span>Scanner
+          <span class="sidebar-icon">📷</span>
+          Scanner
         </button>
 
-        <button class="sidebar-btn admin-only" id="nav-admin"
+        <button class="sidebar-btn" id="nav-admin"
           onclick="showPanel('staff-admin')" aria-label="Team administration">
-          <span class="sidebar-icon">🛡️</span>Team Admin
+          <span class="sidebar-icon">🛡️</span>
+          Team Admin
         </button>
 
       </nav>
 
+      <!-- Sync status — tucked in sidebar footer, not floating over content -->
       <div class="sidebar-footer">
         <div class="sync-status-inline" id="sync-status-inline" role="status" aria-live="polite">
           <span id="sync-dot">●</span>
@@ -1503,23 +1450,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
           <div class="card">
             <div class="form-section-title">Personal Information</div>
-            <div class="card" style="background:var(--gold-pale);border:1.5px solid rgba(201,168,76,0.3);padding:14px 18px;margin-bottom:16px;border-radius:12px;">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                <span style="font-size:18px;">🪪</span>
-                <div>
-                  <div style="font-weight:700;font-size:13px;color:var(--gold-dark);">Guest ID Assignment</div>
-                  <div style="font-size:12px;color:var(--muted);">Auto-generated or enter a custom ID (must be unique)</div>
-                </div>
-                <button type="button" onclick="autoGenerateGuestId()" style="margin-left:auto;background:var(--dark);color:var(--gold);border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Auto-Generate</button>
-              </div>
-              <div class="field" style="margin-bottom:0;">
-                <label for="f-guest-id">Guest ID <span aria-label="required" style="color:var(--danger);">*</span></label>
-                <input id="f-guest-id" type="text" placeholder="e.g. SHR-1050" aria-required="true"
-                  style="font-weight:700;letter-spacing:0.05em;font-size:15px;"
-                  oninput="validateGuestIdField()">
-                <div id="guest-id-validation" style="font-size:11px;margin-top:5px;font-weight:600;"></div>
-              </div>
-            </div>
             <div class="form-grid">
               <div class="field">
                 <label for="f-title">Title</label>
@@ -1623,196 +1553,41 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
         </section>
 
-        <!-- TEAM ADMIN — admin only -->
+        <!-- ── TEAM ADMIN ── -->
         <section class="panel" id="panel-staff-admin" aria-label="Team Administration">
           <div class="page-header">
-            <div class="page-title">⚙️ Team Admin</div>
-            <div class="page-subtitle">Full administrative control — manage staff, guests, and system settings</div>
+            <div class="page-title">Team Admin</div>
+            <div class="page-subtitle">Manage staff members and review verifications</div>
           </div>
-
-          <!-- Admin Quick Stats -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" id="admin-quick-stats">
-            <div class="kpi-card kpi-gold" style="cursor:default;">
-              <div class="kpi-val" id="admin-stat-guests">—</div>
-              <div class="kpi-label">Total Guests</div>
+          <div class="card">
+            <div class="staff-table-head">
+              <div class="card-title" style="margin-bottom:0;">Team Members</div>
+              <button class="btn-primary btn-sm" onclick="showAddStaff()" aria-label="Add new team member">+ Add Member</button>
             </div>
-            <div class="kpi-card kpi-teal" style="cursor:default;">
-              <div class="kpi-val" id="admin-stat-active">—</div>
-              <div class="kpi-label">Active Cards</div>
-            </div>
-            <div class="kpi-card" style="cursor:default;">
-              <div class="kpi-val" id="admin-stat-staff">—</div>
-              <div class="kpi-label">Staff Members</div>
-            </div>
-            <div class="kpi-card kpi-purple" style="cursor:default;">
-              <div class="kpi-val" id="admin-stat-pending">—</div>
-              <div class="kpi-label">Pending Verif.</div>
-            </div>
-          </div>
-
-          <!-- Admin Tab Nav -->
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
-            <button class="filter-btn active" id="admin-tab-team" onclick="switchAdminTab('team',event)">👥 Team Members</button>
-            <button class="filter-btn" id="admin-tab-guests" onclick="switchAdminTab('guests',event)">🧳 Manage Guests</button>
-            <button class="filter-btn" id="admin-tab-verify" onclick="switchAdminTab('verify',event)">🪪 Verifications</button>
-            <button class="filter-btn" id="admin-tab-bulk" onclick="switchAdminTab('bulk',event)">⚡ Bulk Actions</button>
-            <button class="filter-btn" id="admin-tab-log" onclick="switchAdminTab('log',event)">📋 Activity Log</button>
-            <button class="filter-btn" id="admin-tab-settings" onclick="switchAdminTab('settings',event)">🔧 Settings</button>
-          </div>
-
-          <!-- TAB: Team Members -->
-          <div id="admin-panel-team">
-            <div class="card">
-              <div class="staff-table-head">
-                <div class="card-title" style="margin-bottom:0;">Team Members</div>
-                <button class="btn-primary btn-sm" onclick="showAddStaff()" aria-label="Add new team member">+ Add Member</button>
-              </div>
-              <div class="search-row" style="margin-top:12px;">
-                <input type="search" id="staff-member-search" placeholder="Search staff by name or username…" oninput="renderStaffUsers()" aria-label="Search staff">
-              </div>
-              <div class="table-responsive" style="margin-top:10px;">
-                <table class="data" aria-label="Staff users list">
-                  <thead>
-                    <tr>
-                      <th>Username</th>
-                      <th>Full Name</th>
-                      <th>Role</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="staff-users-tbody"></tbody>
-                </table>
-              </div>
+            <div class="table-responsive" style="margin-top:14px;">
+              <table class="data" aria-label="Staff users list">
+                <thead>
+                  <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="staff-users-tbody"></tbody>
+              </table>
             </div>
           </div>
-
-          <!-- TAB: Manage Guests (admin-level controls) -->
-          <div id="admin-panel-guests" style="display:none;">
-            <div class="card">
-              <div class="staff-table-head">
-                <div class="card-title" style="margin-bottom:0;">All Guests — Admin View</div>
-                <div style="display:flex;gap:8px;">
-                  <button class="btn-primary btn-sm" onclick="showPanel('staff-add')">+ Add Guest</button>
-                  <button class="btn-ghost btn-sm" onclick="exportGuestsCsv()">⬇ Export CSV</button>
-                </div>
-              </div>
-              <div class="search-row" style="margin-top:12px;">
-                <input type="search" id="admin-guest-search" placeholder="Search by name, ID, room, email…" oninput="renderAdminGuestTable()" aria-label="Search guests">
-                <select id="admin-guest-filter" onchange="renderAdminGuestTable()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--cream);font-size:13px;font-family:inherit;color:var(--text);">
-                  <option value="all">All Statuses</option>
-                  <option value="active">Active</option>
-                  <option value="revoked">Revoked</option>
-                  <option value="verified">Verified</option>
-                  <option value="unverified">Unverified</option>
-                </select>
-              </div>
-              <div class="table-responsive" style="margin-top:10px;">
-                <table class="data" aria-label="Admin guest list">
-                  <thead>
-                    <tr>
-                      <th>ID</th><th>Guest</th><th>Room</th><th>Tier</th>
-                      <th>Status</th><th>Identity</th><th>Scans</th><th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="admin-guest-tbody"></tbody>
-                </table>
-              </div>
+          <div class="card">
+            <div class="card-title">Pending Verification Requests</div>
+            <div id="verification-requests" role="list">
+              <div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div>
             </div>
           </div>
-
-          <!-- TAB: Verifications -->
-          <div id="admin-panel-verify" style="display:none;">
-            <div class="card">
-              <div class="card-title">Pending Verification Requests</div>
-              <div id="verification-requests" role="list">
-                <div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div>
-              </div>
-            </div>
-            <div class="card" style="margin-top:14px;">
-              <div class="card-title">Verified Guests</div>
-              <div id="admin-verified-list"></div>
-            </div>
+          <div class="card">
+            <div class="card-title">Activity Log</div>
+            <div id="activity-log" role="log" aria-live="polite" aria-label="Staff activity log"></div>
           </div>
-
-          <!-- TAB: Bulk Actions -->
-          <div id="admin-panel-bulk" style="display:none;">
-            <div class="card">
-              <div class="card-title">⚡ Bulk Actions</div>
-              <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">Apply actions to all guests matching a filter. Use with caution — these affect all matching records.</p>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;font-size:13px;margin-bottom:6px;">🔄 Sync All Guests</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Push all local guest data to the cloud database.</div>
-                  <button class="btn-primary btn-sm" onclick="forceFullSync()">Run Full Sync</button>
-                </div>
-                <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;font-size:13px;margin-bottom:6px;">📡 Test Connection</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Verify the database connection is working properly.</div>
-                  <button class="btn-ghost btn-sm" onclick="testSheetDBConnection()">Test Now</button>
-                </div>
-                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#b91c1c;">🚫 Revoke All Inactive</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Revoke cards of guests whose checkout date has passed.</div>
-                  <button class="btn-danger btn-sm" onclick="revokeExpiredGuests()">Revoke Expired</button>
-                </div>
-                <div style="background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--teal);">✅ Activate All Pending</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Set all guests with Active status and active dates to Active.</div>
-                  <button class="btn-teal btn-sm" onclick="activateAllPending()">Activate All</button>
-                </div>
-              </div>
-              <div id="bulk-result" style="margin-top:14px;"></div>
-            </div>
-          </div>
-
-          <!-- TAB: Activity Log -->
-          <div id="admin-panel-log" style="display:none;">
-            <div class="card">
-              <div class="staff-table-head">
-                <div class="card-title" style="margin-bottom:0;">Activity Log</div>
-                <button class="btn-ghost btn-sm" onclick="clearActivityLog()">Clear Log</button>
-              </div>
-              <div id="activity-log" role="log" aria-live="polite" aria-label="Staff activity log" style="margin-top:10px;max-height:400px;overflow-y:auto;"></div>
-            </div>
-          </div>
-
-          <!-- TAB: Settings -->
-          <div id="admin-panel-settings" style="display:none;">
-            <div class="card">
-              <div class="card-title">🔧 System Settings</div>
-              <div style="display:grid;gap:14px;">
-                <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;margin-bottom:4px;">Session Timeout</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Current: <strong id="setting-timeout-display">30 minutes</strong></div>
-                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="filter-btn" onclick="setSessionTimeout(15)">15 min</button>
-                    <button class="filter-btn active" id="timeout-30" onclick="setSessionTimeout(30)">30 min</button>
-                    <button class="filter-btn" onclick="setSessionTimeout(60)">60 min</button>
-                    <button class="filter-btn" onclick="setSessionTimeout(120)">2 hrs</button>
-                  </div>
-                </div>
-                <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;margin-bottom:4px;">Default Guest Tier</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Applied when registering new guests without a specified tier.</div>
-                  <select id="setting-default-tier" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-family:inherit;color:var(--text);">
-                    <option value="Standard" selected>Standard</option>
-                    <option value="Privilege Guest">Privilege Guest</option>
-                    <option value="VIP">VIP</option>
-                    <option value="Diamond Member">Diamond Member</option>
-                  </select>
-                </div>
-                <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:16px;">
-                  <div style="font-weight:700;margin-bottom:4px;">Database URL</div>
-                  <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">SheetDB endpoint for data sync.</div>
-                  <input id="setting-db-url" type="text" value="https://sheetdb.io/api/v1/xixfih5jg1t6y"
-                    style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:monospace;background:#fff;color:var(--text);">
-                  <button class="btn-primary btn-sm" style="margin-top:8px;" onclick="saveDbUrl()">Save URL</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </section>
 
       </div><!-- /container -->
@@ -2017,8 +1792,12 @@ function updateSessionDisplay() {
   const minutes = Math.floor(timeLeft / 60000);
   const seconds = Math.floor((timeLeft % 60000) / 1000);
   const timerDiv = document.getElementById('session-timer');
-  // Session timer hidden for all users (including guests)
-  timerDiv.classList.remove('visible');
+  if (currentUser?.type === 'guest') {
+    timerDiv.classList.add('visible');
+    timerDiv.textContent = `⏱ ${minutes}:${seconds.toString().padStart(2,'0')}`;
+  } else {
+    timerDiv.classList.remove('visible');
+  }
 }
 
 function resetSessionTimer() {
@@ -2437,7 +2216,7 @@ function applyUserSession() {
     document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'block');
     document.querySelectorAll('.staff-only').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-    // Hide sidebar and mobile staff nav for guests
+    // Explicitly force sidebar hidden for guests
     const sidebar = document.getElementById('main-sidebar');
     if (sidebar) sidebar.style.display = 'none';
     document.getElementById('mobile-nav-guest').style.display = 'flex';
@@ -2452,14 +2231,21 @@ function applyUserSession() {
     document.getElementById('user-role').textContent = isAdmin ? 'Administrator' : 'Staff';
     document.getElementById('user-avatar').textContent = s.fullname.charAt(0).toUpperCase();
     document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.staff-only').forEach(el => el.style.display = 'block');
-    // Show sidebar for staff
-    const sidebar = document.getElementById('main-sidebar');
-    if (sidebar) sidebar.style.display = 'flex';
+    // Show staff-only elements — sidebar & navs need flex, others block
+    document.querySelectorAll('.staff-only').forEach(el => {
+      const id = el.id;
+      if (id === 'main-sidebar' || id === 'mobile-nav-staff') {
+        el.style.display = 'flex';
+      } else {
+        el.style.display = 'block';
+      }
+    });
     document.getElementById('mobile-nav-guest').style.display = 'none';
-    document.getElementById('mobile-nav-staff').style.display = 'flex';
     if (isAdmin) {
-      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.admin-only').forEach(el => {
+        // sidebar buttons need flex
+        el.style.display = el.classList.contains('sidebar-btn') ? 'flex' : 'block';
+      });
       // Admins see analytics first
       showPanel('staff-analytics');
       setSidebarActive('nav-analytics');
@@ -2467,7 +2253,6 @@ function applyUserSession() {
       document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
       showPanel('staff-guests');
       setSidebarActive('nav-guests');
-    }
     }
     showSyncInline();
   }
@@ -2589,15 +2374,15 @@ function showPanel(pid) {
   // Mobile nav state
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   if (pid === 'staff-guests')   { renderTable(); }
-  if (pid === 'staff-admin')    { updateAdminStats(); renderStaffUsers(); renderVerificationRequests(); switchAdminTab('team', null); }
+  if (pid === 'staff-admin')    { renderStaffUsers(); renderVerificationRequests(); }
   if (pid === 'staff-scanner')  { document.getElementById('scan-result').innerHTML = ''; }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
 }
 
-function showPanelMobile(pid) {
+function showPanelMobile(pid, evt) {
   showPanel(pid);
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
-  event.target?.classList.add('active');
+  if (evt && evt.target) evt.target.classList.add('active');
 }
 
 // ═══════════════════════════════════════════════════
@@ -2713,22 +2498,14 @@ function saveStaffLocal() {
 }
 
 function renderStaffUsers() {
-  const search = (document.getElementById('staff-member-search')?.value || '').toLowerCase();
   const tbody = document.getElementById('staff-users-tbody');
-  const list = staffUsers.filter(u => !search || u.username.toLowerCase().includes(search) || u.fullname.toLowerCase().includes(search));
-  tbody.innerHTML = list.map(u => `
+  tbody.innerHTML = staffUsers.map(u => `
     <tr>
       <td><strong>${sanitize(u.username)}</strong></td>
       <td>${sanitize(u.fullname)}</td>
-      <td><span class="badge badge-${u.role}">${u.role === 'admin' ? '🛡️ Admin' : '👤 Staff'}</span></td>
-      <td><span class="badge ${u.id ? 'badge-active' : 'badge-pending'}">Active</span></td>
-      <td style="display:flex;gap:5px;flex-wrap:wrap;">
-        <button class="btn-ghost btn-sm" onclick="showResetPasswordModal('${sanitize(u.id)}')" aria-label="Reset password">Reset PW</button>
-        <button class="btn-ghost btn-sm" onclick="toggleStaffRole('${sanitize(u.id)}')">${u.role === 'admin' ? '→ Staff' : '→ Admin'}</button>
-        <button class="btn-danger btn-sm" onclick="deleteStaffMember('${sanitize(u.id)}')" aria-label="Delete member">Delete</button>
-      </td>
+      <td><span class="badge badge-${u.role}">${u.role}</span></td>
+      <td><button class="btn-ghost btn-sm" onclick="showResetPasswordModal('${sanitize(u.id)}')" aria-label="Reset password for ${sanitize(u.username)}">Reset PW</button></td>
     </tr>`).join('');
-  if (!list.length) tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👥</div>No staff found</div></td></tr>';
 }
 
 function showAddStaff()    { document.getElementById('staff-modal').classList.add('open'); }
@@ -2745,28 +2522,9 @@ async function addStaff() {
   if (staffUsers.find(u => u.username === username)) { showToast('Username already exists', 'err'); return; }
   const newStaff = { id: Date.now().toString(), username, password, fullname, role, twofa_secret: '' };
   staffUsers.push(newStaff); saveStaffLocal(); await pushStaffToSheetDB(newStaff);
-  renderStaffUsers(); closeStaffModal(); updateAdminStats();
+  renderStaffUsers(); closeStaffModal();
   showToast(`Team member ${sanitize(username)} added`, 'ok');
   addLog(`New staff added: ${fullname} (${role})`);
-}
-
-function toggleStaffRole(staffId) {
-  const user = staffUsers.find(u => u.id === staffId); if (!user) return;
-  if (user.id === currentUser?.data?.id) { showToast('Cannot change your own role', 'err'); return; }
-  user.role = user.role === 'admin' ? 'staff' : 'admin';
-  saveStaffLocal(); pushStaffToSheetDB(user); renderStaffUsers();
-  showToast(`${sanitize(user.fullname)} is now ${user.role}`, 'ok');
-  addLog(`${currentUser?.data?.fullname} changed ${user.fullname} role to ${user.role}`);
-}
-
-function deleteStaffMember(staffId) {
-  const user = staffUsers.find(u => u.id === staffId); if (!user) return;
-  if (user.id === currentUser?.data?.id) { showToast('Cannot delete your own account', 'err'); return; }
-  if (!confirm(`Delete staff member "${user.fullname}"? This cannot be undone.`)) return;
-  staffUsers = staffUsers.filter(u => u.id !== staffId);
-  saveStaffLocal(); renderStaffUsers(); updateAdminStats();
-  showToast(`🗑 ${sanitize(user.fullname)} removed`, 'err');
-  addLog(`${currentUser?.data?.fullname} deleted staff: ${user.fullname}`);
 }
 
 function showResetPasswordModal(staffId) {
@@ -2916,25 +2674,21 @@ function togglePriv(el) {
 }
 
 async function addGuest() {
-  const guestId= document.getElementById('f-guest-id').value.trim().toUpperCase();
   const first = document.getElementById('f-first').value.trim();
   const last  = document.getElementById('f-last').value.trim();
   const email = document.getElementById('f-email').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
-  if (!guestId)              { showToast('Guest ID is required', 'err'); document.getElementById('f-guest-id').focus(); return; }
-  if (guests.find(g => g.id === guestId)) { showToast('Guest ID already exists — use a unique ID', 'err'); return; }
   if (!first || !last)  { showToast('First and last name are required', 'err'); return; }
   if (!email && !phone) { showToast('Please provide email or phone number', 'err'); return; }
   disableButton('add-guest-btn', true); showSpinner('Registering guest…');
-  const newId = guestId;
+  const newId = generateId();
   const privs = [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent.trim());
   const newGuest = { id: newId, title: document.getElementById('f-title').value, first, last, room: document.getElementById('f-room').value.trim() || 'TBA', checkin: document.getElementById('f-checkin').value, checkout: document.getElementById('f-checkout').value, email, phone, nationality: document.getElementById('f-nationality').value.trim(), type: document.getElementById('f-type').value, privileges: privs, status: 'Active', scans: 0, notes: document.getElementById('f-notes').value.trim(), verified: false, verifiedAt: '', issued: new Date().toISOString().split('T')[0] };
   guests.push(newGuest); saveLocal();
   const synced = await syncSingleGuest(newGuest);
   showToast(synced ? `✅ ${sanitize(first)} ${sanitize(last)} registered & synced!` : `⚠️ ${sanitize(first)} ${sanitize(last)} saved locally`, synced ? 'ok' : 'err');
   addLog(`${currentUser?.data?.fullname} registered ${first} ${last} (${newId})`);
-  ['f-guest-id','f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('guest-id-validation').textContent = '';
+  ['f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => { el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   renderTable(); disableButton('add-guest-btn', false); hideSpinner();
 }
@@ -3032,187 +2786,6 @@ async function renderAnalytics() {
     if (verifyChart) verifyChart.destroy();
     verifyChart = new Chart(ctx3, { type: 'bar', data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [ { label:'Verified', data:[2,4,3,6,5,8,4], backgroundColor: colors.teal, borderRadius:6 }, { label:'Pending', data:[1,2,1,2,3,4,2], backgroundColor: colors.goldL, borderRadius:6 } ] }, options: { plugins: { legend:{ position:'bottom', labels:{ boxWidth:10, padding:14, usePointStyle:true } } }, scales: { x: { stacked:true, grid:{ display:false }, ticks:{ color:'#888' } }, y: { stacked:true, beginAtZero:true, grid:{ color:'#f0ece4' }, ticks:{ color:'#888' } } } } });
   }
-}
-
-// ═══════════════════════════════════════════════════
-// SIDEBAR NAV TOGGLE
-// ═══════════════════════════════════════════════════
-let sidebarNavVisible = true;
-function toggleSidebarNav() {
-  const nav = document.getElementById('sidebar-nav-collapsible');
-  const btn = document.getElementById('nav-toggle-btn');
-  sidebarNavVisible = !sidebarNavVisible;
-  if (sidebarNavVisible) {
-    nav.classList.remove('collapsed');
-    btn.textContent = 'Hide';
-    btn.setAttribute('aria-expanded','true');
-  } else {
-    nav.classList.add('collapsed');
-    btn.textContent = 'Show';
-    btn.setAttribute('aria-expanded','false');
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// GUEST ID FIELD HELPERS
-// ═══════════════════════════════════════════════════
-function autoGenerateGuestId() {
-  const id = generateId();
-  const el = document.getElementById('f-guest-id');
-  if (el) { el.value = id; validateGuestIdField(); }
-}
-
-function validateGuestIdField() {
-  const val = (document.getElementById('f-guest-id')?.value || '').trim().toUpperCase();
-  const msgEl = document.getElementById('guest-id-validation');
-  if (!msgEl) return;
-  if (!val) { msgEl.textContent = ''; msgEl.className = ''; return; }
-  const exists = guests.find(g => g.id === val);
-  if (exists) {
-    msgEl.textContent = '⚠️ This ID is already in use';
-    msgEl.className = 'invalid';
-  } else if (/^SHR-\d+$/.test(val)) {
-    msgEl.textContent = '✓ ID is available';
-    msgEl.className = 'valid';
-  } else {
-    msgEl.textContent = 'Format: SHR-1001 (or any unique value)';
-    msgEl.className = '';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// ADMIN PANEL TABS
-// ═══════════════════════════════════════════════════
-function switchAdminTab(tab, e) {
-  ['team','guests','verify','bulk','log','settings'].forEach(t => {
-    const panel = document.getElementById(`admin-panel-${t}`);
-    const btn   = document.getElementById(`admin-tab-${t}`);
-    if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
-    if (btn)   btn.classList.toggle('active', t === tab);
-  });
-  if (tab === 'team')    { renderStaffUsers(); }
-  if (tab === 'guests')  { renderAdminGuestTable(); }
-  if (tab === 'verify')  { renderVerificationRequests(); renderVerifiedList(); }
-  if (tab === 'log')     { /* already live */ }
-  if (tab === 'settings') { /* static */ }
-  updateAdminStats();
-}
-
-function updateAdminStats() {
-  const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-  el('admin-stat-guests', guests.length);
-  el('admin-stat-active', guests.filter(g => g.status === 'Active').length);
-  el('admin-stat-staff',  staffUsers.length);
-  el('admin-stat-pending', verificationRequests.filter(r => r.status === 'pending').length);
-}
-
-function renderAdminGuestTable() {
-  const search = (document.getElementById('admin-guest-search')?.value || '').toLowerCase();
-  const filter = document.getElementById('admin-guest-filter')?.value || 'all';
-  let list = guests.filter(g => `${g.id} ${g.first} ${g.last} ${g.room} ${g.email}`.toLowerCase().includes(search));
-  if (filter === 'active')     list = list.filter(g => g.status === 'Active');
-  if (filter === 'revoked')    list = list.filter(g => g.status === 'Revoked');
-  if (filter === 'verified')   list = list.filter(g => g.verified);
-  if (filter === 'unverified') list = list.filter(g => !g.verified);
-  const tbody = document.getElementById('admin-guest-tbody');
-  if (!tbody) return;
-  if (!list.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🔍</div>No guests found</div></td></tr>'; return; }
-  tbody.innerHTML = list.map(g => `
-    <tr>
-      <td><strong>${sanitize(g.id)}</strong></td>
-      <td><div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div><div style="font-size:11px;color:var(--muted);">${sanitize(g.email||'')}</div></td>
-      <td>${sanitize(g.room||'—')}</td>
-      <td><span class="badge badge-${g.type?.toLowerCase().replace(/\s+/g,'-')}">${sanitize(g.type)}</span></td>
-      <td><span class="badge badge-${g.status.toLowerCase()}">${sanitize(g.status)}</span></td>
-      <td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : '⏳ Pending'}</span></td>
-      <td>${g.scans||0}</td>
-      <td style="display:flex;gap:5px;flex-wrap:wrap;">
-        <button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button>
-        ${!g.verified ? `<button class="btn-teal btn-sm" onclick="adminVerifyGuest('${sanitize(g.id)}')">✓ Verify</button>` : ''}
-        <button class="btn-danger btn-sm" onclick="adminDeleteGuest('${sanitize(g.id)}')">Delete</button>
-      </td>
-    </tr>`).join('');
-}
-
-function adminVerifyGuest(id) {
-  const g = guests.find(x => x.id === id); if (!g) return;
-  g.verified = true; g.verifiedAt = new Date().toISOString();
-  saveLocal(); syncSingleGuest(g); renderAdminGuestTable();
-  showToast(`✓ ${sanitize(g.first)} ${sanitize(g.last)} verified`, 'ok');
-  addLog(`${currentUser?.data?.fullname} manually verified ${g.first} ${g.last}`);
-}
-
-function adminDeleteGuest(id) {
-  const g = guests.find(x => x.id === id); if (!g) return;
-  if (!confirm(`Delete ${g.first} ${g.last} (${g.id})? This cannot be undone.`)) return;
-  guests = guests.filter(x => x.id !== id); saveLocal(); renderAdminGuestTable(); renderTable();
-  showToast(`🗑 ${sanitize(g.first)} ${sanitize(g.last)} deleted`, 'err');
-  addLog(`${currentUser?.data?.fullname} deleted guest ${g.first} ${g.last} (${g.id})`);
-}
-
-function renderVerifiedList() {
-  const el = document.getElementById('admin-verified-list');
-  if (!el) return;
-  const verified = guests.filter(g => g.verified);
-  if (!verified.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>No verified guests yet</div>'; return; }
-  el.innerHTML = verified.map(g => `
-    <div class="verification-req-card">
-      <div class="vreq-info">
-        <div class="vreq-name">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div>
-        <div class="vreq-detail">${sanitize(g.id)} · Room ${sanitize(g.room||'TBA')} · Verified ${g.verifiedAt ? new Date(g.verifiedAt).toLocaleDateString() : '—'}</div>
-      </div>
-      <span class="badge badge-verified">✓ Verified</span>
-    </div>`).join('');
-}
-
-function exportGuestsCsv() {
-  const headers = ['ID','Title','First','Last','Room','Check-in','Check-out','Email','Phone','Nationality','Type','Status','Verified','Scans','Issued'];
-  const rows = guests.map(g => [g.id,g.title,g.first,g.last,g.room,g.checkin,g.checkout,g.email,g.phone,g.nationality,g.type,g.status,g.verified,g.scans,g.issued].map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','));
-  const csv = [headers.join(','), ...rows].join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = `guests_export_${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  showToast('✅ CSV exported', 'ok');
-  addLog(`${currentUser?.data?.fullname} exported guest CSV`);
-}
-
-function revokeExpiredGuests() {
-  const today = new Date().toISOString().split('T')[0];
-  let count = 0;
-  guests.forEach(g => { if (g.status === 'Active' && g.checkout && g.checkout < today) { g.status = 'Revoked'; count++; } });
-  saveLocal(); renderTable(); renderAdminGuestTable(); updateAdminStats();
-  const el = document.getElementById('bulk-result');
-  if (el) el.innerHTML = `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;font-size:13px;color:#b91c1c;">${count > 0 ? `🚫 ${count} expired guest(s) revoked.` : '✅ No expired guests found.'}</div>`;
-  addLog(`${currentUser?.data?.fullname} revoked ${count} expired guests`);
-}
-
-function activateAllPending() {
-  const today = new Date().toISOString().split('T')[0];
-  let count = 0;
-  guests.forEach(g => { if (g.status !== 'Active' && (!g.checkout || g.checkout >= today)) { g.status = 'Active'; count++; } });
-  saveLocal(); renderTable(); renderAdminGuestTable(); updateAdminStats();
-  const el = document.getElementById('bulk-result');
-  if (el) el.innerHTML = `<div style="background:#f0fdf4;border:1px solid #a7f3d0;border-radius:8px;padding:12px;font-size:13px;color:#15803d;">${count > 0 ? `✅ ${count} guest(s) activated.` : 'ℹ️ No inactive guests found.'}</div>`;
-  addLog(`${currentUser?.data?.fullname} activated ${count} guests`);
-}
-
-function clearActivityLog() {
-  const el = document.getElementById('activity-log');
-  if (el) el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Log cleared</div>';
-}
-
-function setSessionTimeout(minutes) {
-  document.querySelectorAll('#admin-panel-settings .filter-btn').forEach(b => b.classList.remove('active'));
-  event.target?.classList.add('active');
-  const el = document.getElementById('setting-timeout-display');
-  if (el) el.textContent = minutes >= 60 ? `${minutes/60} hour${minutes > 60 ? 's' : ''}` : `${minutes} minutes`;
-  showToast(`Session timeout set to ${minutes} min`, 'ok');
-}
-
-function saveDbUrl() {
-  const url = document.getElementById('setting-db-url')?.value.trim();
-  if (url) { showToast('Database URL saved ✓', 'ok'); addLog(`${currentUser?.data?.fullname} updated DB URL`); }
 }
 
 // ═══════════════════════════════════════════════════
