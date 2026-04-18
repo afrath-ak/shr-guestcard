@@ -47,14 +47,16 @@
   --danger:      #b91c1c;
   --warning:     #b45309;
 
-  --radius:      16px;
-  --radius-lg:   24px;
-  --shadow:      0 2px 20px rgba(0,0,0,0.06);
+  --radius:      14px;
+  --radius-lg:   22px;
+  --shadow:      0 2px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-md:   0 6px 28px rgba(0,0,0,0.10);
   --shadow-lg:   0 16px 60px rgba(0,0,0,0.14);
   --font-body:   14px;
 
   /* Sidebar */
-  --sidebar-w:   240px;
+  --sidebar-w:   248px;
+  --trans:       0.22s cubic-bezier(.4,0,.2,1);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -390,9 +392,10 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 .header {
   background: var(--dark); padding: 0 24px;
   display: flex; align-items: center; justify-content: space-between;
-  height: 58px; flex-wrap: nowrap; gap: 12px;
-  border-bottom: 1px solid rgba(201,168,76,0.12);
+  height: 60px; flex-wrap: nowrap; gap: 12px;
+  border-bottom: 1px solid rgba(201,168,76,0.10);
   position: sticky; top: 0; z-index: 500; flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(201,168,76,0.06), 0 4px 20px rgba(0,0,0,0.25);
 }
 .logo { display:flex; align-items:center; gap:10px; flex-shrink:0; text-decoration:none; }
 .logo-badge {
@@ -471,11 +474,12 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
   position: relative;
   white-space: nowrap;
 }
-.sidebar-btn:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); }
+.sidebar-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); transform: translateX(2px); }
 .sidebar-btn.active {
-  background: rgba(201,168,76,0.1);
+  background: rgba(201,168,76,0.12);
   color: var(--gold);
-  border: 1px solid rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.18);
+  box-shadow: inset 3px 0 0 var(--gold);
 }
 .sidebar-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .sidebar-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
@@ -551,7 +555,8 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 
 /* Content area */
 .content-area {
-  flex: 1; overflow-y: auto; background: #f4f2ee;
+  flex: 1; overflow-y: auto;
+  background: linear-gradient(160deg, #f7f5f1 0%, #f0ede8 100%);
 }
 
 .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
@@ -565,18 +570,20 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 }
 .page-title {
   font-family: 'Playfair Display', serif;
-  font-size: 28px; font-weight: 600; color: var(--dark);
-  letter-spacing: -0.01em;
+  font-size: 26px; font-weight: 600; color: var(--dark);
+  letter-spacing: -0.01em; line-height: 1.2;
 }
-.page-subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.page-subtitle { font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
 
 /* Cards */
 .card {
   background: #fff; border-radius: var(--radius);
-  padding: 22px; margin-bottom: 16px;
+  padding: 24px; margin-bottom: 16px;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(200,190,175,0.4);
+  border: 1px solid rgba(200,190,175,0.35);
+  transition: box-shadow var(--trans);
 }
+.card:hover { box-shadow: var(--shadow-md); }
 .card-title {
   font-size: 10px; font-weight: 700; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px;
@@ -587,12 +594,13 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 /* ── BUTTONS (app-wide) ── */
 .btn-primary {
   background: var(--dark); color: var(--gold);
-  border: none; border-radius: 8px;
-  padding: 10px 18px; cursor: pointer; font-size: 13px;
+  border: none; border-radius: 9px;
+  padding: 10px 20px; cursor: pointer; font-size: 13px;
   font-family: inherit; font-weight: 600; letter-spacing: 0.03em;
-  transition: all 0.2s;
+  transition: all var(--trans);
 }
-.btn-primary:hover { background: var(--dark3); transform: translateY(-1px); }
+.btn-primary:hover { background: var(--dark3); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+.btn-primary:active { transform: scale(0.98); }
 .btn-primary:focus-visible { outline: 2px solid var(--gold); }
 .btn-ghost {
   background: none; color: var(--muted);
@@ -648,12 +656,12 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 }
 @media (min-width: 700px) { .analytics-kpis { grid-template-columns: repeat(4, 1fr); } }
 .kpi-card {
-  background: #fff; border-radius: var(--radius); padding: 20px 16px;
+  background: #fff; border-radius: var(--radius); padding: 22px 18px;
   border: 1px solid var(--border); box-shadow: var(--shadow);
   position: relative; overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--trans), box-shadow var(--trans);
 }
-.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(0,0,0,0.12); }
 .kpi-card::before {
   content: ''; position: absolute; top: -16px; right: -16px;
   width: 70px; height: 70px; border-radius: 50%;
@@ -756,13 +764,13 @@ canvas { max-width: 100%; }
 /* ── GUEST TABLE ── */
 .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 .filter-btn {
-  background: var(--cream2); border: 1px solid var(--border);
-  color: var(--muted); padding: 6px 14px; border-radius: 20px;
-  cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 500;
-  transition: all 0.2s;
+  background: #fff; border: 1.5px solid var(--border);
+  color: var(--muted); padding: 6px 16px; border-radius: 20px;
+  cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 600;
+  transition: all 0.22s; letter-spacing: 0.02em;
 }
-.filter-btn:hover { border-color: var(--dark); color: var(--dark); }
-.filter-btn.active { background: var(--dark); color: var(--gold); border-color: transparent; }
+.filter-btn:hover { border-color: var(--gold-dark); color: var(--dark); background: var(--gold-pale); }
+.filter-btn.active { background: var(--dark); color: var(--gold); border-color: transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
 
 .search-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 .search-row input {
@@ -778,7 +786,7 @@ table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
 table.data th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); white-space: nowrap; }
 table.data td { padding: 12px 12px; border-bottom: 1px solid var(--cream2); color: var(--text); }
 table.data tr:last-child td { border-bottom: none; }
-table.data tr:hover td { background: var(--cream); }
+table.data tr:hover td { background: var(--gold-pale); transition: background 0.15s; }
 .badge {
   display: inline-flex; align-items: center;
   padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
@@ -848,11 +856,58 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .scan-result-name   { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
 .scan-result-detail { font-size: 13px; opacity: 0.75; }
 
-/* ── TEAM ADMIN ── */
-.staff-table-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+/* ── TEAM ADMIN ENHANCED ── */
+.staff-table-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.staff-table-head-actions { display: flex; gap: 8px; }
 .activity-log-item { padding: 10px 0; border-bottom: 1px solid var(--cream2); font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
 .activity-log-item:last-child { border-bottom: none; }
 .activity-log-time { font-size: 11px; color: var(--muted); white-space: nowrap; min-width: 46px; }
+
+/* Staff member cards */
+.staff-member-card {
+  background: var(--cream); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  transition: box-shadow var(--trans);
+}
+.staff-member-card:hover { box-shadow: var(--shadow-md); }
+.staff-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--dark); display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; flex-shrink: 0;
+}
+.staff-avatar.admin { background: linear-gradient(135deg, var(--teal), #0a6665); color: #fff; }
+.staff-info { flex: 1; min-width: 0; }
+.staff-info-name { font-weight: 700; font-size: 14px; color: var(--dark); }
+.staff-info-meta { font-size: 12px; color: var(--muted); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+.staff-info-badge { 
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+}
+.staff-info-badge.dept { background: rgba(13,125,124,0.1); color: var(--teal); }
+.staff-info-badge.last-login { background: rgba(0,0,0,0.05); color: var(--muted); }
+.staff-actions { display: flex; gap: 6px; }
+
+/* Permission chips */
+.perm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.perm-chip {
+  background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25);
+  color: var(--gold-dark); padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+}
+.perm-chip.perm-off { background: rgba(0,0,0,0.04); border-color: var(--border); color: var(--muted); text-decoration: line-through; }
+
+/* Admin stats bar */
+.admin-stats-row {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px;
+}
+.admin-stat {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; text-align: center; box-shadow: var(--shadow);
+}
+.admin-stat-val { font-size: 28px; font-weight: 700; color: var(--dark); font-family: 'Playfair Display', serif; }
+.admin-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 4px; }
 
 .verification-req-card {
   background: var(--cream); border-radius: 10px;
@@ -955,6 +1010,116 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 }
 .analytics-mini-val { font-size: 20px; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; }
 .analytics-mini-label { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+
+/* ══════════════════════════════
+   IMPROVEMENTS & ENHANCEMENTS
+══════════════════════════════ */
+
+/* Improved login card animation */
+.login-card { animation: slideUpFade 0.5s cubic-bezier(.34,1.2,.64,1) both; }
+@keyframes slideUpFade { from { opacity:0; transform:translateY(28px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* Improved guest table */
+table.data th {
+  background: var(--cream2);
+  position: sticky; top: 0;
+}
+table.data tbody tr {
+  transition: background 0.15s;
+}
+
+/* Improved search input */
+.search-row input {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Better badge styling */
+.badge {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+/* Smoother panel transitions */
+.panel { animation: panelIn 0.28s cubic-bezier(.4,0,.2,1) both; }
+@keyframes panelIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* Improved modal */
+.modal-box {
+  animation: modalPop 0.3s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes modalPop { from { opacity:0; transform:translateY(20px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* Improved form section titles */
+.form-section-title {
+  color: var(--dark); font-size: 11px;
+}
+
+/* Better sidebar footer */
+.sidebar-footer {
+  background: rgba(0,0,0,0.15);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Improved kpi val */
+.kpi-val {
+  background: linear-gradient(135deg, var(--dark), var(--dark5));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Better role display in header */
+.user-role { font-size: 9px; letter-spacing: 0.08em; }
+
+/* Staff card hover improvement */
+.staff-member-card {
+  border-left: 3px solid transparent;
+  transition: border-color var(--trans), box-shadow var(--trans);
+}
+.staff-member-card:hover {
+  border-left-color: var(--gold);
+}
+
+/* Search input in staff filter */
+#staff-filter-role {
+  cursor: pointer;
+}
+#staff-filter-role:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201,168,76,0.12);
+}
+
+/* Better perm chip */
+.perm-chip {
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+/* Responsive admin stats */
+@media (max-width: 500px) {
+  .admin-stats-row { grid-template-columns: 1fr; }
+}
+
+/* Improved toast */
+.toast {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Page header bottom border */
+.page-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 24px;
+}
+
+/* Better filter bar spacing */
+.filter-bar {
+  align-items: center;
+}
 
 </style>
 </head>
@@ -1589,40 +1754,60 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
         </section>
 
-        <!-- ── TEAM ADMIN ── -->
+        <!-- ── TEAM ADMIN — Enhanced ── -->
         <section class="panel admin-only" id="panel-staff-admin" aria-label="Team Administration">
           <div class="page-header">
-            <div class="page-title">Team Admin</div>
-            <div class="page-subtitle">Manage staff members and review verifications</div>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <div>
+                <div class="page-title">Team Administration</div>
+                <div class="page-subtitle">Manage staff accounts, roles, permissions and review activity</div>
+              </div>
+              <button class="btn-primary admin-only" onclick="showAddStaff()" aria-label="Add new team member" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+                <span>+</span> Add Member
+              </button>
+            </div>
           </div>
+
+          <!-- Admin overview stats -->
+          <div class="admin-stats-row" id="admin-stats-row">
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="admin-stat-total">—</div>
+              <div class="admin-stat-label">Total Staff</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="admin-stat-active">—</div>
+              <div class="admin-stat-label">Active</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="admin-stat-admins">—</div>
+              <div class="admin-stat-label">Admins</div>
+            </div>
+          </div>
+
           <div class="card">
             <div class="staff-table-head">
-              <div class="card-title" style="margin-bottom:0;">Team Members</div>
-              <button class="btn-primary btn-sm admin-only" onclick="showAddStaff()" aria-label="Add new team member">+ Add Member</button>
+              <div class="card-title" style="margin-bottom:0;">👥 Team Members</div>
+              <div class="staff-table-head-actions">
+                <select id="staff-filter-role" onchange="renderStaffUsers()" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);color:var(--text);">
+                  <option value="">All Roles</option>
+                  <option value="admin">Admin</option>
+                  <option value="supervisor">Supervisor</option>
+                  <option value="staff">Staff</option>
+                </select>
+              </div>
             </div>
-            <div class="table-responsive" style="margin-top:14px;">
-              <table class="data" aria-label="Staff users list">
-                <thead>
-                  <tr>
-                    <th scope="col">Username</th>
-                    <th scope="col">Full Name</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="staff-users-tbody"></tbody>
-              </table>
-            </div>
+            <div id="staff-cards-container" style="margin-top:8px;"></div>
           </div>
+
           <div class="card">
-            <div class="card-title">Pending Verification Requests</div>
+            <div class="card-title">📋 Pending Verification Requests</div>
             <div id="verification-requests" role="list">
               <div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div>
             </div>
           </div>
           <div class="card">
-            <div class="card-title">Activity Log</div>
-            <div id="activity-log" role="log" aria-live="polite" aria-label="Staff activity log"></div>
+            <div class="card-title">📜 Activity Log</div>
+            <div id="activity-log" role="log" aria-live="polite" aria-label="Staff activity log" style="max-height:320px;overflow-y:auto;"></div>
           </div>
         </section>
 
@@ -1683,41 +1868,111 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
   </div>
 </div>
 
-<!-- ═══ ADD STAFF MODAL ═══ -->
+<!-- ═══ ADD STAFF MODAL — Microsoft AD Style ═══ -->
 <div class="modal-overlay" id="staff-modal" role="dialog" aria-modal="true" aria-labelledby="staff-modal-title">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:560px;">
     <div class="modal-header">
       <div class="modal-title" id="staff-modal-title">Add Team Member</div>
       <button class="modal-close" onclick="closeStaffModal()" aria-label="Close">×</button>
     </div>
-    <div class="field">
-      <label for="new-username">Username <span aria-label="required">*</span></label>
-      <input id="new-username" placeholder="e.g. jsmith" autocomplete="off" aria-required="true">
+
+    <div style="background:var(--cream);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;">
+      <span style="font-size:18px;">🏢</span>
+      <span>Create a staff account with role-based access. Staff can login and access designated modules immediately.</span>
+    </div>
+
+    <div class="form-section-title">Account Information</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field">
+        <label for="new-username">Username <span aria-label="required">*</span></label>
+        <input id="new-username" placeholder="e.g. jsmith" autocomplete="off" aria-required="true">
+        <span class="field-note">Used to sign in — must be unique</span>
+      </div>
+      <div class="field">
+        <label for="new-fullname">Full Name <span aria-label="required">*</span></label>
+        <input id="new-fullname" placeholder="John Smith" autocomplete="off" aria-required="true">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field">
+        <label for="new-email">Email Address</label>
+        <input type="email" id="new-email" placeholder="staff@steigenberger.com" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="new-phone">Phone (optional)</label>
+        <input type="tel" id="new-phone" placeholder="+974 XXXX XXXX" autocomplete="off">
+      </div>
     </div>
     <div class="field">
-      <label for="new-fullname">Full Name <span aria-label="required">*</span></label>
-      <input id="new-fullname" placeholder="John Smith" autocomplete="off" aria-required="true">
+      <label for="new-password">Temporary Password <span aria-label="required">*</span></label>
+      <div style="position:relative;">
+        <input type="password" id="new-password" placeholder="Minimum 8 characters — letters + numbers" aria-required="true" style="padding-right:44px;">
+        <button type="button" onclick="toggleNewPwVisibility()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;" title="Show/hide password">👁</button>
+      </div>
+      <span class="field-note">Staff will be prompted to change on first login</span>
     </div>
-    <div class="field">
-      <label for="new-password">Password <span aria-label="required">*</span></label>
-      <input type="password" id="new-password" placeholder="Minimum 8 characters" aria-required="true">
+
+    <div class="form-section-title">Role & Access</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field">
+        <label for="new-role">Role <span aria-label="required">*</span></label>
+        <select id="new-role" aria-label="Select staff role" onchange="updateRolePermissions()">
+          <option value="staff">Staff</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="new-dept">Department</label>
+        <select id="new-dept" aria-label="Select department">
+          <option value="">— Select —</option>
+          <option value="Front Desk">Front Desk</option>
+          <option value="Concierge">Concierge</option>
+          <option value="F&B">F&amp;B</option>
+          <option value="Housekeeping">Housekeeping</option>
+          <option value="Security">Security</option>
+          <option value="Management">Management</option>
+          <option value="IT">IT</option>
+        </select>
+      </div>
     </div>
-    <div class="field">
-      <label for="new-role">Role</label>
-      <select id="new-role" aria-label="Select staff role">
-        <option value="staff">Staff</option>
-        <option value="admin">Admin</option>
+
+    <!-- Permissions preview -->
+    <div id="role-permissions-preview" style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:4px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Access Permissions</div>
+      <div id="perm-list" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label for="new-account-status">Account Status</label>
+      <select id="new-account-status">
+        <option value="active">Active — can login immediately</option>
+        <option value="suspended">Suspended — account disabled</option>
+        <option value="pending">Pending — awaiting activation</option>
       </select>
     </div>
+
     <input type="hidden" id="edit-staff-id">
     <div class="modal-footer">
-      <button class="btn-primary" onclick="saveStaffMember()">Save Member</button>
+      <button class="btn-primary" onclick="saveStaffMember()">Create Account</button>
       <button class="btn-ghost" onclick="closeStaffModal()">Cancel</button>
     </div>
   </div>
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════
+// ROLE PERMISSIONS (top-level — used by multiple functions)
+// ═══════════════════════════════════════════════════
+function getRolePermissions(role) {
+  const perms = {
+    staff:      ['View Guests','Add Guest','Scan QR','Manual Lookup'],
+    supervisor: ['View Guests','Add Guest','Scan QR','Manual Lookup','Edit Guests','Verify Guests','View Analytics'],
+    admin:      ['View Guests','Add Guest','Edit Guests','Delete Guests','Scan QR','Manual Lookup','Verify Guests','View Analytics','Manage Staff','System Config']
+  };
+  return perms[role] || perms['staff'];
+}
+
 // ═══════════════════════════════════════════════════
 // CONFIG - ORIGINAL CODE PRESERVED
 // ═══════════════════════════════════════════════════
@@ -2166,10 +2421,27 @@ function staffLogin() {
   if (!checkRateLimit(`staff_${username}`, 5)) { showLoginError('Too many failed attempts. Please wait 5 minutes.'); return; }
   const staff = staffUsers.find(u => u.username === username && u.password === password);
   if (!staff) { showLoginError('Invalid username or password.'); return; }
+
+  // Check account status
+  const status = staff.accountStatus || 'active';
+  if (status === 'suspended') {
+    showLoginError('Your account has been suspended. Please contact your administrator.');
+    return;
+  }
+  if (status === 'pending') {
+    showLoginError('Your account is pending activation. Please contact your administrator.');
+    return;
+  }
+
+  // Record last login timestamp
+  staff.lastLogin = new Date().toISOString();
+  saveStaffLocal();
+  pushStaffToSheetDB(staff).catch(() => {});
+
   currentUser = { type: 'staff', data: staff };
   saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
-  addLog(`${staff.fullname} signed in`);
-  showToast(`Welcome, ${sanitize(staff.fullname)}!`, 'ok');
+  addLog(`${staff.fullname} signed in (${staff.role || 'staff'})`);
+  showToast(`Welcome back, ${sanitize(staff.fullname)}! 👋`, 'ok');
 }
 
 function showForgotPassword() {
@@ -2300,9 +2572,21 @@ function applyUserSession() {
     sidebarCollapsed = false;
     const icon = document.getElementById('sidebar-toggle-icon');
     if (icon) icon.textContent = '◀';
+    const isSupervisor = s.role === 'supervisor';
     if (isAdmin) {
       document.querySelectorAll('.admin-only').forEach(el => {
         el.style.display = el.classList.contains('sidebar-btn') ? 'flex' : 'block';
+      });
+      showPanel('staff-analytics');
+      setSidebarActive('nav-analytics');
+    } else if (isSupervisor) {
+      // Supervisors can see analytics but not staff management
+      document.querySelectorAll('.admin-only').forEach(el => {
+        if (el.id === 'panel-staff-admin' || el.id === 'nav-admin') {
+          el.style.display = 'none';
+        } else {
+          el.style.display = el.classList.contains('sidebar-btn') ? 'flex' : 'block';
+        }
       });
       showPanel('staff-analytics');
       setSidebarActive('nav-analytics');
@@ -2429,7 +2713,7 @@ function showPanel(pid) {
   if (map[pid]) setSidebarActive(map[pid]);
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   if (pid === 'staff-guests')   { renderTable(); }
-  if (pid === 'staff-admin')    { renderStaffUsers(); renderVerificationRequests(); }
+  if (pid === 'staff-admin')    { renderStaffUsers(); renderVerificationRequests(); updateAdminStats(); }
   if (pid === 'staff-scanner')  { document.getElementById('scan-result').innerHTML = ''; }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
 }
@@ -2538,11 +2822,38 @@ async function loadStaffFromSheetDB() {
 
 function loadStaffFallback() {
   const local = localStorage.getItem('steigenberger_staff');
-  if (local) { try { staffUsers = JSON.parse(local); } catch(e) {} }
-  else {
+  if (local) {
+    try {
+      staffUsers = JSON.parse(local);
+      // Migrate old staff entries to have new fields
+      staffUsers = staffUsers.map(u => ({
+        accountStatus: 'active',
+        department: '',
+        email: '',
+        phone: '',
+        lastLogin: '',
+        mustChangePassword: false,
+        ...u
+      }));
+    } catch(e) {}
+  } else {
     staffUsers = [
-      { id:'1', username:'admin', password:'Admin@123', fullname:'Admin User', role:'admin', twofa_secret:'' },
-      { id:'2', username:'reception', password:'Recept@1', fullname:'Reception Staff', role:'staff', twofa_secret:'' }
+      {
+        id:'1', username:'admin', password:'Admin@123',
+        fullname:'Admin User', role:'admin',
+        department:'Management', email:'admin@steigenberger.com',
+        phone:'+974 5000 0001', accountStatus:'active',
+        lastLogin:'', mustChangePassword:false,
+        createdAt: new Date().toISOString(), twofa_secret:''
+      },
+      {
+        id:'2', username:'reception', password:'Recept@1',
+        fullname:'Reception Staff', role:'staff',
+        department:'Front Desk', email:'reception@steigenberger.com',
+        phone:'+974 5000 0002', accountStatus:'active',
+        lastLogin:'', mustChangePassword:false,
+        createdAt: new Date().toISOString(), twofa_secret:''
+      }
     ];
     saveStaffLocal();
   }
@@ -2552,31 +2863,111 @@ function saveStaffLocal() {
   try { localStorage.setItem('steigenberger_staff', JSON.stringify(staffUsers)); } catch(e) {}
 }
 
+function getRoleColor(role) {
+  const colors = { admin: 'var(--gold-dark)', supervisor: 'var(--teal)', staff: 'var(--muted)' };
+  return colors[role] || 'var(--muted)';
+}
+
 function renderStaffUsers() {
-  const tbody = document.getElementById('staff-users-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = staffUsers.map(u => `
-    <tr>
-      <td><strong>${sanitize(u.username)}</strong></td>
-      <td>${sanitize(u.fullname)}</div></td>
-      <td><span class="badge badge-${u.role}">${u.role}</span></td>
-      <td>
-        <button class="btn-ghost btn-sm" onclick="editStaff('${sanitize(u.id)}')" style="margin-right:5px;">✏️ Edit</button>
-        <button class="btn-danger btn-sm" onclick="deleteStaff('${sanitize(u.id)}')">🗑 Delete</button>
-      </td>
-    </tr>`).join('');
+  const container = document.getElementById('staff-cards-container');
+  if (!container) return;
+
+  const filterRole = (document.getElementById('staff-filter-role')?.value || '').toLowerCase();
+  let list = staffUsers;
+  if (filterRole) list = staffUsers.filter(u => (u.role||'staff') === filterRole);
+
+  // Update admin stats
+  const totalEl   = document.getElementById('admin-stat-total');
+  const activeEl  = document.getElementById('admin-stat-active');
+  const adminsEl  = document.getElementById('admin-stat-admins');
+  if (totalEl)  totalEl.textContent  = staffUsers.length;
+  if (activeEl) activeEl.textContent = staffUsers.filter(u => (u.accountStatus||'active') !== 'suspended').length;
+  if (adminsEl) adminsEl.textContent = staffUsers.filter(u => u.role === 'admin').length;
+
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div>No staff members found</div>';
+    return;
+  }
+
+  const isCurrentAdmin = currentUser?.data?.role === 'admin';
+
+  container.innerHTML = list.map(u => {
+    const role = u.role || 'staff';
+    const status = u.accountStatus || 'active';
+    const dept = u.department || '';
+    const email = u.email || '';
+    const lastLogin = u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : 'Never';
+    const perms = getRolePermissions(role);
+    const initial = (u.fullname || u.username || '?').charAt(0).toUpperCase();
+    const avatarClass = role === 'admin' ? 'staff-avatar admin' : 'staff-avatar';
+    const statusBadgeStyle = status === 'suspended'
+      ? 'background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;'
+      : status === 'pending'
+        ? 'background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;'
+        : 'background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;';
+
+    return `
+    <div class="staff-member-card" id="staff-card-${sanitize(u.id)}">
+      <div class="${avatarClass}">${sanitize(initial)}</div>
+      <div class="staff-info">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="staff-info-name">${sanitize(u.fullname)}</div>
+          <span style="${statusBadgeStyle}">${status.charAt(0).toUpperCase()+status.slice(1)}</span>
+        </div>
+        <div class="staff-info-meta">
+          <span>@${sanitize(u.username)}</span>
+          ${dept ? `<span class="staff-info-badge dept">🏢 ${sanitize(dept)}</span>` : ''}
+          ${email ? `<span>✉️ ${sanitize(email)}</span>` : ''}
+          <span class="staff-info-badge last-login">🕐 Last login: ${sanitize(lastLogin)}</span>
+        </div>
+        <div class="perm-chips" style="margin-top:8px;">
+          ${perms.map(p => `<span class="perm-chip">${sanitize(p)}</span>`).join('')}
+        </div>
+      </div>
+      <div class="staff-actions">
+        ${isCurrentAdmin ? `
+        <button class="btn-ghost btn-sm" onclick="editStaff('${sanitize(u.id)}')" title="Edit member" style="padding:6px 10px;">✏️</button>
+        ${u.id !== currentUser?.data?.id ? `
+        <button class="btn-ghost btn-sm" onclick="toggleStaffStatus('${sanitize(u.id)}')" title="${status==='suspended'?'Enable':'Suspend'} account" style="padding:6px 10px;">${status==='suspended'?'✅':'⏸'}</button>
+        <button class="btn-danger btn-sm" onclick="deleteStaff('${sanitize(u.id)}')" style="padding:6px 10px;">🗑</button>
+        ` : ''}
+        ` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleStaffStatus(staffId) {
+  const staff = staffUsers.find(u => u.id === staffId);
+  if (!staff) return;
+  const current = staff.accountStatus || 'active';
+  staff.accountStatus = current === 'suspended' ? 'active' : 'suspended';
+  saveStaffLocal();
+  pushStaffToSheetDB(staff);
+  renderStaffUsers();
+  showToast(`Account ${staff.accountStatus === 'suspended' ? 'suspended' : 'reactivated'}: ${sanitize(staff.fullname)}`, staff.accountStatus === 'suspended' ? 'err' : 'ok');
+  addLog(`${currentUser?.data?.fullname} ${staff.accountStatus === 'suspended' ? 'suspended' : 'reactivated'} account: ${staff.username}`);
 }
 
 function editStaff(staffId) {
   const staff = staffUsers.find(u => u.id === staffId);
   if (!staff) return;
-  document.getElementById('new-username').value = staff.username;
-  document.getElementById('new-fullname').value = staff.fullname;
+  document.getElementById('new-username').value = staff.username || '';
+  document.getElementById('new-fullname').value = staff.fullname || '';
   document.getElementById('new-password').value = '';
-  document.getElementById('new-role').value = staff.role;
+  document.getElementById('new-role').value = staff.role || 'staff';
+  const deptEl = document.getElementById('new-dept');
+  if (deptEl) deptEl.value = staff.department || '';
+  const emailEl = document.getElementById('new-email');
+  if (emailEl) emailEl.value = staff.email || '';
+  const phoneEl = document.getElementById('new-phone');
+  if (phoneEl) phoneEl.value = staff.phone || '';
+  const statusEl = document.getElementById('new-account-status');
+  if (statusEl) statusEl.value = staff.accountStatus || 'active';
   document.getElementById('edit-staff-id').value = staff.id;
   document.getElementById('staff-modal-title').innerText = 'Edit Team Member';
   document.getElementById('staff-modal').classList.add('open');
+  updateRolePermissions();
 }
 
 function deleteStaff(staffId) {
@@ -2593,13 +2984,35 @@ function showAddStaff() {
     showToast('Only administrators can add new team members', 'err');
     return;
   }
-  document.getElementById('new-username').value = '';
-  document.getElementById('new-fullname').value = '';
-  document.getElementById('new-password').value = '';
-  document.getElementById('new-role').value = 'staff';
+  ['new-username','new-fullname','new-password','new-email','new-phone'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const roleEl = document.getElementById('new-role'); if (roleEl) roleEl.value = 'staff';
+  const deptEl = document.getElementById('new-dept'); if (deptEl) deptEl.value = '';
+  const statusEl = document.getElementById('new-account-status'); if (statusEl) statusEl.value = 'active';
   document.getElementById('edit-staff-id').value = '';
   document.getElementById('staff-modal-title').innerText = 'Add Team Member';
   document.getElementById('staff-modal').classList.add('open');
+  updateRolePermissions();
+}
+
+function toggleNewPwVisibility() {
+  const pw = document.getElementById('new-password');
+  if (!pw) return;
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+}
+
+function updateRolePermissions() {
+  const roleEl = document.getElementById('new-role');
+  const permList = document.getElementById('perm-list');
+  if (!roleEl || !permList) return;
+  const role = roleEl.value;
+  const allPerms = ['View Guests','Add Guest','Edit Guests','Delete Guests','Scan QR','Manual Lookup','Verify Guests','View Analytics','Manage Staff','System Config'];
+  const granted = getRolePermissions ? getRolePermissions(role) : [];
+  permList.innerHTML = allPerms.map(p => {
+    const has = granted.includes(p);
+    return `<span class="perm-chip${has ? '' : ' perm-off'}">${has ? '✓' : '✗'} ${p}</span>`;
+  }).join('');
 }
 
 function closeStaffModal() {
@@ -2610,49 +3023,73 @@ async function saveStaffMember() {
   const username = document.getElementById('new-username').value.trim();
   const fullname = document.getElementById('new-fullname').value.trim();
   const password = document.getElementById('new-password').value;
-  const role = document.getElementById('new-role').value;
-  const editId = document.getElementById('edit-staff-id').value;
-  
+  const role     = document.getElementById('new-role')?.value || 'staff';
+  const dept     = document.getElementById('new-dept')?.value || '';
+  const email    = document.getElementById('new-email')?.value?.trim() || '';
+  const phone    = document.getElementById('new-phone')?.value?.trim() || '';
+  const accountStatus = document.getElementById('new-account-status')?.value || 'active';
+  const editId   = document.getElementById('edit-staff-id').value;
+
   if (!username || !fullname) {
     showToast('Username and full name are required', 'err');
     return;
   }
-  
+
   if (editId) {
     // Edit existing
     const index = staffUsers.findIndex(u => u.id === editId);
     if (index !== -1) {
       staffUsers[index].username = username;
       staffUsers[index].fullname = fullname;
-      if (password && password.length >= 4) staffUsers[index].password = password;
+      if (password && password.length >= 8) {
+        const pwErr = validatePassword(password);
+        if (pwErr) { showToast(pwErr, 'err'); return; }
+        staffUsers[index].password = password;
+      }
       staffUsers[index].role = role;
+      staffUsers[index].department = dept;
+      staffUsers[index].email = email;
+      staffUsers[index].phone = phone;
+      staffUsers[index].accountStatus = accountStatus;
       saveStaffLocal();
-      showToast('Team member updated successfully', 'ok');
-      addLog(`${currentUser?.data?.fullname} updated team member ${username}`);
+      await pushStaffToSheetDB(staffUsers[index]);
+      showToast('✅ Team member updated', 'ok');
+      addLog(`${currentUser?.data?.fullname} updated team member: ${username}`);
     }
   } else {
     // Add new
     if (staffUsers.find(u => u.username === username)) {
-      showToast('Username already exists', 'err');
+      showToast('Username already exists — please choose a different one', 'err');
       return;
     }
-    if (!password || password.length < 4) {
-      showToast('Password must be at least 4 characters', 'err');
+    if (!password) {
+      showToast('Password is required for new accounts', 'err');
       return;
     }
+    const pwErr = validatePassword(password);
+    if (pwErr) { showToast(pwErr, 'err'); return; }
+
     const newStaff = {
       id: Date.now().toString(),
-      username: username,
-      password: password,
-      fullname: fullname,
-      role: role,
-      twofa_secret: ''
+      username,
+      password,
+      fullname,
+      role,
+      department: dept,
+      email,
+      phone,
+      accountStatus,
+      twofa_secret: '',
+      createdAt: new Date().toISOString(),
+      createdBy: currentUser?.data?.username || 'admin',
+      lastLogin: '',
+      mustChangePassword: true
     };
     staffUsers.push(newStaff);
     saveStaffLocal();
     await pushStaffToSheetDB(newStaff);
-    showToast(`Team member ${username} added successfully`, 'ok');
-    addLog(`${currentUser?.data?.fullname} added new team member ${username}`);
+    showToast(`✅ Account created for ${sanitize(fullname)} — they can now log in`, 'ok');
+    addLog(`${currentUser?.data?.fullname} created account: ${username} (${role})`);
   }
   closeStaffModal();
   renderStaffUsers();
@@ -2965,6 +3402,15 @@ async function init() {
       }
     }
   }
+}
+
+function updateAdminStats() {
+  const totalEl  = document.getElementById('admin-stat-total');
+  const activeEl = document.getElementById('admin-stat-active');
+  const adminsEl = document.getElementById('admin-stat-admins');
+  if (totalEl)  totalEl.textContent  = staffUsers.length;
+  if (activeEl) activeEl.textContent = staffUsers.filter(u => (u.accountStatus||'active') === 'active').length;
+  if (adminsEl) adminsEl.textContent = staffUsers.filter(u => u.role === 'admin').length;
 }
 
 init();
