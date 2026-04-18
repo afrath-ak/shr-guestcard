@@ -297,6 +297,18 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 .field select { color: rgba(255,255,255,0.7); }
 .field select option { background: var(--dark2); }
 
+/* ── MAIN APP SELECTS always light ── */
+#main-app select,
+#main-app select option {
+  background: var(--cream);
+  color: var(--dark);
+}
+#main-app select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+  outline: none;
+}
+
 /* OTP row */
 .otp-row { display: flex; gap: 10px; }
 .otp-row input { flex:1; text-align:center; font-size:20px; letter-spacing:6px; font-weight:600; padding:14px 8px; }
@@ -934,6 +946,81 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
   animation: slideUp 0.3s cubic-bezier(.34,1.2,.64,1) both;
   box-shadow: 0 24px 80px rgba(0,0,0,0.32);
 }
+
+/* ── MODAL FIELD OVERRIDES — ensure light theme inside modals ── */
+.modal-box .field input,
+.modal-box .field select,
+.modal-box .field textarea,
+.modal-box input[type="text"],
+.modal-box input[type="email"],
+.modal-box input[type="password"],
+.modal-box input[type="tel"],
+.modal-box input[type="search"],
+.modal-box select,
+.modal-box textarea {
+  background: #f8f6f2 !important;
+  color: #1a1a22 !important;
+  border: 1.5px solid #ddd4c4 !important;
+  border-radius: 10px !important;
+  width: 100% !important;
+  padding: 11px 14px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 14px !important;
+}
+.modal-box input::placeholder,
+.modal-box textarea::placeholder { color: #aaa !important; }
+.modal-box input:focus,
+.modal-box select:focus,
+.modal-box textarea:focus {
+  border-color: var(--gold) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important;
+  outline: none !important;
+}
+.modal-box label,
+.modal-box .field label {
+  display: block;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #6b6570 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+.modal-box .field-note { font-size: 11px; color: #aaa; margin-top: 4px; display: block; }
+.modal-box .field { margin-bottom: 14px; }
+.modal-box .form-section-title {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 12px;
+}
+.modal-box .form-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── SELECT OPTION FIX — force light background on all selects ── */
+select option {
+  background: #ffffff !important;
+  color: var(--dark) !important;
+}
+select {
+  color: var(--dark);
+}
+
+/* Fix select in main app panels */
+#main-app .field select {
+  background: var(--cream) !important;
+  color: var(--dark) !important;
+}
+#main-app .field select option {
+  background: #ffffff !important;
+  color: var(--dark) !important;
+}
+
+/* Fix select in login dark context */
+.login-page .field select option {
+  background: var(--dark2) !important;
+  color: #fff !important;
+}
 .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .modal-title  { font-family: 'Playfair Display', serif; font-size: 22px; }
 .modal-close  {
@@ -1120,6 +1207,88 @@ table.data tbody tr {
 .filter-bar {
   align-items: center;
 }
+
+
+/* ── STAFF MODAL GRID INPUTS ── */
+#staff-modal input,
+#staff-modal select,
+#staff-modal textarea {
+  background: #f8f6f2 !important;
+  color: #1a1a22 !important;
+  border: 1.5px solid #ddd4c4 !important;
+  border-radius: 10px !important;
+  padding: 11px 14px !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+#staff-modal input::placeholder { color: #bbb !important; }
+#staff-modal input:focus,
+#staff-modal select:focus {
+  border-color: #c9a84c !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important;
+  outline: none !important;
+}
+#staff-modal select option {
+  background: #ffffff !important;
+  color: #1a1a22 !important;
+}
+#staff-modal label {
+  display: block;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #6b6570 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+#staff-modal .field { margin-bottom: 0; }
+
+/* ── VERIFICATION MODAL ── */
+#verification-modal input,
+#verification-modal select,
+#verification-modal textarea {
+  background: #f8f6f2 !important;
+  color: #1a1a22 !important;
+  border: 1.5px solid #ddd4c4 !important;
+  border-radius: 10px !important;
+  padding: 11px 14px !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  width: 100% !important;
+}
+#verification-modal input:focus,
+#verification-modal select:focus {
+  border-color: #c9a84c !important;
+  background: #fff !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important;
+}
+#verification-modal select option {
+  background: #ffffff !important;
+  color: #1a1a22 !important;
+}
+#verification-modal label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #6b6570 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+
+/* ── ADD GUEST FORM selects ── */
+#panel-staff-add select,
+#panel-staff-add select option {
+  background: #faf8f4 !important;
+  color: #1a1a22 !important;
+}
+
+/* ── STAFF FILTER SELECTS ── */
+#staff-filter-role option { background: #fff; color: #1a1a22; }
 
 </style>
 </head>
