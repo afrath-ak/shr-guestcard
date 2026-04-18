@@ -505,6 +505,33 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 }
 .sync-status-inline.visible { display: flex; }
 
+/* Sidebar collapsed state */
+.sidebar.collapsed {
+  width: 0 !important;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+}
+.sidebar {
+  transition: width 0.28s cubic-bezier(.4,0,.2,1);
+}
+
+/* Sidebar toggle button in header */
+.sidebar-toggle-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--gold);
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover { background: rgba(201,168,76,0.15); border-color: rgba(201,168,76,0.3); }
+.sidebar-toggle-btn:focus-visible { outline: 2px solid var(--gold); }
+
 /* Mobile nav (top tabs for small screens) */
 .mobile-nav {
   display: none;
@@ -1240,6 +1267,10 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
       <div class="logo-name">Steigenberger Doha</div>
     </a>
     <div class="header-right">
+      <!-- Sidebar toggle button — staff only -->
+      <button class="sidebar-toggle-btn staff-only" id="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle navigation menu" style="display:none;" title="Toggle Menu">
+        <span id="sidebar-toggle-icon">◀</span>
+      </button>
       <div class="user-pill" aria-label="Current user">
         <div class="user-avatar" id="user-avatar" aria-hidden="true">G</div>
         <div>
@@ -1261,7 +1292,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests', event)">Guests</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add', event)">Add Guest</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner', event)">Scanner</button>
-    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-admin', event)">Team Admin</button>
+    <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-admin', event)">Team Admin</button>
   </nav>
 
   <div class="app-body">
@@ -1296,7 +1327,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           Scanner
         </button>
 
-        <button class="sidebar-btn" id="nav-admin"
+        <button class="sidebar-btn admin-only" id="nav-admin"
           onclick="showPanel('staff-admin')" aria-label="Team administration">
           <span class="sidebar-icon">🛡️</span>
           Team Admin
@@ -1554,7 +1585,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         </section>
 
         <!-- ── TEAM ADMIN ── -->
-        <section class="panel" id="panel-staff-admin" aria-label="Team Administration">
+        <section class="panel admin-only" id="panel-staff-admin" aria-label="Team Administration">
           <div class="page-header">
             <div class="page-title">Team Admin</div>
             <div class="page-subtitle">Manage staff members and review verifications</div>
@@ -1562,7 +1593,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           <div class="card">
             <div class="staff-table-head">
               <div class="card-title" style="margin-bottom:0;">Team Members</div>
-              <button class="btn-primary btn-sm" onclick="showAddStaff()" aria-label="Add new team member">+ Add Member</button>
+              <button class="btn-primary btn-sm admin-only" onclick="showAddStaff()" aria-label="Add new team member">+ Add Member</button>
             </div>
             <div class="table-responsive" style="margin-top:14px;">
               <table class="data" aria-label="Staff users list">
@@ -2202,6 +2233,24 @@ function confirmPasswordReset() {
 }
 
 // ═══════════════════════════════════════════════════
+// SIDEBAR TOGGLE
+// ═══════════════════════════════════════════════════
+let sidebarCollapsed = false;
+function toggleSidebar() {
+  const sidebar = document.getElementById('main-sidebar');
+  const icon = document.getElementById('sidebar-toggle-icon');
+  if (!sidebar) return;
+  sidebarCollapsed = !sidebarCollapsed;
+  if (sidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    if (icon) icon.textContent = '▶';
+  } else {
+    sidebar.classList.remove('collapsed');
+    if (icon) icon.textContent = '◀';
+  }
+}
+
+// ═══════════════════════════════════════════════════
 // SESSION APPLICATION
 // ═══════════════════════════════════════════════════
 function applyUserSession() {
@@ -2221,6 +2270,9 @@ function applyUserSession() {
     if (sidebar) sidebar.style.display = 'none';
     document.getElementById('mobile-nav-guest').style.display = 'flex';
     document.getElementById('mobile-nav-staff').style.display = 'none';
+    // Hide sidebar toggle for guests
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (toggleBtn) toggleBtn.style.display = 'none';
     hideSyncInline();
     loadGuestDashboard();
     showPanel('guest-dashboard');
@@ -2241,6 +2293,15 @@ function applyUserSession() {
       }
     });
     document.getElementById('mobile-nav-guest').style.display = 'none';
+    // Show sidebar toggle button for staff
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (toggleBtn) toggleBtn.style.display = 'flex';
+    // Reset sidebar state
+    const sidebar = document.getElementById('main-sidebar');
+    if (sidebar) sidebar.classList.remove('collapsed');
+    sidebarCollapsed = false;
+    const icon = document.getElementById('sidebar-toggle-icon');
+    if (icon) icon.textContent = '◀';
     if (isAdmin) {
       document.querySelectorAll('.admin-only').forEach(el => {
         // sidebar buttons need flex
@@ -2508,10 +2569,20 @@ function renderStaffUsers() {
     </tr>`).join('');
 }
 
-function showAddStaff()    { document.getElementById('staff-modal').classList.add('open'); }
+function showAddStaff() {
+  // Only administrators can add new team members
+  if (!currentUser || currentUser.type !== 'staff' || currentUser.data?.role !== 'admin') {
+    showToast('Only administrators can add new team members', 'err'); return;
+  }
+  document.getElementById('staff-modal').classList.add('open');
+}
 function closeStaffModal() { document.getElementById('staff-modal').classList.remove('open'); }
 
 async function addStaff() {
+  // Only administrators can add new team members
+  if (!currentUser || currentUser.type !== 'staff' || currentUser.data?.role !== 'admin') {
+    showToast('Only administrators can add new team members', 'err'); return;
+  }
   const username = document.getElementById('new-username').value.trim();
   const fullname = document.getElementById('new-fullname').value.trim();
   const password = document.getElementById('new-password').value;
