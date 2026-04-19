@@ -1410,13 +1410,14 @@ table.data tbody tr {
                 autocomplete="family-name" aria-required="true">
             </div>
             <div class="field">
-              <label for="guest-contact">Phone or Email for OTP <span aria-label="required">*</span></label>
-              <input type="text" id="guest-contact" placeholder="+974 XXXX XXXX or email@..."
-                autocomplete="email" aria-required="true">
+              <label for="guest-contact">Phone Number for OTP <span aria-label="required">*</span></label>
+              <input type="tel" id="guest-contact" placeholder="+974 XXXX XXXX"
+                autocomplete="tel" aria-required="true" aria-describedby="guest-contact-hint">
+              <span id="guest-contact-hint" class="field-note">We’ll send a 6-digit code via SMS</span>
             </div>
             <button class="login-btn" id="guest-otp-btn" onclick="requestGuestOTP()"
-              aria-label="Send verification code to your phone or email">
-              Send Verification Code →
+              aria-label="Send verification code to your phone">
+              Send SMS Code →
             </button>
           </div>
 
@@ -1427,8 +1428,8 @@ table.data tbody tr {
               <div class="step-pill active">2 Verify</div>
             </div>
             <div class="info-note">
-              <strong>Check your phone or email.</strong>
-              A 6-digit verification code has been sent. It expires in 5 minutes.
+              <strong>Check your phone.</strong>
+              A 6-digit SMS code has been sent. It expires in 5 minutes.
             </div>
             <div class="field">
               <label for="guest-otp">One-Time Code</label>
@@ -1438,6 +1439,7 @@ table.data tbody tr {
                   inputmode="numeric" pattern="[0-9]*" aria-label="6-digit verification code">
               </div>
             </div>
+            <p id="guest-otp-timer" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:10px;min-height:18px;"></p>
             <button class="login-btn" onclick="verifyGuestOTP()"
               aria-label="Verify code and enter your account">Verify & Enter →</button>
             <button class="login-btn secondary" onclick="backToStep1()">← Back</button>
@@ -1482,17 +1484,13 @@ table.data tbody tr {
                 <div class="step-pill active">2 Contact</div>
                 <div class="step-pill">3 Verify</div>
               </div>
-              <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Provide at least one contact method — we'll send your verification code here.</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Enter your phone number — we’ll send a 6-digit SMS code to verify.</p>
               <div class="field">
-                <label for="s-email">Email Address</label>
-                <input type="email" id="s-email" placeholder="your@email.com" autocomplete="email" aria-describedby="s-contact-note">
+                <label for="s-phone">Phone Number <span aria-label="required">*</span></label>
+                <input type="tel" id="s-phone" placeholder="+974 XXXX XXXX" autocomplete="tel" aria-required="true" aria-describedby="s-phone-note">
+                <span id="s-phone-note" class="field-note">Include country code, e.g. +974 for Qatar</span>
               </div>
-              <div class="field">
-                <label for="s-phone">Phone Number</label>
-                <input type="tel" id="s-phone" placeholder="+974 XXXX XXXX" autocomplete="tel">
-              </div>
-              <span id="s-contact-note" class="field-note" style="display:block;margin-top:-6px;margin-bottom:12px;">Provide email or phone number (or both)</span>
-              <button class="login-btn" onclick="signupSendOTP()" aria-label="Send verification code">Send Verification Code →</button>
+              <button class="login-btn" onclick="signupSendOTP()" aria-label="Send SMS verification code">Send SMS Code →</button>
               <button class="login-btn secondary" onclick="signupBack(1)">← Back</button>
             </div>
             <div id="signup-step-3" style="display:none;">
@@ -1503,7 +1501,7 @@ table.data tbody tr {
               </div>
               <div class="info-note">
                 <strong>Almost there!</strong>
-                Enter the 6-digit code sent to your phone or email.
+                Enter the 6-digit SMS code sent to your phone.
               </div>
               <div class="field">
                 <label for="s-otp">Verification Code</label>
@@ -1511,6 +1509,7 @@ table.data tbody tr {
                   <input type="text" id="s-otp" maxlength="6" placeholder="· · · · · ·" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" aria-label="6-digit verification code">
                 </div>
               </div>
+              <p id="signup-otp-timer" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:10px;min-height:18px;"></p>
               <button class="login-btn teal" onclick="signupVerifyAndCreate()" aria-label="Verify and create your guest account">Create My Guest Card ✓</button>
               <button class="login-btn secondary" onclick="signupBack(2)">← Back</button>
               <p class="resend-link">Didn't receive it? <button onclick="signupResend()">Resend code</button></p>
@@ -2409,10 +2408,150 @@ function loadChartLib() {
   });
 }
 
-async function sendOTP(contact, otp) {
-  console.info(`[OTP Demo] Code ${otp} → ${contact}`);
-  showToast(`📱 Demo OTP: ${otp} (check console in prod)`, '');
+// ═══════════════════════════════════════════════════
+// OTP DELIVERY CONFIGURATION
+// ═══════════════════════════════════════════════════
+// HOW TO CONFIGURE REAL SMS:
+//
+//   1. Add a POST /otp route to your Cloudflare Worker at:
+//      https://shrgc.afrath445.workers.dev
+//      Body: { to: "+974XXXXXXXX", message: "Your code is: 123456" }
+//
+//   2. Inside that worker route, call Twilio SMS API (or WhatsApp Business API):
+//      const client = require('twilio')(TWILIO_SID, TWILIO_TOKEN);
+//      await client.messages.create({ body: message, from: '+1XXXXXXXXXX', to });
+//
+//   3. Set  SMS_ENABLED: true  below and  DEMO_MODE: false
+// ─────────────────────────────────────────────────
+const OTP_CONFIG = {
+  // ── EmailJS settings (NOT USED — email verification removed for guests) ──
+  EMAIL_ENABLED:   false,
+  EMAILJS_SERVICE: '',
+  EMAILJS_TEMPLATE:'',
+  EMAILJS_PUBLIC:  '',
+
+  // ── SMS via Cloudflare Worker ──
+  // Add a POST /otp route to https://shrgc.afrath445.workers.dev
+  // that accepts { to, message } and calls Twilio / WhatsApp API.
+  // Set SMS_ENABLED = true once your worker endpoint is live.
+  SMS_ENABLED:     false,                           // ← set true when /otp worker route is ready
+  SMS_ENDPOINT:    'https://shrgc.afrath445.workers.dev/otp',
+
+  // ── Demo mode: show OTP on-screen when SMS_ENABLED is false ──
+  DEMO_MODE:       true,
+};
+
+// Email delivery removed — guests use phone/SMS OTP only
+
+async function sendOTP(phone, otp) {
+  // SMS delivery via Cloudflare Worker
+  if (OTP_CONFIG.SMS_ENABLED) {
+    try {
+      const res = await fetch(OTP_CONFIG.SMS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to:      phone,
+          message: `Your Steigenberger Hotel Doha verification code is: ${otp}\n\nValid for 5 minutes. Do not share this code.`,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      showToast('SMS code sent to your phone', 'ok');
+      if (OTP_CONFIG.DEMO_MODE) showDemoOTPBanner(otp, phone);
+      return true;
+    } catch (err) {
+      console.error('[OTP] SMS worker error:', err);
+      showToast('Could not send SMS. Please check the number and try again.', 'err');
+      showDemoOTPBanner(otp, phone); // fallback so guest isn't locked out
+      return true;
+    }
+  }
+  // Demo mode (SMS_ENABLED = false) - show code on screen
+  showDemoOTPBanner(otp, phone);
   return true;
+}
+
+// Demo OTP banner - visible on-screen code for testing (shown when SMS_ENABLED=false)
+function showDemoOTPBanner(otp, phone) {
+  const old = document.getElementById('demo-otp-banner');
+  if (old) old.remove();
+  const banner = document.createElement('div');
+  banner.id = 'demo-otp-banner';
+  banner.setAttribute('role', 'alert');
+  banner.style.cssText = [
+    'position:fixed', 'top:16px', 'left:50%', 'transform:translateX(-50%)',
+    'background:#1a1200', 'border:1.5px solid #c9a84c',
+    'color:#e8d08a', 'border-radius:14px', 'padding:16px 24px',
+    'z-index:99999', 'font-family:Outfit,sans-serif', 'font-size:14px',
+    'box-shadow:0 8px 40px rgba(0,0,0,0.6)', 'max-width:92vw',
+    'display:flex', 'flex-direction:column', 'gap:6px', 'text-align:center'
+  ].join(';');
+  banner.innerHTML = `
+    <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;">
+      Demo Mode - SMS not sent (set SMS_ENABLED=true to go live)
+    </div>
+    <div style="font-size:28px;font-weight:700;letter-spacing:10px;color:#fff;">
+      ${otp}
+    </div>
+    <div style="font-size:12px;opacity:0.5;">Phone: ${phone}</div>
+    <button onclick="document.getElementById('demo-otp-banner').remove()"
+      style="margin-top:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);
+             color:#c9a84c;border-radius:8px;padding:5px 16px;cursor:pointer;font-size:12px;font-family:inherit;">
+      Dismiss
+    </button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(() => { if (banner.parentNode) banner.remove(); }, 5 * 60 * 1000);
+}
+
+
+
+// ═══════════════════════════════════════════════════
+// OTP COUNTDOWN TIMER
+// ═══════════════════════════════════════════════════
+let _otpCountdownTimer = null;
+function startOTPCountdown(elementId, seconds) {
+  if (_otpCountdownTimer) clearInterval(_otpCountdownTimer);
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  let remaining = seconds;
+  function tick() {
+    if (remaining <= 0) {
+      el.textContent = 'Code expired. Please request a new one.';
+      el.style.color = '#fca5a5';
+      clearInterval(_otpCountdownTimer);
+      return;
+    }
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    el.textContent = `Code expires in ${m}:${String(s).padStart(2,'0')}`;
+    el.style.color = remaining <= 60 ? '#fbbf24' : 'rgba(255,255,255,0.4)';
+    remaining--;
+  }
+  tick();
+  _otpCountdownTimer = setInterval(tick, 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// OTP INPUT — auto-submit on 6 digits + numeric-only filter
+// ═══════════════════════════════════════════════════
+function wireOTPInputs() {
+  const otpInputs = [
+    { id: 'guest-otp',  action: verifyGuestOTP },
+    { id: 's-otp',      action: signupVerifyAndCreate },
+  ];
+  otpInputs.forEach(({ id, action }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      // strip non-digits
+      el.value = el.value.replace(/\D/g, '').slice(0, 6);
+      if (el.value.length === 6) action();
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && el.value.length === 6) action();
+    });
+  });
 }
 
 // ═══════════════════════════════════════════════════
@@ -2464,6 +2603,9 @@ function backToStep1() {
   document.getElementById('guest-step-1').style.display = 'block';
   document.getElementById('guest-step-2').style.display = 'none';
   pendingOTP = null; pendingGuestForOTP = null; clearLoginError();
+  if (_otpCountdownTimer) { clearInterval(_otpCountdownTimer); _otpCountdownTimer = null; }
+  const timerEl = document.getElementById('guest-otp-timer');
+  if (timerEl) timerEl.textContent = '';
 }
 
 async function requestGuestOTP() {
@@ -2472,25 +2614,29 @@ async function requestGuestOTP() {
   const contact = document.getElementById('guest-contact').value.trim();
   clearLoginError();
   if (!guestId || !lastName) { showLoginError('Please enter your Guest ID and last name.'); return; }
-  if (!contact) { showLoginError('Please enter your phone number or email.'); return; }
+  if (!contact) { showLoginError('Please enter your phone number.'); return; }
+  if (!/^[+]?[0-9][\s\-().0-9]{6,}$/.test(contact)) { showLoginError('Please enter a valid phone number with country code (e.g. +974 XXXX XXXX).'); return; }
   if (!checkRateLimit(`otp_req_${guestId}`, 5)) { showLoginError('Too many attempts. Please wait 5 minutes.'); return; }
   const guest = guests.find(g => g.id === guestId && g.last.toLowerCase() === lastName.toLowerCase());
   if (!guest) { showLoginError('No matching guest found. Please check your ID and last name.'); return; }
   if (guest.status !== 'Active') { showLoginError('This guest card has been deactivated. Please contact reception.'); return; }
-  showSpinner('Sending verification code…');
+  showSpinner('Sending SMS code…');
   const otp = generateOTP(); pendingOTP = otp; otpExpiry = Date.now() + 5 * 60 * 1000; pendingGuestForOTP = guest;
   await sendOTP(contact, otp); hideSpinner();
   document.getElementById('guest-step-1').style.display = 'none';
   document.getElementById('guest-step-2').style.display = 'block';
-  document.getElementById('guest-otp').value = ''; document.getElementById('guest-otp').focus();
+  document.getElementById('guest-otp').value = '';
+  document.getElementById('guest-otp').focus();
+  startOTPCountdown('guest-otp-timer', 5 * 60);
 }
 
 async function resendOTP() {
   if (!pendingGuestForOTP) { backToStep1(); return; }
   const contact = document.getElementById('guest-contact').value.trim();
   const otp = generateOTP(); pendingOTP = otp; otpExpiry = Date.now() + 5 * 60 * 1000;
-  showSpinner('Resending code…'); await sendOTP(contact, otp); hideSpinner();
-  showToast('New code sent!', 'ok');
+  showSpinner('Resending SMS code…'); await sendOTP(contact, otp); hideSpinner();
+  showToast('New SMS code sent!', 'ok');
+  startOTPCountdown('guest-otp-timer', 5 * 60);
 }
 
 function verifyGuestOTP() {
@@ -2531,29 +2677,32 @@ function signupNextStep() {
   signupData = { first, last, guestId, guest };
   document.getElementById('signup-step-1').style.display = 'none';
   document.getElementById('signup-step-2').style.display = 'block';
-  document.getElementById('s-email').focus();
+  document.getElementById('s-phone').focus();
 }
 
 async function signupSendOTP() {
   clearLoginError();
-  const email = document.getElementById('s-email').value.trim();
   const phone = document.getElementById('s-phone').value.trim();
-  if (!email && !phone) { showLoginError('Please provide at least your email address or phone number.'); return; }
-  signupData.email = email; signupData.phone = phone;
-  const contact = email || phone;
-  showSpinner('Sending verification code…');
+  if (!phone) { showLoginError('Please enter your phone number.'); return; }
+  if (!/^[+]?[0-9][\s\-().0-9]{6,}$/.test(phone)) { showLoginError('Please enter a valid phone number with country code (e.g. +974 XXXX XXXX).'); return; }
+  signupData.phone = phone;
+  showSpinner('Sending SMS code…');
   const otp = generateOTP(); signupPendingOTP = otp; signupOtpExpiry = Date.now() + 5 * 60 * 1000;
-  await sendOTP(contact, otp); hideSpinner();
+  const ok = await sendOTP(phone, otp); hideSpinner();
+  if (!ok) return;
   document.getElementById('signup-step-2').style.display = 'none';
   document.getElementById('signup-step-3').style.display = 'block';
-  document.getElementById('s-otp').value = ''; document.getElementById('s-otp').focus();
+  document.getElementById('s-otp').value = '';
+  document.getElementById('s-otp').focus();
+  startOTPCountdown('signup-otp-timer', 5 * 60);
 }
 
 async function signupResend() {
-  const contact = signupData.email || signupData.phone; if (!contact) return;
+  const contact = signupData.phone; if (!contact) return;
   const otp = generateOTP(); signupPendingOTP = otp; signupOtpExpiry = Date.now() + 5 * 60 * 1000;
-  showSpinner('Resending…'); await sendOTP(contact, otp); hideSpinner();
-  showToast('New code sent!', 'ok');
+  showSpinner('Resending SMS code…'); await sendOTP(contact, otp); hideSpinner();
+  showToast('New SMS code sent!', 'ok');
+  startOTPCountdown('signup-otp-timer', 5 * 60);
 }
 
 async function signupVerifyAndCreate() {
@@ -2563,7 +2712,6 @@ async function signupVerifyAndCreate() {
   if (Date.now() > signupOtpExpiry){ showLoginError('Code has expired. Please go back and request a new one.'); return; }
   if (entered !== signupPendingOTP){ showLoginError('Incorrect code. Please try again.'); return; }
   const guest = signupData.guest;
-  if (signupData.email) guest.email = signupData.email;
   if (signupData.phone) guest.phone = signupData.phone;
   saveLocal(); await syncSingleGuest(guest);
   currentUser = { type: 'guest', data: guest }; currentGuest = guest;
@@ -3624,6 +3772,7 @@ async function init() {
   const checkout = document.getElementById('f-checkout');
   if (checkin)  checkin.value  = today;
   if (checkout) checkout.value = nextWeek;
+  wireOTPInputs();
   const restored = await restoreSession();
   if (!restored) {
     const params  = new URLSearchParams(window.location.search);
