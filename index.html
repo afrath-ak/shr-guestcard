@@ -2981,7 +2981,21 @@ async function loadStaffFromSheetDB() {
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
-        staffUsers = data.map(row => ({ id: row.id, username: row.username, password: row.password, fullname: row.fullname, role: row.role, twofa_secret: row.twofa_secret || '' }));
+        staffUsers = data.map(row => ({
+          id: row.id,
+          username: row.username,
+          password: row.password,
+          fullname: row.fullname,
+          role: row.role || 'staff',
+          twofa_secret: row.twofa_secret || '',
+          accountStatus: row.accountStatus || 'active',
+          department: row.department || '',
+          email: row.email || '',
+          phone: row.phone || '',
+          lastLogin: row.lastLogin || '',
+          mustChangePassword: row.mustChangePassword === 'true' || row.mustChangePassword === true || false,
+          createdAt: row.createdAt || ''
+        }));
         localStorage.setItem('steigenberger_staff', JSON.stringify(staffUsers));
       } else loadStaffFallback();
     } else loadStaffFallback();
