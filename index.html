@@ -2980,7 +2980,8 @@ function rejectVerification(requestId) {
 async function loadStaffFromSheetDB() {
   showSpinner('Loading staff…');
   try {
-    const r = await fetch(`${SHEETDB_URL}/staff`);
+    // SheetDB uses ?sheet=staff query param to target a named tab
+    const r = await fetch(`${SHEETDB_URL}?sheet=staff`);
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -3000,10 +3001,12 @@ async function loadStaffFromSheetDB() {
           createdAt: row.createdAt || ''
         }));
         localStorage.setItem('steigenberger_staff', JSON.stringify(staffUsers));
+        console.log('[StaffLoad] Loaded', staffUsers.length, 'staff from SheetDB:', staffUsers.map(u => u.username));
         hideSpinner();
         return;
       }
     }
+    console.warn('[StaffLoad] SheetDB staff sheet empty or error — using fallback');
     loadStaffFallback();
   } catch(e) {
     console.error('[StaffLoad] Fetch failed:', e.message);
@@ -3185,7 +3188,12 @@ async function deleteStaff(staffId) {
   if (!confirm('⚠️ Are you sure you want to permanently remove this team member?')) return;
   staffUsers = staffUsers.filter(u => u.id !== staffId);
   saveStaffLocal();
-  try { await fetch(`${SHEETDB_URL}/staff/id/${staffId}`, { method: 'DELETE' }); } catch(e) {}
+  try {
+    await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(staffId)}?sheet=staff`, { method: 'DELETE' });
+    console.log('[StaffSync] Deleted staff from SheetDB:', staffId);
+  } catch(e) {
+    console.warn('[StaffSync] Delete sync failed:', e.message);
+  }
   renderStaffUsers();
   showToast('Team member removed successfully', 'ok');
   addLog(`${currentUser?.data?.fullname} deleted team member`);
@@ -3309,15 +3317,31 @@ async function saveStaffMember() {
 
 async function pushStaffToSheetDB(staff) {
   try {
-    const check = await fetch(`${SHEETDB_URL}/staff/search?id=${encodeURIComponent(staff.id)}`);
+    // Search in the staff sheet tab
+    const check = await fetch(`${SHEETDB_URL}/search?sheet=staff&id=${encodeURIComponent(staff.id)}`);
     const existing = await check.json();
-    if (existing?.length > 0) {
-      await fetch(`${SHEETDB_URL}/staff/id/${staff.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(staff) });
+    if (Array.isArray(existing) && existing.length > 0) {
+      // Update existing row
+      await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(staff.id)}?sheet=staff`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: staff })
+      });
     } else {
-      await fetch(`${SHEETDB_URL}/staff`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(staff) });
+      // Insert new row
+      await fetch(`${SHEETDB_URL}?sheet=staff`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: [staff] })
+      });
     }
+    saveStaffLocal();
+    console.log('[StaffSync] Synced staff to SheetDB:', staff.username);
     return true;
-  } catch(e) { return false; }
+  } catch(e) {
+    console.error('[StaffSync] Failed:', e.message);
+    return false;
+  }
 }
 
 // ═══════════════════════════════════════════════════
