@@ -2145,7 +2145,7 @@ function getRolePermissions(role) {
 // ═══════════════════════════════════════════════════
 // CONFIG - ORIGINAL CODE PRESERVED
 // ═══════════════════════════════════════════════════
-const SHEETDB_URL             = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
+const SHEETDB_URL = "https://shrgc.afrath445.workers.dev";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -2584,11 +2584,14 @@ function signupBack(step) {
 // ═══════════════════════════════════════════════════
 function staffLogin() {
   const username = document.getElementById('staff-username').value.trim();
-  const password = document.getElementById('staff-password').value;
+  const password = document.getElementById('staff-password').value.trim();
   clearLoginError();
   if (!username || !password) { showLoginError('Please enter username and password.'); return; }
   if (!checkRateLimit(`staff_${username}`, 5)) { showLoginError('Too many failed attempts. Please wait 5 minutes.'); return; }
-  const staff = staffUsers.find(u => u.username === username && u.password === password);
+  const staff = staffUsers.find(u =>
+    (u.username || '').trim().toLowerCase() === username.toLowerCase() &&
+    (u.password || '').trim() === password
+  );
   if (!staff) { showLoginError('Invalid username or password.'); return; }
 
   // Check account status
@@ -2982,10 +2985,10 @@ async function loadStaffFromSheetDB() {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
         staffUsers = data.map(row => ({
-          id: row.id,
-          username: row.username,
-          password: row.password,
-          fullname: row.fullname,
+          id: row.id || '',
+          username: (row.username || '').trim(),
+          password: (row.password || '').trim(),
+          fullname: row.fullname || '',
           role: row.role || 'staff',
           twofa_secret: row.twofa_secret || '',
           accountStatus: row.accountStatus || 'active',
@@ -3003,7 +3006,7 @@ async function loadStaffFromSheetDB() {
     }
     loadStaffFallback();
   } catch(e) {
-    console.error('Staff load error:', e);
+    console.error('[StaffLoad] Fetch failed:', e.message);
     loadStaffFallback();
   }
   hideSpinner();
@@ -3178,10 +3181,11 @@ function editStaff(staffId) {
   updateRolePermissions();
 }
 
-function deleteStaff(staffId) {
+async function deleteStaff(staffId) {
   if (!confirm('⚠️ Are you sure you want to permanently remove this team member?')) return;
   staffUsers = staffUsers.filter(u => u.id !== staffId);
   saveStaffLocal();
+  try { await fetch(`${SHEETDB_URL}/staff/id/${staffId}`, { method: 'DELETE' }); } catch(e) {}
   renderStaffUsers();
   showToast('Team member removed successfully', 'ok');
   addLog(`${currentUser?.data?.fullname} deleted team member`);
