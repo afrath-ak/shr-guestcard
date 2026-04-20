@@ -1654,9 +1654,9 @@ const SHEETDB_URL = "https://shrgc.afrath445.workers.dev";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
-// OTP Configuration - Email via Cloudflare Worker
+// OTP Configuration - NEW WORKER URL as requested
 const OTP_CONFIG = {
-  WORKER_ENDPOINT: 'https://steigenberger-otp-worker.afrath445.workers.dev/send-otp',
+  WORKER_ENDPOINT: 'https://stgotp.afrath445.workers.dev/send-otp',
   DEMO_MODE: false,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000
@@ -1803,7 +1803,7 @@ function saveSession() {
 }
 
 // ═══════════════════════════════════════════════════
-// OTP DELIVERY - FIXED WITH RETRY LOGIC
+// OTP DELIVERY - USING NEW WORKER URL
 // ═══════════════════════════════════════════════════
 async function sendOTP(email, otp, guestName) {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -1814,7 +1814,7 @@ async function sendOTP(email, otp, guestName) {
 
   for (let attempt = 1; attempt <= OTP_CONFIG.RETRY_ATTEMPTS; attempt++) {
     try {
-      console.log(`[OTP] Attempt ${attempt} to send to ${email}`);
+      console.log(`[OTP] Attempt ${attempt} to send to ${email} via ${OTP_CONFIG.WORKER_ENDPOINT}`);
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -2755,7 +2755,7 @@ function renderTable() {
   if (currentFilter === 'unverified') filtered = filtered.filter(g => !g.verified);
   const tbody = document.getElementById('staff-tbody');
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🔍</div>No guests found</div></td></tr>'; return; }
-  tbody.innerHTML = filtered.map(g => `<tr><td><strong>${sanitize(g.id)}</strong></td><td><div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div><div style="font-size:12px;color:var(--muted);">${sanitize(g.email)}</div></td><td>${sanitize(g.room || '—')}</td><td style="font-size:12px;color:var(--muted);">${sanitize(g.checkin||'—')}<br>${sanitize(g.checkout||'—')}</td><td><span class="badge badge-${g.status.toLowerCase()}">${sanitize(g.status)}</span></td><td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : '⏳ Pending'}</span></td><td>${g.scans||0}</td><td><button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" aria-label="${g.status === 'Active' ? 'Revoke' : 'Activate'} ${sanitize(g.first)}">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button></td></tr>`).join('');
+  tbody.innerHTML = filtered.map(g => `<tr><td><strong>${sanitize(g.id)}</strong></td><td><div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div><div style="font-size:12px;color:var(--muted);">${sanitize(g.email)}</div></td><td>${sanitize(g.room || '—')}</td><td style="font-size:12px;color:var(--muted);">${sanitize(g.checkin||'—')}<br>${sanitize(g.checkout||'—')}</td><td><span class="badge badge-${g.status.toLowerCase()}">${sanitize(g.status)}</span></td><td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : '⏳ Pending'}</span></td><td>${g.scans||0}</td><td><button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" aria-label="${g.status === 'Active' ? 'Revoke' : 'Activate'} ${sanitize(g.first)}">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button></td>`).join('');
 }
 
 function setFilter(filter, e) {
