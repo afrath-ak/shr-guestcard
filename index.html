@@ -2425,66 +2425,44 @@ function loadChartLib() {
 //   3. Set  SMS_ENABLED: true  below and  DEMO_MODE: false
 // ─────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════
-// EMAIL OTP CONFIGURATION via EmailJS
+// EMAIL OTP — Resend via Cloudflare Worker
 // ═══════════════════════════════════════════════════
-// HOW TO CONFIGURE REAL EMAIL OTP:
-//
-//   1. Create a free account at https://www.emailjs.com
-//   2. Add an Email Service (Gmail, Outlook, etc.)
-//   3. Create an Email Template with variables:
-//      - {{otp_code}}  → the 6-digit code
-//      - {{to_email}}  → recipient email
-//      - {{to_name}}   → guest name (optional)
-//   4. Fill in the values below and set EMAIL_ENABLED: true
-// ─────────────────────────────────────────────────
 const OTP_CONFIG = {
-  EMAIL_ENABLED:    false,                       // ← set true after filling EmailJS credentials below
-  EMAILJS_SERVICE:  'YOUR_SERVICE_ID',           // ← from EmailJS dashboard > Email Services
-  EMAILJS_TEMPLATE: 'YOUR_TEMPLATE_ID',          // ← from EmailJS dashboard > Email Templates
-  EMAILJS_PUBLIC:   'YOUR_PUBLIC_KEY',           // ← from EmailJS dashboard > Account > Public Key
-
-  // Demo mode: show OTP on-screen when EMAIL_ENABLED is false
-  DEMO_MODE: true,
+  WORKER_ENDPOINT: 'https://shrgc.afrath445.workers.dev/otp',
+  DEMO_MODE: false,   // ← set true to show OTP on-screen instead of sending email
 };
 
-// Initialize EmailJS once config is ready
-(function() {
-  if (OTP_CONFIG.EMAIL_ENABLED && OTP_CONFIG.EMAILJS_PUBLIC !== 'YOUR_PUBLIC_KEY') {
-    if (window.emailjs) emailjs.init({ publicKey: OTP_CONFIG.EMAILJS_PUBLIC });
-  }
-})();
-
 async function sendOTP(email, otp, guestName) {
-  if (OTP_CONFIG.EMAIL_ENABLED) {
-    try {
-      if (!window.emailjs) throw new Error('EmailJS not loaded');
-      const result = await emailjs.send(
-        OTP_CONFIG.EMAILJS_SERVICE,
-        OTP_CONFIG.EMAILJS_TEMPLATE,
-        {
-          to_email:  email,
-          to_name:   guestName || 'Valued Guest',
-          otp_code:  otp,
-          hotel_name: 'Steigenberger Hotel Doha',
-        }
-      );
-      if (result.status !== 200) throw new Error(`EmailJS status ${result.status}`);
-      showToast('Verification code sent to your email ✉️', 'ok');
-      if (OTP_CONFIG.DEMO_MODE) showDemoOTPBanner(otp, email);
-      return true;
-    } catch (err) {
-      console.error('[OTP] EmailJS error:', err);
-      showToast('Could not send email. Showing code on screen (demo fallback).', 'err');
-      showDemoOTPBanner(otp, email);
-      return true;
-    }
+  if (OTP_CONFIG.DEMO_MODE) {
+    showDemoOTPBanner(otp, email);
+    return true;
   }
-  // Demo mode — show code on-screen (no real email sent)
-  showDemoOTPBanner(otp, email);
-  return true;
+  try {
+    showSpinner('Sending verification email…');
+    const res = await fetch(OTP_CONFIG.WORKER_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to:       email,
+        otp_code: otp,
+        to_name:  guestName || 'Valued Guest',
+      }),
+    });
+    const data = await res.json();
+    hideSpinner();
+    if (!res.ok) throw new Error(data.error || `Worker error ${res.status}`);
+    showToast('Verification code sent to your email ✉️', 'ok');
+    return true;
+  } catch (err) {
+    hideSpinner();
+    console.error('[OTP] Resend error:', err);
+    showToast('Could not send email — showing code on screen instead.', 'err');
+    showDemoOTPBanner(otp, email); // fallback so guest is never locked out
+    return true;
+  }
 }
 
-// Demo OTP banner - visible on-screen code for testing (shown when EMAIL_ENABLED=false)
+// Demo OTP banner — shown when DEMO_MODE=true or on email send failure
 function showDemoOTPBanner(otp, email) {
   const old = document.getElementById('demo-otp-banner');
   if (old) old.remove();
@@ -2494,22 +2472,22 @@ function showDemoOTPBanner(otp, email) {
   banner.style.cssText = [
     'position:fixed', 'top:16px', 'left:50%', 'transform:translateX(-50%)',
     'background:#1a1200', 'border:1.5px solid #c9a84c',
-    'color:#e8d08a', 'border-radius:14px', 'padding:16px 24px',
+    'color:#e8d08a', 'border-radius:14px', 'padding:20px 28px',
     'z-index:99999', 'font-family:Outfit,sans-serif', 'font-size:14px',
     'box-shadow:0 8px 40px rgba(0,0,0,0.6)', 'max-width:92vw',
-    'display:flex', 'flex-direction:column', 'gap:6px', 'text-align:center'
+    'display:flex', 'flex-direction:column', 'gap:8px', 'text-align:center'
   ].join(';');
   banner.innerHTML = `
     <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;">
-      Demo Mode · Email OTP (set EMAIL_ENABLED=true to send real emails)
+      Demo Mode · Set DEMO_MODE=false to send real emails
     </div>
-    <div style="font-size:28px;font-weight:700;letter-spacing:10px;color:#fff;">
+    <div style="font-size:36px;font-weight:800;letter-spacing:14px;color:#fff;padding:8px 0;">
       ${otp}
     </div>
     <div style="font-size:12px;opacity:0.5;">✉️ ${email}</div>
     <button onclick="document.getElementById('demo-otp-banner').remove()"
-      style="margin-top:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);
-             color:#c9a84c;border-radius:8px;padding:5px 16px;cursor:pointer;font-size:12px;font-family:inherit;">
+      style="margin-top:4px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);
+             color:#c9a84c;border-radius:8px;padding:6px 18px;cursor:pointer;font-size:12px;font-family:inherit;">
       Dismiss
     </button>
   `;
