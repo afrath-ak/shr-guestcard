@@ -1410,14 +1410,14 @@ table.data tbody tr {
                 autocomplete="family-name" aria-required="true">
             </div>
             <div class="field">
-              <label for="guest-contact">Email Address for OTP <span aria-label="required">*</span></label>
-              <input type="email" id="guest-contact" placeholder="your@email.com"
-                autocomplete="email" aria-required="true" aria-describedby="guest-contact-hint">
-              <span id="guest-contact-hint" class="field-note">We’ll send a 6-digit code to your email</span>
+              <label for="guest-contact">Phone Number for OTP <span aria-label="required">*</span></label>
+              <input type="tel" id="guest-contact" placeholder="+974 XXXX XXXX"
+                autocomplete="tel" aria-required="true" aria-describedby="guest-contact-hint">
+              <span id="guest-contact-hint" class="field-note">We’ll send a 6-digit code via SMS</span>
             </div>
             <button class="login-btn" id="guest-otp-btn" onclick="requestGuestOTP()"
-              aria-label="Send verification code to your email">
-              Send Email Code →
+              aria-label="Send verification code to your phone">
+              Send SMS Code →
             </button>
           </div>
 
@@ -1428,8 +1428,8 @@ table.data tbody tr {
               <div class="step-pill active">2 Verify</div>
             </div>
             <div class="info-note">
-              <strong>Check your email.</strong>
-              A 6-digit code has been sent to your email. It expires in 5 minutes.
+              <strong>Check your phone.</strong>
+              A 6-digit SMS code has been sent. It expires in 5 minutes.
             </div>
             <div class="field">
               <label for="guest-otp">One-Time Code</label>
@@ -1484,13 +1484,13 @@ table.data tbody tr {
                 <div class="step-pill active">2 Contact</div>
                 <div class="step-pill">3 Verify</div>
               </div>
-              <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Enter your email address — we’ll send a 6-digit code to verify.</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Enter your phone number — we’ll send a 6-digit SMS code to verify.</p>
               <div class="field">
-                <label for="s-phone">Email Address <span aria-label="required">*</span></label>
-                <input type="email" id="s-phone" placeholder="your@email.com" autocomplete="email" aria-required="true" aria-describedby="s-phone-note">
-                <span id="s-phone-note" class="field-note">Enter the email address you used at registration</span>
+                <label for="s-phone">Phone Number <span aria-label="required">*</span></label>
+                <input type="tel" id="s-phone" placeholder="+974 XXXX XXXX" autocomplete="tel" aria-required="true" aria-describedby="s-phone-note">
+                <span id="s-phone-note" class="field-note">Include country code, e.g. +974 for Qatar</span>
               </div>
-              <button class="login-btn" onclick="signupSendOTP()" aria-label="Send email verification code">Send Email Code →</button>
+              <button class="login-btn" onclick="signupSendOTP()" aria-label="Send SMS verification code">Send SMS Code →</button>
               <button class="login-btn secondary" onclick="signupBack(1)">← Back</button>
             </div>
             <div id="signup-step-3" style="display:none;">
@@ -1501,7 +1501,7 @@ table.data tbody tr {
               </div>
               <div class="info-note">
                 <strong>Almost there!</strong>
-                Enter the 6-digit code sent to your email.
+                Enter the 6-digit SMS code sent to your phone.
               </div>
               <div class="field">
                 <label for="s-otp">Verification Code</label>
@@ -2409,39 +2409,70 @@ function loadChartLib() {
 }
 
 // ═══════════════════════════════════════════════════
-// OTP DELIVERY CONFIGURATION — Email via Cloudflare Worker
+// OTP DELIVERY CONFIGURATION
 // ═══════════════════════════════════════════════════
+// HOW TO CONFIGURE REAL SMS:
+//
+//   1. Add a POST /otp route to your Cloudflare Worker at:
+//      https://shrgc.afrath445.workers.dev
+//      Body: { to: "+974XXXXXXXX", message: "Your code is: 123456" }
+//
+//   2. Inside that worker route, call Twilio SMS API (or WhatsApp Business API):
+//      const client = require('twilio')(TWILIO_SID, TWILIO_TOKEN);
+//      await client.messages.create({ body: message, from: '+1XXXXXXXXXX', to });
+//
+//   3. Set  SMS_ENABLED: true  below and  DEMO_MODE: false
+// ─────────────────────────────────────────────────
 const OTP_CONFIG = {
-  WORKER_ENDPOINT: 'https://shrgc.afrath445.workers.dev/otp',
-  DEMO_MODE: false,  // ← set true to show code on-screen for testing
+  // ── EmailJS settings (NOT USED — email verification removed for guests) ──
+  EMAIL_ENABLED:   false,
+  EMAILJS_SERVICE: '',
+  EMAILJS_TEMPLATE:'',
+  EMAILJS_PUBLIC:  '',
+
+  // ── SMS via Cloudflare Worker ──
+  // Add a POST /otp route to https://shrgc.afrath445.workers.dev
+  // that accepts { to, message } and calls Twilio / WhatsApp API.
+  // Set SMS_ENABLED = true once your worker endpoint is live.
+  SMS_ENABLED:     false,                           // ← set true when /otp worker route is ready
+  SMS_ENDPOINT:    'https://shrgc.afrath445.workers.dev/otp',
+
+  // ── Demo mode: show OTP on-screen when SMS_ENABLED is false ──
+  DEMO_MODE:       true,
 };
 
-async function sendOTP(email, otp, guestName) {
-  try {
-    const res = await fetch(OTP_CONFIG.WORKER_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to:       email,
-        otp_code: otp,
-        to_name:  guestName || 'Valued Guest',
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Worker error');
-    showToast('Verification code sent to your email ✉️', 'ok');
-    if (OTP_CONFIG.DEMO_MODE) showDemoOTPBanner(otp, email);
-    return true;
-  } catch (err) {
-    console.error('[OTP] Error:', err);
-    showToast('Could not send email. Showing code on screen.', 'err');
-    showDemoOTPBanner(otp, email); // fallback so guest is never locked out
-    return true;
+// Email delivery removed — guests use phone/SMS OTP only
+
+async function sendOTP(phone, otp) {
+  // SMS delivery via Cloudflare Worker
+  if (OTP_CONFIG.SMS_ENABLED) {
+    try {
+      const res = await fetch(OTP_CONFIG.SMS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to:      phone,
+          message: `Your Steigenberger Hotel Doha verification code is: ${otp}\n\nValid for 5 minutes. Do not share this code.`,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      showToast('SMS code sent to your phone', 'ok');
+      if (OTP_CONFIG.DEMO_MODE) showDemoOTPBanner(otp, phone);
+      return true;
+    } catch (err) {
+      console.error('[OTP] SMS worker error:', err);
+      showToast('Could not send SMS. Please check the number and try again.', 'err');
+      showDemoOTPBanner(otp, phone); // fallback so guest isn't locked out
+      return true;
+    }
   }
+  // Demo mode (SMS_ENABLED = false) - show code on screen
+  showDemoOTPBanner(otp, phone);
+  return true;
 }
 
-// Demo OTP banner — shown as fallback or when DEMO_MODE=true
-function showDemoOTPBanner(otp, contact) {
+// Demo OTP banner - visible on-screen code for testing (shown when SMS_ENABLED=false)
+function showDemoOTPBanner(otp, phone) {
   const old = document.getElementById('demo-otp-banner');
   if (old) old.remove();
   const banner = document.createElement('div');
@@ -2457,12 +2488,12 @@ function showDemoOTPBanner(otp, contact) {
   ].join(';');
   banner.innerHTML = `
     <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;">
-      Fallback — Email delivery failed or Demo Mode active
+      Demo Mode - SMS not sent (set SMS_ENABLED=true to go live)
     </div>
     <div style="font-size:28px;font-weight:700;letter-spacing:10px;color:#fff;">
       ${otp}
     </div>
-    <div style="font-size:12px;opacity:0.5;">Sent to: ${contact}</div>
+    <div style="font-size:12px;opacity:0.5;">Phone: ${phone}</div>
     <button onclick="document.getElementById('demo-otp-banner').remove()"
       style="margin-top:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);
              color:#c9a84c;border-radius:8px;padding:5px 16px;cursor:pointer;font-size:12px;font-family:inherit;">
@@ -2583,15 +2614,15 @@ async function requestGuestOTP() {
   const contact = document.getElementById('guest-contact').value.trim();
   clearLoginError();
   if (!guestId || !lastName) { showLoginError('Please enter your Guest ID and last name.'); return; }
-  if (!contact) { showLoginError('Please enter your email address.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) { showLoginError('Please enter a valid email address.'); return; }
+  if (!contact) { showLoginError('Please enter your phone number.'); return; }
+  if (!/^[+]?[0-9][\s\-().0-9]{6,}$/.test(contact)) { showLoginError('Please enter a valid phone number with country code (e.g. +974 XXXX XXXX).'); return; }
   if (!checkRateLimit(`otp_req_${guestId}`, 5)) { showLoginError('Too many attempts. Please wait 5 minutes.'); return; }
   const guest = guests.find(g => g.id === guestId && g.last.toLowerCase() === lastName.toLowerCase());
   if (!guest) { showLoginError('No matching guest found. Please check your ID and last name.'); return; }
   if (guest.status !== 'Active') { showLoginError('This guest card has been deactivated. Please contact reception.'); return; }
-  showSpinner('Sending email code…');
+  showSpinner('Sending SMS code…');
   const otp = generateOTP(); pendingOTP = otp; otpExpiry = Date.now() + 5 * 60 * 1000; pendingGuestForOTP = guest;
-  await sendOTP(contact, otp, pendingGuestForOTP ? pendingGuestForOTP.first : ''); hideSpinner();
+  await sendOTP(contact, otp); hideSpinner();
   document.getElementById('guest-step-1').style.display = 'none';
   document.getElementById('guest-step-2').style.display = 'block';
   document.getElementById('guest-otp').value = '';
@@ -2603,8 +2634,8 @@ async function resendOTP() {
   if (!pendingGuestForOTP) { backToStep1(); return; }
   const contact = document.getElementById('guest-contact').value.trim();
   const otp = generateOTP(); pendingOTP = otp; otpExpiry = Date.now() + 5 * 60 * 1000;
-  showSpinner('Resending email code…'); await sendOTP(contact, otp, signupData.first || ''); hideSpinner();
-  showToast('New email code sent! ✉️', 'ok');
+  showSpinner('Resending SMS code…'); await sendOTP(contact, otp); hideSpinner();
+  showToast('New SMS code sent!', 'ok');
   startOTPCountdown('guest-otp-timer', 5 * 60);
 }
 
@@ -2652,12 +2683,12 @@ function signupNextStep() {
 async function signupSendOTP() {
   clearLoginError();
   const phone = document.getElementById('s-phone').value.trim();
-  if (!phone) { showLoginError('Please enter your email address.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(phone)) { showLoginError('Please enter a valid email address.'); return; }
+  if (!phone) { showLoginError('Please enter your phone number.'); return; }
+  if (!/^[+]?[0-9][\s\-().0-9]{6,}$/.test(phone)) { showLoginError('Please enter a valid phone number with country code (e.g. +974 XXXX XXXX).'); return; }
   signupData.phone = phone;
-  showSpinner('Sending email code…');
+  showSpinner('Sending SMS code…');
   const otp = generateOTP(); signupPendingOTP = otp; signupOtpExpiry = Date.now() + 5 * 60 * 1000;
-  const ok = await sendOTP(phone, otp, signupData.first || ''); hideSpinner();
+  const ok = await sendOTP(phone, otp); hideSpinner();
   if (!ok) return;
   document.getElementById('signup-step-2').style.display = 'none';
   document.getElementById('signup-step-3').style.display = 'block';
@@ -2669,8 +2700,8 @@ async function signupSendOTP() {
 async function signupResend() {
   const contact = signupData.phone; if (!contact) return;
   const otp = generateOTP(); signupPendingOTP = otp; signupOtpExpiry = Date.now() + 5 * 60 * 1000;
-  showSpinner('Resending email code…'); await sendOTP(contact, otp, signupData.first || ''); hideSpinner();
-  showToast('New email code sent! ✉️', 'ok');
+  showSpinner('Resending SMS code…'); await sendOTP(contact, otp); hideSpinner();
+  showToast('New SMS code sent!', 'ok');
   startOTPCountdown('signup-otp-timer', 5 * 60);
 }
 
