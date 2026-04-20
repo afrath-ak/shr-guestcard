@@ -2144,7 +2144,7 @@ function getRolePermissions(role) {
 // ═══════════════════════════════════════════════════
 // CONFIG - ORIGINAL CODE PRESERVED
 // ═══════════════════════════════════════════════════
-const SHEETDB_URL = "https://shrgc.afrath445.workers.dev";
+const SHEETDB_URL = "https://steigenberger-otp-worker.afrath445.workers.dev";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -2412,8 +2412,8 @@ function loadChartLib() {
 // OTP DELIVERY CONFIGURATION — Email via Cloudflare Worker
 // ═══════════════════════════════════════════════════
 const OTP_CONFIG = {
-  WORKER_ENDPOINT: 'https://shrgc.afrath445.workers.dev/otp',
-  DEMO_MODE: false,  // ← set true to show code on-screen for testing
+  WORKER_ENDPOINT: 'https://steigenberger-otp-worker.afrath445.workers.dev', // your real Worker URL
+  DEMO_MODE: false,   // keep false – no more on‑screen fallback
 };
 
 async function sendOTP(email, otp, guestName) {
@@ -2430,48 +2430,17 @@ async function sendOTP(email, otp, guestName) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Worker error');
     showToast('Verification code sent to your email ✉️', 'ok');
-    if (OTP_CONFIG.DEMO_MODE) showDemoOTPBanner(otp, email);
     return true;
   } catch (err) {
     console.error('[OTP] Error:', err);
-    showToast('Could not send email. Showing code on screen.', 'err');
-    showDemoOTPBanner(otp, email); // fallback so guest is never locked out
-    return true;
+    showToast('Could not send OTP email — please try again or contact reception.', 'err');
+    return false;
   }
 }
 
-// Demo OTP banner — shown as fallback or when DEMO_MODE=true
-function showDemoOTPBanner(otp, contact) {
-  const old = document.getElementById('demo-otp-banner');
-  if (old) old.remove();
-  const banner = document.createElement('div');
-  banner.id = 'demo-otp-banner';
-  banner.setAttribute('role', 'alert');
-  banner.style.cssText = [
-    'position:fixed', 'top:16px', 'left:50%', 'transform:translateX(-50%)',
-    'background:#1a1200', 'border:1.5px solid #c9a84c',
-    'color:#e8d08a', 'border-radius:14px', 'padding:16px 24px',
-    'z-index:99999', 'font-family:Outfit,sans-serif', 'font-size:14px',
-    'box-shadow:0 8px 40px rgba(0,0,0,0.6)', 'max-width:92vw',
-    'display:flex', 'flex-direction:column', 'gap:6px', 'text-align:center'
-  ].join(';');
-  banner.innerHTML = `
-    <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6;">
-      Fallback — Email delivery failed or Demo Mode active
-    </div>
-    <div style="font-size:28px;font-weight:700;letter-spacing:10px;color:#fff;">
-      ${otp}
-    </div>
-    <div style="font-size:12px;opacity:0.5;">Sent to: ${contact}</div>
-    <button onclick="document.getElementById('demo-otp-banner').remove()"
-      style="margin-top:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);
-             color:#c9a84c;border-radius:8px;padding:5px 16px;cursor:pointer;font-size:12px;font-family:inherit;">
-      Dismiss
-    </button>
-  `;
-  document.body.appendChild(banner);
-  setTimeout(() => { if (banner.parentNode) banner.remove(); }, 5 * 60 * 1000);
-}
+
+
+
 
 
 
