@@ -2144,7 +2144,7 @@ function getRolePermissions(role) {
 // ═══════════════════════════════════════════════════
 // CONFIG - ORIGINAL CODE PRESERVED
 // ═══════════════════════════════════════════════════
-const SHEETDB_URL = "https://steigenberger-otp-worker.afrath445.workers.dev";
+const SHEETDB_URL = "https://shrgc.afrath445.workers.dev";  // database/guest-data Worker
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -2412,7 +2412,7 @@ function loadChartLib() {
 // OTP DELIVERY CONFIGURATION — Email via Cloudflare Worker
 // ═══════════════════════════════════════════════════
 const OTP_CONFIG = {
-  WORKER_ENDPOINT: 'https://steigenberger-otp-worker.afrath445.workers.dev', // your real Worker URL
+  WORKER_ENDPOINT: 'https://steigenberger-otp-worker.afrath445.workers.dev/otp', // OTP route on the Worker
   DEMO_MODE: false,   // keep false – no more on‑screen fallback
 };
 
@@ -2423,17 +2423,19 @@ async function sendOTP(email, otp, guestName) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to:       email,
-        otp_code: otp,
+        otp_code: String(otp),
         to_name:  guestName || 'Valued Guest',
       }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Worker error');
+    // Try to parse JSON, but don't crash if response isn't JSON
+    let data = {};
+    try { data = await res.json(); } catch(_) {}
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     showToast('Verification code sent to your email ✉️', 'ok');
     return true;
   } catch (err) {
-    console.error('[OTP] Error:', err);
-    showToast('Could not send OTP email — please try again or contact reception.', 'err');
+    console.error('[OTP] Send failed:', err.message);
+    showLoginError('Could not send verification email: ' + err.message + '. Please try again or contact reception.');
     return false;
   }
 }
@@ -2560,7 +2562,8 @@ async function requestGuestOTP() {
   if (guest.status !== 'Active') { showLoginError('This guest card has been deactivated. Please contact reception.'); return; }
   showSpinner('Sending email code…');
   const otp = generateOTP(); pendingOTP = otp; otpExpiry = Date.now() + 5 * 60 * 1000; pendingGuestForOTP = guest;
-  await sendOTP(contact, otp, pendingGuestForOTP ? pendingGuestForOTP.first : ''); hideSpinner();
+  const sent = await sendOTP(contact, otp, guest.first || ''); hideSpinner();
+  if (!sent) { pendingOTP = null; pendingGuestForOTP = null; return; }
   document.getElementById('guest-step-1').style.display = 'none';
   document.getElementById('guest-step-2').style.display = 'block';
   document.getElementById('guest-otp').value = '';
