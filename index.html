@@ -1652,7 +1652,7 @@ select { color: var(--dark); }
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const SHEETDB_URL = "https://shrgc.afrath445.workers.dev";
+const SHEETDB_URL = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -2708,72 +2708,181 @@ async function pushStaffToSheetDB(staff) {
 }
 
 // ═══════════════════════════════════════════════════
-// SHEETDB SYNC
 // ═══════════════════════════════════════════════════
-async function testSheetDBConnection() {
-  showToast('🔍 Testing connection…'); showSpinner('Testing…');
-  try {
-    const r = await fetch(SHEETDB_URL);
-    const text = await r.text();
-    console.log('[SheetDB] Test response:', r.status, text.slice(0, 200));
-    if (r.ok) {
-      let data;
-      try { data = JSON.parse(text); } catch(e) { data = []; }
-      showToast(`✅ Connected! ${Array.isArray(data) ? data.length : 0} records`, 'ok');
-      setSyncStatus('online');
-    } else {
-      showToast(`❌ HTTP ${r.status}: ${text.slice(0,60)}`, 'err');
-      console.error('[SheetDB] Error:', r.status, text);
-    }
-  } catch(e) {
-    showToast(`❌ ${e.message}`, 'err');
-    console.error('[SheetDB] Connection failed:', e);
-  }
-  hideSpinner();
+// SHEETDB SYNC — Permanent Fix: Direct URL + Offline Queue
+// ═══════════════════════════════════════════════════
+
+// ── Offline retry queue (persists in localStorage) ──
+const QUEUE_KEY = 'steigenberger_sync_queue';
+
+function loadQueue() {
+  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveQueue(q) {
+  try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch(e) {}
+}
+function enqueueSync(guest) {
+  const q = loadQueue();
+  // Replace any existing entry for this guest so we always push the latest state
+  const idx = q.findIndex(item => item.id === guest.id);
+  const entry = { ...buildPayload(guest), _queuedAt: Date.now() };
+  if (idx >= 0) q[idx] = entry; else q.push(entry);
+  saveQueue(q);
+}
+function dequeueSync(guestId) {
+  const q = loadQueue().filter(item => item.id !== guestId);
+  saveQueue(q);
 }
 
-async function pushGuestToSheetDB(guest) {
-  const payload = { id: guest.id, title: guest.title||'', first: guest.first||'', last: guest.last||'', room: guest.room||'', checkin: guest.checkin||'', checkout: guest.checkout||'', email: guest.email||'', phone: guest.phone||'', nationality: guest.nationality||'', type: guest.type||'Standard', privileges: Array.isArray(guest.privileges) ? guest.privileges.join(',') : (guest.privileges||''), status: guest.status||'Active', scans: guest.scans||0, notes: guest.notes||'', issued: guest.issued||new Date().toISOString().split('T')[0], verified: guest.verified||false, verifiedAt: guest.verifiedAt||'' };
-  try {
-    const check = await fetch(`${SHEETDB_URL}/search?id=${encodeURIComponent(guest.id)}`);
-    const existing = await check.json();
-    // FIX: SheetDB requires { data: {...} } wrapper for PATCH, and { data: [...] } for POST
-    if (Array.isArray(existing) && existing.length > 0) {
-      const r = await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(guest.id)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: payload })
-      });
-      if (r.ok) return true;
-      console.error('[Sync] PATCH failed:', r.status, await r.text());
-    } else {
-      const r = await fetch(SHEETDB_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: [payload] })
-      });
-      if (r.ok) return true;
-      console.error('[Sync] POST failed:', r.status, await r.text());
-    }
-  } catch(e) { console.error('[Sync] Push error:', e); }
-  return false;
+function buildPayload(guest) {
+  return {
+    id:          guest.id,
+    title:       guest.title       || '',
+    first:       guest.first       || '',
+    last:        guest.last        || '',
+    room:        guest.room        || '',
+    checkin:     guest.checkin     || '',
+    checkout:    guest.checkout    || '',
+    email:       guest.email       || '',
+    phone:       guest.phone       || '',
+    nationality: guest.nationality || '',
+    type:        guest.type        || 'Standard',
+    privileges:  Array.isArray(guest.privileges)
+                   ? guest.privileges.join(',')
+                   : (guest.privileges || ''),
+    status:      guest.status      || 'Active',
+    scans:       guest.scans       || 0,
+    notes:       guest.notes       || '',
+    issued:      guest.issued      || new Date().toISOString().split('T')[0],
+    verified:    guest.verified    || false,
+    verifiedAt:  guest.verifiedAt  || ''
+  };
 }
+
+// Core push: search → PATCH if exists, POST if new
+async function _doPush(payload) {
+  const searchR = await fetch(`${SHEETDB_URL}/search?id=${encodeURIComponent(payload.id)}`, { signal: AbortSignal.timeout(8000) });
+  if (!searchR.ok) throw new Error(`Search HTTP ${searchR.status}`);
+  const existing = await searchR.json();
+
+  if (Array.isArray(existing) && existing.length > 0) {
+    const r = await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(payload.id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: payload }),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!r.ok) throw new Error(`PATCH HTTP ${r.status}: ${await r.text()}`);
+  } else {
+    const r = await fetch(SHEETDB_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [payload] }),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!r.ok) throw new Error(`POST HTTP ${r.status}: ${await r.text()}`);
+  }
+  return true;
+}
+
+// Retry queue flusher — runs automatically, backs off on failure
+let _retryTimer = null;
+async function flushQueue() {
+  const q = loadQueue();
+  if (q.length === 0) return;
+  console.log(`[SyncQueue] Flushing ${q.length} queued item(s)…`);
+  let flushed = 0;
+  for (const item of q) {
+    try {
+      await _doPush(item);
+      dequeueSync(item.id);
+      flushed++;
+    } catch(e) {
+      console.warn('[SyncQueue] Item still failing, will retry later:', e.message);
+      break; // stop on first failure — avoid hammering the API
+    }
+  }
+  if (flushed > 0) {
+    showToast(`☁️ ${flushed} queued change${flushed>1?'s':''} synced to Google Sheets`, 'ok');
+    setSyncStatus('online');
+    const sw = document.getElementById('sync-warning'); if (sw) sw.style.display = 'none';
+  }
+  const remaining = loadQueue();
+  if (remaining.length > 0) scheduleRetry(30000); // retry in 30 s
+}
+
+function scheduleRetry(ms = 15000) {
+  if (_retryTimer) clearTimeout(_retryTimer);
+  _retryTimer = setTimeout(flushQueue, ms);
+}
+
+// Listen for the browser coming back online
+window.addEventListener('online', () => {
+  console.log('[Sync] Network restored — flushing queue');
+  showToast('🌐 Back online, syncing…');
+  flushQueue();
+});
+
+// ── Public API ──
+async function pushGuestToSheetDB(guest) {
+  const payload = buildPayload(guest);
+  try {
+    await _doPush(payload);
+    dequeueSync(guest.id); // clear from queue if it was queued before
+    return true;
+  } catch(e) {
+    console.warn('[Sync] Push failed, added to offline queue:', e.message);
+    enqueueSync(guest);    // ← this is the key: never lose a write
+    scheduleRetry(15000);  // retry in 15 s
+    return false;
+  }
+}
+
+async function syncSingleGuest(guest) { return await pushGuestToSheetDB(guest); }
 
 async function loadFromSheetDB() {
   setSyncStatus('syncing'); showSpinner('Loading guest data…');
   try {
-    const r = await fetch(SHEETDB_URL);
+    const r = await fetch(SHEETDB_URL, { signal: AbortSignal.timeout(12000) });
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
-        guests = data.map(row => ({ id: row.id||'', title: row.title||'Mr.', first: row.first||'', last: row.last||'', room: row.room||'', checkin: row.checkin||'', checkout: row.checkout||'', email: row.email||'', phone: row.phone||'', nationality: row.nationality||'', type: row.type||'Standard', privileges: row.privileges ? (typeof row.privileges === 'string' ? row.privileges.split(',').map(s=>s.trim()).filter(Boolean) : row.privileges) : [], status: row.status||'Active', scans: parseInt(row.scans)||0, notes: row.notes||'', issued: row.issued||'', verified: row.verified === 'true' || row.verified === true, verifiedAt: row.verifiedAt||'' }));
-        saveLocal(); setSyncStatus('online');
+        guests = data.map(row => ({
+          id:          row.id          || '',
+          title:       row.title       || 'Mr.',
+          first:       row.first       || '',
+          last:        row.last        || '',
+          room:        row.room        || '',
+          checkin:     row.checkin     || '',
+          checkout:    row.checkout    || '',
+          email:       row.email       || '',
+          phone:       row.phone       || '',
+          nationality: row.nationality || '',
+          type:        row.type        || 'Standard',
+          privileges:  row.privileges
+                         ? (typeof row.privileges === 'string'
+                              ? row.privileges.split(',').map(s=>s.trim()).filter(Boolean)
+                              : row.privileges)
+                         : [],
+          status:      row.status      || 'Active',
+          scans:       parseInt(row.scans) || 0,
+          notes:       row.notes       || '',
+          issued:      row.issued      || '',
+          verified:    row.verified === 'true' || row.verified === true,
+          verifiedAt:  row.verifiedAt  || ''
+        }));
+        saveLocal();
+        setSyncStatus('online');
         const sw = document.getElementById('sync-warning'); if (sw) sw.style.display = 'none';
-        hideSpinner(); return true;
+        hideSpinner();
+        // Flush any pending writes that happened while offline
+        setTimeout(flushQueue, 500);
+        return true;
       } else { loadLocalFallback(); }
     } else { loadLocalFallback(); }
-  } catch(e) { loadLocalFallback(); }
-  hideSpinner(); return false;
+  } catch(e) { console.warn('[Sync] Load failed:', e.message); loadLocalFallback(); }
+  hideSpinner();
+  return false;
 }
 
 function loadLocalFallback() {
@@ -2790,20 +2899,51 @@ function loadLocalFallback() {
   verificationRequests = localReqs ? JSON.parse(localReqs) : [];
   setSyncStatus('offline');
   const sw = document.getElementById('sync-warning');
-  if (sw) { sw.textContent = '⚠️ Offline mode — changes saved locally. Click Sync when connection is restored.'; sw.style.display = 'block'; }
+  if (sw) { sw.textContent = '⚠️ Offline mode — changes saved locally and will sync automatically when connection is restored.'; sw.style.display = 'block'; }
+  scheduleRetry(20000); // keep trying every 20 s
+}
+
+async function testSheetDBConnection() {
+  showToast('🔍 Testing connection…'); showSpinner('Testing…');
+  try {
+    const r = await fetch(SHEETDB_URL, { signal: AbortSignal.timeout(8000) });
+    const text = await r.text();
+    console.log('[SheetDB] Test response:', r.status, text.slice(0, 200));
+    if (r.ok) {
+      let data;
+      try { data = JSON.parse(text); } catch(e) { data = []; }
+      showToast(`✅ Connected! ${Array.isArray(data) ? data.length : 0} records found`, 'ok');
+      setSyncStatus('online');
+      setTimeout(flushQueue, 300); // flush any queued writes now
+    } else {
+      showToast(`❌ HTTP ${r.status}: ${text.slice(0,60)}`, 'err');
+      console.error('[SheetDB] Error:', r.status, text);
+    }
+  } catch(e) {
+    showToast(`❌ ${e.message}`, 'err');
+    console.error('[SheetDB] Connection failed:', e);
+  }
+  hideSpinner();
 }
 
 async function forceFullSync() {
   if (syncInProgress) { showToast('Sync already in progress…'); return; }
   syncInProgress = true; disableButton('force-sync-btn', true); showProgressBar();
   let success = 0, fail = 0;
-  for (let i = 0; i < guests.length; i++) { const ok = await pushGuestToSheetDB(guests[i]); if (ok) success++; else fail++; updateProgress(((i + 1) / guests.length) * 100); await new Promise(r => setTimeout(r, 80)); }
+  for (let i = 0; i < guests.length; i++) {
+    const ok = await pushGuestToSheetDB(guests[i]);
+    if (ok) success++; else fail++;
+    updateProgress(((i + 1) / guests.length) * 100);
+    await new Promise(r => setTimeout(r, 120));
+  }
   syncInProgress = false; disableButton('force-sync-btn', false); hideProgressBar();
-  if (success > 0) { showToast(`✅ Synced ${success}${fail > 0 ? ` (${fail} failed)` : ''} guests`, 'ok'); setSyncStatus('online'); }
-  else { showToast('❌ Sync failed — check your connection', 'err'); }
+  if (success > 0) {
+    showToast(`✅ Synced ${success}${fail > 0 ? ` (${fail} queued for retry)` : ''} guests`, 'ok');
+    setSyncStatus('online');
+  } else {
+    showToast('❌ All writes queued — will retry automatically', 'err');
+  }
 }
-
-async function syncSingleGuest(guest) { return await pushGuestToSheetDB(guest); }
 
 // ═══════════════════════════════════════════════════
 // GUEST TABLE
