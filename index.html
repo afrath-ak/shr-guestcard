@@ -2078,30 +2078,44 @@ async function requestGuestOTP() {
   if (!contact) { showLoginError('Please enter your email address.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) { showLoginError('Please enter a valid email address.'); return; }
   if (!checkRateLimit(`otp_req_${guestId}`, 5)) { showLoginError('Too many attempts. Please wait 5 minutes.'); return; }
-  
+
   const guest = guests.find(g => g.id === guestId && g.last.toLowerCase() === lastName.toLowerCase());
   if (!guest) { showLoginError('No matching guest found. Please check your ID and last name.'); return; }
   if (guest.status !== 'Active') { showLoginError('This guest card has been deactivated. Please contact reception.'); return; }
-  
+
+  // ── SECURITY FIX: Returning Guest must have a registered email on file ──
+  // If no email is stored, they haven't completed New Guest signup yet.
+  if (!guest.email || !guest.email.trim()) {
+    showLoginError('No email registered for this guest ID. Please use the "New Guest" tab to sign up first.');
+    return;
+  }
+  // The email entered must exactly match what is on file — prevents someone
+  // who knows the guest ID + last name from using their own email to receive the OTP.
+  if (contact.toLowerCase() !== guest.email.trim().toLowerCase()) {
+    showLoginError('Email address does not match our records. Please use the email you registered with, or contact reception.');
+    return;
+  }
+
   const btn = document.getElementById('guest-otp-btn');
   const originalText = btn.textContent;
   btn.disabled = true;
   btn.textContent = '⏳ Sending...';
   showSpinner('Sending verification code to your email...');
-  
+
   const otp = generateOTP();
   pendingOTP = otp;
   otpExpiry = Date.now() + 5 * 60 * 1000;
   pendingGuestForOTP = guest;
-  
-  const sent = await sendOTP(contact, otp, guest.first || '');
-  
+
+  // Always send to the stored email — never to an arbitrary user-supplied address
+  const sent = await sendOTP(guest.email.trim(), otp, guest.first || '');
+
   btn.disabled = false;
   btn.textContent = originalText;
   hideSpinner();
-  
+
   if (!sent) { pendingOTP = null; pendingGuestForOTP = null; return; }
-  
+
   document.getElementById('guest-step-1').style.display = 'none';
   document.getElementById('guest-step-2').style.display = 'block';
   document.getElementById('guest-otp').value = '';
@@ -2111,7 +2125,9 @@ async function requestGuestOTP() {
 
 async function resendOTP() {
   if (!pendingGuestForOTP) { backToStep1(); return; }
-  const contact = document.getElementById('guest-contact').value.trim();
+  // Always resend to the stored email — never re-read the form input
+  const contact = (pendingGuestForOTP.email || '').trim();
+  if (!contact) { backToStep1(); return; }
   const otp = generateOTP();
   pendingOTP = otp;
   otpExpiry = Date.now() + 5 * 60 * 1000;
@@ -2159,6 +2175,12 @@ function signupNextStep() {
     showLoginError('Name does not match our records for this Guest ID.'); return;
   }
   if (guest.status !== 'Active') { showLoginError('This card has been deactivated. Please contact reception.'); return; }
+  // ── SECURITY FIX: If guest already has an email registered, they are a returning guest.
+  // Force them to use the "Returning Guest" tab so the email-match check is enforced.
+  if (guest.email && guest.email.trim()) {
+    showLoginError('You already have an account. Please use the "Returning Guest" tab to sign in with your registered email.');
+    return;
+  }
   signupData = { first, last, guestId, guest };
   document.getElementById('signup-step-1').style.display = 'none';
   document.getElementById('signup-step-2').style.display = 'block';
