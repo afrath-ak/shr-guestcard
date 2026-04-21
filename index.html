@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════
    DESIGN TOKENS — Refined Obsidian & Brass
@@ -1665,7 +1667,7 @@ const SESSION_WARNING_MINUTES = 1;
 // ════════════════════════════════════════════════
 const OTP_CONFIG = {
   SERVICE_ID:  'service_1v8hdr6',
-  TEMPLATE_ID: 'template_xyz789',
+  TEMPLATE_ID: 'template_azg14xr',
   PUBLIC_KEY:  'qFWC8sXXI5K07FR-A',
   DEMO_MODE: false,
 };
@@ -1699,6 +1701,11 @@ let chartLibLoaded = false;
 let scannerLibLoaded = false;
 let currentGuestMode = 'returning';
 let _otpCountdownTimer = null;
+
+// Initialize EmailJS
+if (typeof emailjs !== 'undefined') {
+  emailjs.init({ publicKey: OTP_CONFIG.PUBLIC_KEY });
+}
 
 // ═══════════════════════════════════════════════════
 // HELPER FUNCTIONS
@@ -1811,7 +1818,7 @@ function saveSession() {
 }
 
 // ═══════════════════════════════════════════════════
-// OTP DELIVERY - USING NEW WORKER URL
+// OTP DELIVERY - USING EMAILJS
 // ═══════════════════════════════════════════════════
 async function sendOTP(email, otp, guestName) {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -1826,27 +1833,22 @@ async function sendOTP(email, otp, guestName) {
     return true;
   }
 
-  // Validate EmailJS config is filled in
-  if (OTP_CONFIG.SERVICE_ID.startsWith('YOUR_') ||
-      OTP_CONFIG.TEMPLATE_ID.startsWith('YOUR_') ||
-      OTP_CONFIG.PUBLIC_KEY.startsWith('YOUR_')) {
-    showLoginError('OTP email not configured. Set SERVICE_ID, TEMPLATE_ID and PUBLIC_KEY in OTP_CONFIG, or enable DEMO_MODE for testing.');
-    console.error('[OTP] EmailJS credentials not set in OTP_CONFIG');
-    return false;
-  }
-
   showSpinner('Sending verification code…');
 
   try {
-    // Load EmailJS SDK on demand
+    // Ensure EmailJS is initialized
     if (!window.emailjs) {
       await new Promise((resolve, reject) => {
         const s = document.createElement('script');
         s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-        s.onload = resolve;
+        s.onload = () => {
+          emailjs.init({ publicKey: OTP_CONFIG.PUBLIC_KEY });
+          resolve();
+        };
         s.onerror = () => reject(new Error('Failed to load EmailJS SDK'));
         document.head.appendChild(s);
       });
+    } else if (!emailjs._publicKey) {
       emailjs.init({ publicKey: OTP_CONFIG.PUBLIC_KEY });
     }
 
