@@ -1812,6 +1812,13 @@ async function sendOTP(email, otp, guestName) {
     return false;
   }
 
+  // DEMO MODE: if worker is not set up yet, show OTP in console for testing
+  if (OTP_CONFIG.DEMO_MODE) {
+    console.warn(`[OTP DEMO] Code for ${email}: ${otp}`);
+    showToast(`[DEMO] OTP: ${otp} (check console)`, 'ok');
+    return true;
+  }
+
   for (let attempt = 1; attempt <= OTP_CONFIG.RETRY_ATTEMPTS; attempt++) {
     try {
       console.log(`[OTP] Attempt ${attempt} to send to ${email} via ${OTP_CONFIG.WORKER_ENDPOINT}`);
@@ -1835,6 +1842,7 @@ async function sendOTP(email, otp, guestName) {
       
       let data = {};
       const responseText = await response.text();
+      console.log(`[OTP] Worker response (${response.status}):`, responseText);
       try { data = JSON.parse(responseText); } catch(e) { data = { message: responseText }; }
       
       if (response.ok) {
@@ -1842,14 +1850,14 @@ async function sendOTP(email, otp, guestName) {
         showToast(`Verification code sent to ${email.replace(/(.{2})(.*)(@.*)/, '$1***$3')} ✉️`, 'ok');
         return true;
       } else {
-        throw new Error(data.error || data.message || `HTTP ${response.status}`);
+        throw new Error(data.error || data.message || `HTTP ${response.status}: ${responseText.slice(0,100)}`);
       }
     } catch (err) {
       console.error(`[OTP] Attempt ${attempt} failed:`, err.message);
       if (attempt === OTP_CONFIG.RETRY_ATTEMPTS) {
         let errorMsg = 'Could not send verification email. ';
         if (err.name === 'AbortError') errorMsg += 'Connection timeout. Please check your internet.';
-        else if (err.message.includes('Failed to fetch')) errorMsg += 'Network error. Please check your connection.';
+        else if (err.message.includes('Failed to fetch')) errorMsg += 'Cannot reach the OTP server. Check CORS or worker URL.';
         else errorMsg += err.message;
         showLoginError(errorMsg);
         return false;
@@ -2682,7 +2690,23 @@ async function pushStaffToSheetDB(staff) {
 // ═══════════════════════════════════════════════════
 async function testSheetDBConnection() {
   showToast('🔍 Testing connection…'); showSpinner('Testing…');
-  try { const r = await fetch(SHEETDB_URL); if (r.ok) { const data = await r.json(); showToast(`✅ Connected! ${Array.isArray(data) ? data.length : 0} records`, 'ok'); setSyncStatus('online'); } else { showToast(`❌ HTTP ${r.status}`, 'err'); } } catch(e) { showToast(`❌ ${e.message}`, 'err'); }
+  try {
+    const r = await fetch(SHEETDB_URL);
+    const text = await r.text();
+    console.log('[SheetDB] Test response:', r.status, text.slice(0, 200));
+    if (r.ok) {
+      let data;
+      try { data = JSON.parse(text); } catch(e) { data = []; }
+      showToast(`✅ Connected! ${Array.isArray(data) ? data.length : 0} records`, 'ok');
+      setSyncStatus('online');
+    } else {
+      showToast(`❌ HTTP ${r.status}: ${text.slice(0,60)}`, 'err');
+      console.error('[SheetDB] Error:', r.status, text);
+    }
+  } catch(e) {
+    showToast(`❌ ${e.message}`, 'err');
+    console.error('[SheetDB] Connection failed:', e);
+  }
   hideSpinner();
 }
 
@@ -2691,9 +2715,25 @@ async function pushGuestToSheetDB(guest) {
   try {
     const check = await fetch(`${SHEETDB_URL}/search?id=${encodeURIComponent(guest.id)}`);
     const existing = await check.json();
-    if (existing?.length > 0) { const r = await fetch(`${SHEETDB_URL}/id/${guest.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (r.ok) return true; }
-    else { const r = await fetch(SHEETDB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (r.ok) return true; }
-  } catch(e) { console.error('Push error:', e); }
+    // FIX: SheetDB requires { data: {...} } wrapper for PATCH, and { data: [...] } for POST
+    if (Array.isArray(existing) && existing.length > 0) {
+      const r = await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(guest.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: payload })
+      });
+      if (r.ok) return true;
+      console.error('[Sync] PATCH failed:', r.status, await r.text());
+    } else {
+      const r = await fetch(SHEETDB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: [payload] })
+      });
+      if (r.ok) return true;
+      console.error('[Sync] POST failed:', r.status, await r.text());
+    }
+  } catch(e) { console.error('[Sync] Push error:', e); }
   return false;
 }
 
