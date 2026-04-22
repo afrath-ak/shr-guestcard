@@ -1652,7 +1652,7 @@ select { color: var(--dark); }
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyAYav8qJoxsbiqyMPTEOIe82h_qevqfBCbNeGzwBe3iT25byZDzUPdf3z-_NCARcTK/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxN-mGrLdbMcsLBY9vylWtyZFi2aRU2g7ZfYOUP3IOa81y11-kkW_VaugnEl2A5-_kZ/exec";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -2566,10 +2566,9 @@ function getRolePermissions(role) {
 async function loadStaffFromSheetDB() {
   showSpinner('Loading staff…');
   try {
-    const r = await fetch(`${GAS_URL}?action=getStaff`, { redirect: 'follow' });
+    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=staff`, { signal: AbortSignal.timeout(12000) });
     if (r.ok) {
-      const json = await r.json();
-      const data = json.data || json;
+      const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
         staffUsers = data.map(row => ({ id: row.id || '', username: (row.username || '').trim(), password: (row.password || '').trim(), fullname: row.fullname || '', role: row.role || 'staff', twofa_secret: row.twofa_secret || '', accountStatus: row.accountStatus || 'active', department: row.department || '', email: row.email || '', phone: row.phone || '', lastLogin: row.lastLogin || '', mustChangePassword: row.mustChangePassword === 'true' || row.mustChangePassword === true || false, createdAt: row.createdAt || '' }));
         localStorage.setItem('steigenberger_staff', JSON.stringify(staffUsers));
@@ -2653,7 +2652,13 @@ async function deleteStaff(staffId) {
   if (!confirm('⚠️ Are you sure you want to permanently remove this team member?')) return;
   staffUsers = staffUsers.filter(u => u.id !== staffId);
   saveStaffLocal();
-  try { await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'deleteStaff', id: staffId }) }); } catch(e) {}
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', sheet: 'staff', id: staffId })
+    });
+  } catch(e) {}
   renderStaffUsers();
   showToast('Team member removed successfully', 'ok');
   addLog(`${currentUser?.data?.fullname} deleted team member`);
@@ -2716,19 +2721,20 @@ async function saveStaffMember() {
 
 async function pushStaffToSheetDB(staff) {
   try {
-    await fetch(GAS_URL, {
+    const r = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'upsertStaff', data: staff })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'upsert', sheet: 'staff', data: staff }),
+      signal: AbortSignal.timeout(10000)
     });
-    return true;
+    const res = await r.json();
+    return res.status === 'updated' || res.status === 'inserted';
   } catch(e) { return false; }
 }
 
 // ═══════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════
-// SHEETDB SYNC — Permanent Fix: Direct URL + Offline Queue
+// GOOGLE SCRIPT SYNC — Direct URL + Offline Queue
 // ═══════════════════════════════════════════════════
 
 // ── Offline retry queue (persists in localStorage) ──
@@ -2742,7 +2748,6 @@ function saveQueue(q) {
 }
 function enqueueSync(guest) {
   const q = loadQueue();
-  // Replace any existing entry for this guest so we always push the latest state
   const idx = q.findIndex(item => item.id === guest.id);
   const entry = { ...buildPayload(guest), _queuedAt: Date.now() };
   if (idx >= 0) q[idx] = entry; else q.push(entry);
@@ -2778,19 +2783,17 @@ function buildPayload(guest) {
   };
 }
 
-// Core push: single POST to GAS — upsert handled server-side
-// IMPORTANT: mode:'no-cors' is required — GAS /exec issues a 302 redirect and
-// the browser would normally convert POST→GET (losing the body). no-cors
-// prevents that and ensures doPost(e) on the GAS side actually receives the data.
-// The response will be opaque (status=0) — we cannot read it, so we assume
-// success here; real network failures will throw and get caught by the retry queue.
+// Core push: upsert via Google Apps Script
 async function _doPush(payload) {
-  await fetch(GAS_URL, {
+  const r = await fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'upsertGuest', data: payload })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'upsert', sheet: 'guests', data: payload }),
+    signal: AbortSignal.timeout(12000)
   });
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`);
+  const res = await r.json();
+  if (res.error) throw new Error(res.error);
   return true;
 }
 
@@ -2852,10 +2855,9 @@ async function syncSingleGuest(guest) { return await pushGuestToSheetDB(guest); 
 async function loadFromSheetDB() {
   setSyncStatus('syncing'); showSpinner('Loading guest data…');
   try {
-    const r = await fetch(`${GAS_URL}?action=getGuests`, { redirect: 'follow', signal: AbortSignal.timeout(12000) });
+    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests`, { signal: AbortSignal.timeout(12000) });
     if (r.ok) {
-      const json = await r.json();
-      const data = json.data || json;
+      const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
         guests = data.map(row => ({
           id:          row.id          || '',
@@ -2916,22 +2918,22 @@ function loadLocalFallback() {
 async function testSheetDBConnection() {
   showToast('🔍 Testing connection…'); showSpinner('Testing…');
   try {
-    const r = await fetch(`${GAS_URL}?action=getGuests`, { redirect: 'follow', signal: AbortSignal.timeout(8000) });
+    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests`, { signal: AbortSignal.timeout(8000) });
     const text = await r.text();
-    console.log('[GAS] Test response:', r.status, text.slice(0, 200));
+    console.log('[GScript] Test response:', r.status, text.slice(0, 200));
     if (r.ok) {
       let data;
-      try { const json = JSON.parse(text); data = json.data || json; } catch(e) { data = []; }
+      try { data = JSON.parse(text); } catch(e) { data = []; }
       showToast(`✅ Connected! ${Array.isArray(data) ? data.length : 0} records found`, 'ok');
       setSyncStatus('online');
-      setTimeout(flushQueue, 300); // flush any queued writes now
+      setTimeout(flushQueue, 300);
     } else {
       showToast(`❌ HTTP ${r.status}: ${text.slice(0,60)}`, 'err');
-      console.error('[GAS] Error:', r.status, text);
+      console.error('[GScript] Error:', r.status, text);
     }
   } catch(e) {
     showToast(`❌ ${e.message}`, 'err');
-    console.error('[GAS] Connection failed:', e);
+    console.error('[GScript] Connection failed:', e);
   }
   hideSpinner();
 }
