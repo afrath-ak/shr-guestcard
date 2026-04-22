@@ -2566,7 +2566,7 @@ function getRolePermissions(role) {
 async function loadStaffFromSheetDB() {
   showSpinner('Loading staff…');
   try {
-    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=staff`, { signal: AbortSignal.timeout(12000) });
+    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=staff&_t=${Date.now()}`, { signal: AbortSignal.timeout(20000) });
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -2655,8 +2655,9 @@ async function deleteStaff(staffId) {
   try {
     await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'delete', sheet: 'staff', id: staffId })
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'delete', sheet: 'staff', id: staffId }),
+      signal: AbortSignal.timeout(20000)
     });
   } catch(e) {}
   renderStaffUsers();
@@ -2723,12 +2724,12 @@ async function pushStaffToSheetDB(staff) {
   try {
     const r = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'upsert', sheet: 'staff', data: staff }),
-      signal: AbortSignal.timeout(10000)
+      signal: AbortSignal.timeout(20000)
     });
-    const res = await r.json();
-    return res.status === 'updated' || res.status === 'inserted';
+    if (!r.ok && r.status !== 0) return false;
+    try { const res = await r.json(); return !res.error; } catch(e) { return true; }
   } catch(e) { return false; }
 }
 
@@ -2784,16 +2785,22 @@ function buildPayload(guest) {
 }
 
 // Core push: upsert via Google Apps Script
+// Uses text/plain to avoid CORS preflight (Google Apps Script limitation)
 async function _doPush(payload) {
+  const body = JSON.stringify({ action: 'upsert', sheet: 'guests', data: payload });
   const r = await fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'upsert', sheet: 'guests', data: payload }),
-    signal: AbortSignal.timeout(12000)
+    headers: { 'Content-Type': 'text/plain' },
+    body: body,
+    signal: AbortSignal.timeout(20000)
   });
-  if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`);
-  const res = await r.json();
-  if (res.error) throw new Error(res.error);
+  if (!r.ok && r.status !== 0) throw new Error('HTTP ' + r.status);
+  try {
+    const res = await r.json();
+    if (res && res.error) throw new Error(res.error);
+  } catch(e) {
+    if (e.message && e.message.startsWith('HTTP')) throw e;
+  }
   return true;
 }
 
@@ -2855,7 +2862,7 @@ async function syncSingleGuest(guest) { return await pushGuestToSheetDB(guest); 
 async function loadFromSheetDB() {
   setSyncStatus('syncing'); showSpinner('Loading guest data…');
   try {
-    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests`, { signal: AbortSignal.timeout(12000) });
+    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests&_t=${Date.now()}`, { signal: AbortSignal.timeout(20000) });
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -2918,7 +2925,7 @@ function loadLocalFallback() {
 async function testSheetDBConnection() {
   showToast('🔍 Testing connection…'); showSpinner('Testing…');
   try {
-    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests`, { signal: AbortSignal.timeout(8000) });
+    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests&_t=${Date.now()}`, { signal: AbortSignal.timeout(10000) });
     const text = await r.text();
     console.log('[GScript] Test response:', r.status, text.slice(0, 200));
     if (r.ok) {
