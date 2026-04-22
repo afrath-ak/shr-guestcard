@@ -2653,7 +2653,7 @@ async function deleteStaff(staffId) {
   if (!confirm('⚠️ Are you sure you want to permanently remove this team member?')) return;
   staffUsers = staffUsers.filter(u => u.id !== staffId);
   saveStaffLocal();
-  try { await fetch(GAS_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'deleteStaff', id: staffId }) }); } catch(e) {}
+  try { await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'deleteStaff', id: staffId }) }); } catch(e) {}
   renderStaffUsers();
   showToast('Team member removed successfully', 'ok');
   addLog(`${currentUser?.data?.fullname} deleted team member`);
@@ -2716,13 +2716,13 @@ async function saveStaffMember() {
 
 async function pushStaffToSheetDB(staff) {
   try {
-    const r = await fetch(GAS_URL, {
-      method: 'POST', redirect: 'follow',
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'upsertStaff', data: staff }),
-      signal: AbortSignal.timeout(10000)
+      body: JSON.stringify({ action: 'upsertStaff', data: staff })
     });
-    return r.ok;
+    return true;
   } catch(e) { return false; }
 }
 
@@ -2779,15 +2779,18 @@ function buildPayload(guest) {
 }
 
 // Core push: single POST to GAS — upsert handled server-side
+// IMPORTANT: mode:'no-cors' is required — GAS /exec issues a 302 redirect and
+// the browser would normally convert POST→GET (losing the body). no-cors
+// prevents that and ensures doPost(e) on the GAS side actually receives the data.
+// The response will be opaque (status=0) — we cannot read it, so we assume
+// success here; real network failures will throw and get caught by the retry queue.
 async function _doPush(payload) {
-  const r = await fetch(GAS_URL, {
+  await fetch(GAS_URL, {
     method: 'POST',
-    redirect: 'follow',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'upsertGuest', data: payload }),
-    signal: AbortSignal.timeout(10000)
+    body: JSON.stringify({ action: 'upsertGuest', data: payload })
   });
-  if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`);
   return true;
 }
 
