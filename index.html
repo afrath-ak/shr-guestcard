@@ -1652,7 +1652,7 @@ select { color: var(--dark); }
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxN-mGrLdbMcsLBY9vylWtyZFi2aRU2g7ZfYOUP3IOa81y11-kkW_VaugnEl2A5-_kZ/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpKEzvALulPEcj-aK0m-QeDMWQYDcHVF9DNwkZxee8n-M-2_1WF30_8vYghOO0uE_2/exec";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -2653,12 +2653,8 @@ async function deleteStaff(staffId) {
   staffUsers = staffUsers.filter(u => u.id !== staffId);
   saveStaffLocal();
   try {
-    await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'delete', sheet: 'staff', id: staffId }),
-      signal: AbortSignal.timeout(20000)
-    });
+    const url = `${GOOGLE_SCRIPT_URL}?action=delete&sheet=staff&id=${encodeURIComponent(staffId)}&_t=${Date.now()}`;
+    await fetch(url, { signal: AbortSignal.timeout(25000) });
   } catch(e) {}
   renderStaffUsers();
   showToast('Team member removed successfully', 'ok');
@@ -2722,14 +2718,11 @@ async function saveStaffMember() {
 
 async function pushStaffToSheetDB(staff) {
   try {
-    const r = await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'upsert', sheet: 'staff', data: staff }),
-      signal: AbortSignal.timeout(20000)
-    });
-    if (!r.ok && r.status !== 0) return false;
-    try { const res = await r.json(); return !res.error; } catch(e) { return true; }
+    const encoded = encodeURIComponent(JSON.stringify(staff));
+    const url = `${GOOGLE_SCRIPT_URL}?action=upsert&sheet=staff&data=${encoded}&_t=${Date.now()}`;
+    const r = await fetch(url, { signal: AbortSignal.timeout(25000) });
+    const text = await r.text();
+    try { const res = JSON.parse(text); return !res.error; } catch(e) { return true; }
   } catch(e) { return false; }
 }
 
@@ -2785,23 +2778,20 @@ function buildPayload(guest) {
 }
 
 // Core push: upsert via Google Apps Script
-// Uses text/plain to avoid CORS preflight (Google Apps Script limitation)
+// Uses GET + encoded payload to avoid all CORS/redirect issues
 async function _doPush(payload) {
-  const body = JSON.stringify({ action: 'upsert', sheet: 'guests', data: payload });
-  const r = await fetch(GOOGLE_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: body,
-    signal: AbortSignal.timeout(20000)
-  });
-  if (!r.ok && r.status !== 0) throw new Error('HTTP ' + r.status);
+  const encoded = encodeURIComponent(JSON.stringify(payload));
+  const url = `${GOOGLE_SCRIPT_URL}?action=upsert&sheet=guests&data=${encoded}&_t=${Date.now()}`;
+  const r = await fetch(url, { signal: AbortSignal.timeout(25000) });
+  const text = await r.text();
   try {
-    const res = await r.json();
+    const res = JSON.parse(text);
     if (res && res.error) throw new Error(res.error);
+    return true;
   } catch(e) {
-    if (e.message && e.message.startsWith('HTTP')) throw e;
+    if (e.message && !e.message.includes('JSON')) throw e;
+    return true; // got a response, treat as success
   }
-  return true;
 }
 
 // Retry queue flusher — runs automatically, backs off on failure
