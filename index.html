@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-<!-- EmailJS SDK (still used for OTP) -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════
@@ -639,13 +638,32 @@ if (typeof emailjs !== 'undefined') {
   emailjs.init({ publicKey: 'qFWC8sXXI5K07FR-A' });
 }
 
-// Helper: call Apps Script
-async function callAppsScript(action, data = {}) {
+// Helper: call Apps Script with timeout (15 seconds)
+async function callAppsScript(action, data = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   const formData = new FormData();
   formData.append('action', action);
   formData.append('data', JSON.stringify(data));
-  const response = await fetch(APP_SCRIPT_URL, { method: 'POST', body: formData });
-  return await response.json();
+  try {
+    const response = await fetch(APP_SCRIPT_URL, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.error(`AppsScript call error (${action}):`, err);
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out (15 seconds). The server might be slow or unreachable.');
+    }
+    throw new Error(`Network error: ${err.message}`);
+  }
 }
 
 // Password hashing helpers (client-side for new user creation)
@@ -700,16 +718,21 @@ async function guestPasswordLogin() {
   const password = document.getElementById('guest-password').value;
   if (!guestId || !password) { showLoginError('Please enter Guest ID and password'); return; }
   showSpinner('Verifying…');
-  const result = await callAppsScript('guestLogin', { guestId, password });
-  hideSpinner();
-  if (result.success) {
-    currentUser = { type: 'guest', data: result.user };
-    currentGuest = result.user;
-    saveSession(); applyUserSession(); startSessionTimer();
-    showToast(`Welcome back, ${result.user.first || 'Guest'}!`, 'ok');
-    await loadGuestsFromBackend();
-  } else {
-    showLoginError(result.error);
+  try {
+    const result = await callAppsScript('guestLogin', { guestId, password });
+    hideSpinner();
+    if (result.success) {
+      currentUser = { type: 'guest', data: result.user };
+      currentGuest = result.user;
+      saveSession(); applyUserSession(); startSessionTimer();
+      showToast(`Welcome back, ${result.user.first || 'Guest'}!`, 'ok');
+      await loadGuestsFromBackend();
+    } else {
+      showLoginError(result.error);
+    }
+  } catch (err) {
+    hideSpinner();
+    showLoginError(`Login failed: ${err.message}`);
   }
 }
 
@@ -718,17 +741,25 @@ async function staffLogin() {
   const password = document.getElementById('staff-password').value;
   if (!username || !password) { showLoginError('Enter username and password'); return; }
   showSpinner('Authenticating…');
-  const result = await callAppsScript('staffLogin', { username, password });
-  hideSpinner();
-  if (result.success) {
-    currentUser = { type: 'staff', data: result.user };
-    saveSession(); applyUserSession(); startSessionTimer();
-    showToast(`Welcome, ${result.user.fullname}!`, 'ok');
-    await loadGuestsFromBackend();
-    await loadStaffFromBackend();
-    await loadVerificationsFromBackend();
-  } else {
-    showLoginError(result.error);
+  try {
+    const result = await callAppsScript('staffLogin', { username, password });
+    hideSpinner();
+    if (result.success) {
+      currentUser = { type: 'staff', data: result.user };
+      saveSession(); applyUserSession(); startSessionTimer();
+      showToast(`Welcome, ${result.user.fullname}!`, 'ok');
+      // Load data after successful login to avoid hanging the login process
+      await Promise.all([
+        loadGuestsFromBackend(),
+        loadStaffFromBackend(),
+        loadVerificationsFromBackend()
+      ]);
+    } else {
+      showLoginError(result.error);
+    }
+  } catch (err) {
+    hideSpinner();
+    showLoginError(`Authentication failed: ${err.message}`);
   }
 }
 
@@ -746,7 +777,7 @@ async function loadGuestsFromBackend() {
         loadGuestDashboard();
       }
     }
-  } catch(e) { console.warn(e); }
+  } catch(e) { console.warn('loadGuestsFromBackend error:', e); }
 }
 
 async function loadStaffFromBackend() {
@@ -842,8 +873,7 @@ async function restoreSession() {
           currentUser = { type: 'staff', data: staff };
           sessionEndTime = session.sessionEnd || (Date.now() + SESSION_TIMEOUT_MINUTES * 60 * 1000);
           applyUserSession(); startSessionTimer(); setupActivityListeners();
-          await loadGuestsFromBackend();
-          await loadVerificationsFromBackend();
+          await Promise.all([loadGuestsFromBackend(), loadVerificationsFromBackend()]);
           return true;
         }
       }
@@ -982,7 +1012,7 @@ function renderTable() {
   if (currentFilter === 'unverified') filtered = filtered.filter(g => !g.verified);
   const tbody = document.getElementById('staff-tbody');
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">No guests found</div><tr></tr>'; return; }
-  tbody.innerHTML = filtered.map(g => `<tr><td><strong>${sanitize(g.id)}</strong></td><td><div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div><div style="font-size:12px;">${sanitize(g.email)}</div></td><td>${sanitize(g.room || '—')}</td><td style="font-size:12px;">${sanitize(g.checkin||'—')}<br>${sanitize(g.checkout||'—')}</td><td><span class="badge badge-${g.status.toLowerCase()}">${g.status}</span></td><td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : '⏳ Pending'}</span></td><td>${g.scans||0}</td><td><button class="btn-ghost btn-sm" onclick="toggleStatus('${g.id}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button></td></tr>`).join('');
+  tbody.innerHTML = filtered.map(g => `<tr><td><strong>${sanitize(g.id)}</strong></td><td><div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div><div style="font-size:12px;">${sanitize(g.email)}</div></td><td>${sanitize(g.room || '—')}</td><td style="font-size:12px;">${sanitize(g.checkin||'—')}<br>${sanitize(g.checkout||'—')}</td><td><span class="badge badge-${g.status.toLowerCase()}">${g.status}</span></td><td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : '⏳ Pending'}</span></td><td>${g.scans||0}</td><td><button class="btn-ghost btn-sm" onclick="toggleStatus('${g.id}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button></td>`).join('');
 }
 function setFilter(filter, e) {
   currentFilter = filter;
