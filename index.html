@@ -614,7 +614,7 @@ select option { background: #ffffff !important; color: var(--dark) !important; }
 
 <script>
 // ======================== CONFIGURATION ========================
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwduksSWoCv5UFaeFeA6kNZJCyNjC8ky9SWtzXTa3rKsGZt2I2QuwMzdRUBnEBd0dqn/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpJW6_DMplbTaTUganI-4kfhqEJ26QJlce7Ak8MNA43fll5URhOhYCNfmLkn9au7FP/exec';
 const SESSION_TIMEOUT_MINUTES = 30;
 
 // Global state
@@ -707,8 +707,7 @@ async function guestPasswordLogin() {
     currentGuest = result.user;
     saveSession(); applyUserSession(); startSessionTimer();
     showToast(`Welcome back, ${result.user.first || 'Guest'}!`, 'ok');
-    // Load fresh guest list? Not needed for guest, but we might need to refresh local cache
-    await loadGuestsFromBackend(); // to keep guests array in sync
+    await loadGuestsFromBackend();
   } else {
     showLoginError(result.error);
   }
@@ -742,7 +741,6 @@ async function loadGuestsFromBackend() {
       renderTable();
       if (document.getElementById('panel-staff-analytics')?.classList.contains('active')) renderAnalytics();
       if (currentGuest) {
-        // update current guest if needed
         const updated = guests.find(g => g.id === currentGuest.id);
         if (updated) currentGuest = updated;
         loadGuestDashboard();
@@ -983,7 +981,7 @@ function renderTable() {
   if (currentFilter === 'verified') filtered = filtered.filter(g => g.verified);
   if (currentFilter === 'unverified') filtered = filtered.filter(g => !g.verified);
   const tbody = document.getElementById('staff-tbody');
-  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">No guests found</div></td></tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">No guests found</div><tr></tr>'; return; }
   tbody.innerHTML = filtered.map(g => `<tr><td><strong>${sanitize(g.id)}</strong></td><td><div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div><div style="font-size:12px;">${sanitize(g.email)}</div></td><td>${sanitize(g.room || '—')}</td><td style="font-size:12px;">${sanitize(g.checkin||'—')}<br>${sanitize(g.checkout||'—')}</td><td><span class="badge badge-${g.status.toLowerCase()}">${g.status}</span></td><td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : '⏳ Pending'}</span></td><td>${g.scans||0}</td><td><button class="btn-ghost btn-sm" onclick="toggleStatus('${g.id}')">${g.status === 'Active' ? 'Revoke' : 'Activate'}</button></td></tr>`).join('');
 }
 function setFilter(filter, e) {
@@ -1185,8 +1183,6 @@ async function submitVerification() {
   const selfie = document.getElementById('selfie-input').files[0];
   if (!idNumber || !front || !back || !selfie) { showToast('Please fill all fields and upload all images', 'err'); return; }
   showSpinner('Submitting…');
-  // In a real implementation, you would upload files to Drive and store URLs.
-  // For simplicity, we store only metadata; actual file upload requires additional endpoints.
   const request = { id: Date.now().toString(), guestId: currentGuest.id, guestName: `${currentGuest.first} ${currentGuest.last}`, idType: document.getElementById('verification-id-type').value, idNumber, status: 'pending', submittedAt: new Date().toISOString() };
   const result = await callAppsScript('submitVerification', { request });
   hideSpinner();
@@ -1307,7 +1303,6 @@ async function sendGuestPasswordReset() {
   guestResetPendingOTP = otp;
   guestResetOtpExpiry = Date.now() + 10 * 60 * 1000;
   guestResetTargetId = guestId;
-  // Use EmailJS to send OTP
   try {
     await emailjs.send('service_1v8hdr6', 'template_azg14xr', { to_email: email, otp_code: otp, to_name: guest.first || 'Guest' });
     hideSpinner();
@@ -1408,7 +1403,7 @@ async function signupFinalize() {
   const result = await callAppsScript('updateGuest', { guestId: guest.id, updates });
   if (result.success) {
     guest.first = updates.first; guest.last = updates.last; guest.email = updates.email;
-    guest.guestPassword = '**hashed**'; // placeholder
+    guest.guestPassword = '**hashed**';
     currentUser = { type: 'guest', data: guest };
     currentGuest = guest;
     saveSession(); applyUserSession(); startSessionTimer();
@@ -1516,18 +1511,15 @@ function togglePriv(el) { el.classList.toggle('sel'); }
 
 async function init() {
   wireUploadListeners();
-  // Set default dates for add guest form
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('f-checkin').value = today;
   document.getElementById('f-checkout').value = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
-  // Restore session or show login
   const restored = await restoreSession();
   if (!restored) {
     document.getElementById('login-page').style.display = '';
     document.getElementById('main-app').classList.remove('active');
     switchTab('guest');
   }
-  // Remove any sync buttons / offline indicators
   document.querySelectorAll('#force-sync-btn, [onclick="testSheetDBConnection()"]').forEach(el => el.remove());
   document.querySelectorAll('.sync-status, .sync-status-inline').forEach(el => el.style.display = 'none');
 }
