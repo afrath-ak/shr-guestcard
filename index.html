@@ -1180,10 +1180,11 @@ select { color: var(--dark); }
               id="tab-newsignup" onclick="switchGuestMode('signup')">New Guest</button>
           </div>
 
+          <!-- RETURNING GUEST: Password Login -->
           <div id="guest-step-1">
             <div class="info-note">
-              <strong>Returning guest?</strong>
-              Enter your Guest ID and last name from your welcome card.
+              <strong>Welcome back!</strong>
+              Sign in with your Guest ID and password.
             </div>
             <div class="field">
               <label for="guest-id">Guest ID <span aria-label="required">*</span></label>
@@ -1192,44 +1193,54 @@ select { color: var(--dark); }
               <span id="gid-hint" class="field-note">Found on your welcome card or check-in email</span>
             </div>
             <div class="field">
-              <label for="guest-lastname">Last Name <span aria-label="required">*</span></label>
-              <input type="text" id="guest-lastname" placeholder="As on your passport"
-                autocomplete="family-name" aria-required="true">
+              <label for="guest-password">Password <span aria-label="required">*</span></label>
+              <input type="password" id="guest-password" placeholder="••••••••"
+                autocomplete="current-password" aria-required="true">
             </div>
-            <div class="field">
-              <label for="guest-contact">Email Address for OTP <span aria-label="required">*</span></label>
-              <input type="email" id="guest-contact" placeholder="your@email.com"
-                autocomplete="email" aria-required="true" aria-describedby="guest-contact-hint">
-              <span id="guest-contact-hint" class="field-note">We'll send a 6-digit code to your email</span>
-            </div>
-            <button class="login-btn" id="guest-otp-btn" onclick="requestGuestOTP()"
-              aria-label="Send verification code to your email">
-              Send Email Code →
+            <button class="login-btn" id="guest-login-btn" onclick="guestPasswordLogin()"
+              aria-label="Sign in with your password">
+              Sign In →
             </button>
+            <div class="staff-login-footer" style="margin-top:12px;text-align:center;">
+              <button class="forgot-link-btn" onclick="showGuestForgotPassword()" aria-label="Forgot password? Reset it">
+                Forgot your password?
+              </button>
+            </div>
           </div>
 
-          <div id="guest-step-2" style="display:none;">
-            <div class="step-pills" aria-label="Login step 2 of 2">
-              <div class="step-pill done">1 Identity</div>
-              <div class="step-pill active">2 Verify</div>
-            </div>
-            <div class="info-note">
-              <strong>Check your email.</strong>
-              A 6-digit code has been sent to your email. It expires in 5 minutes.
+          <!-- RETURNING GUEST: Forgot Password Flow -->
+          <div id="guest-forgot-view" style="display:none;">
+            <button class="login-btn secondary" style="margin-bottom:16px;" onclick="hideGuestForgotPassword()">← Back to Login</button>
+            <h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:4px;color:#fff;">Reset Password</h3>
+            <p style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:16px;">Enter your Guest ID and registered email to receive a reset code.</p>
+            <div class="field">
+              <label for="guest-reset-id">Guest ID <span aria-label="required">*</span></label>
+              <input type="text" id="guest-reset-id" placeholder="e.g. SHR-1001" autocomplete="off">
             </div>
             <div class="field">
-              <label for="guest-otp">One-Time Code</label>
-              <div class="otp-row">
-                <input type="text" id="guest-otp" maxlength="6"
-                  placeholder="· · · · · ·" autocomplete="one-time-code"
-                  inputmode="numeric" pattern="[0-9]*" aria-label="6-digit verification code">
-              </div>
+              <label for="guest-reset-email">Registered Email <span aria-label="required">*</span></label>
+              <input type="email" id="guest-reset-email" placeholder="your@email.com" autocomplete="email">
             </div>
-            <p id="guest-otp-timer" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:10px;min-height:18px;"></p>
-            <button class="login-btn" onclick="verifyGuestOTP()"
-              aria-label="Verify code and enter your account">Verify & Enter →</button>
-            <button class="login-btn secondary" onclick="backToStep1()">← Back</button>
-            <p class="resend-link">Didn't receive it? <button onclick="resendOTP()">Resend code</button></p>
+            <button class="login-btn teal" onclick="sendGuestPasswordReset()" aria-label="Send password reset code">Send Reset Code →</button>
+            <div id="guest-reset-otp-view" style="display:none;margin-top:14px;">
+              <div class="info-note">
+                <strong>Reset code sent!</strong>
+                Enter the 6-digit code and your new password below.
+              </div>
+              <div class="field">
+                <label for="guest-reset-otp">Reset Code</label>
+                <input type="text" id="guest-reset-otp" maxlength="6" placeholder="6-digit code" inputmode="numeric">
+              </div>
+              <div class="field">
+                <label for="guest-reset-new-pw">New Password <span aria-label="required">*</span></label>
+                <input type="password" id="guest-reset-new-pw" placeholder="Min. 8 chars with letters &amp; numbers" autocomplete="new-password">
+              </div>
+              <div class="field">
+                <label for="guest-reset-confirm-pw">Confirm New Password <span aria-label="required">*</span></label>
+                <input type="password" id="guest-reset-confirm-pw" placeholder="Repeat new password" autocomplete="new-password">
+              </div>
+              <button class="login-btn" onclick="confirmGuestPasswordReset()">Set New Password →</button>
+            </div>
           </div>
 
           <div id="guest-signup-form" style="display:none;">
@@ -1242,47 +1253,50 @@ select { color: var(--dark); }
             </div>
             <div id="signup-step-1">
               <div class="step-pills">
-                <div class="step-pill active">1 Profile</div>
-                <div class="step-pill">2 Contact</div>
+                <div class="step-pill active">1 Identity</div>
+                <div class="step-pill">2 Email</div>
                 <div class="step-pill">3 Verify</div>
-              </div>
-              <div class="field-row-2">
-                <div class="field">
-                  <label for="s-first">First Name <span aria-label="required">*</span></label>
-                  <input type="text" id="s-first" placeholder="First name" autocomplete="given-name" aria-required="true">
-                </div>
-                <div class="field">
-                  <label for="s-last">Last Name <span aria-label="required">*</span></label>
-                  <input type="text" id="s-last" placeholder="Last name" autocomplete="family-name" aria-required="true">
-                </div>
+                <div class="step-pill">4 Password</div>
               </div>
               <div class="field">
                 <label for="s-guest-id">Guest ID <span aria-label="required">*</span></label>
                 <input type="text" id="s-guest-id" placeholder="e.g. SHR-1001" autocomplete="off" aria-required="true" aria-describedby="s-gid-hint">
-                <span id="s-gid-hint" class="field-note">Your Guest ID was given at check-in or in your booking confirmation</span>
+                <span id="s-gid-hint" class="field-note">Your unique Guest ID from your booking confirmation — mandatory</span>
+              </div>
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="s-first">First Name <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400;">(optional)</span></label>
+                  <input type="text" id="s-first" placeholder="First name" autocomplete="given-name">
+                </div>
+                <div class="field">
+                  <label for="s-last">Last Name <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400;">(optional)</span></label>
+                  <input type="text" id="s-last" placeholder="Last name" autocomplete="family-name">
+                </div>
               </div>
               <button class="login-btn" onclick="signupNextStep()" aria-label="Continue to contact information">Continue →</button>
             </div>
             <div id="signup-step-2" style="display:none;">
               <div class="step-pills">
-                <div class="step-pill done">1 Profile</div>
-                <div class="step-pill active">2 Contact</div>
+                <div class="step-pill done">1 Identity</div>
+                <div class="step-pill active">2 Email</div>
                 <div class="step-pill">3 Verify</div>
+                <div class="step-pill">4 Password</div>
               </div>
               <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Enter your email address — we'll send a 6-digit code to verify.</p>
               <div class="field">
                 <label for="s-phone">Email Address <span aria-label="required">*</span></label>
                 <input type="email" id="s-phone" placeholder="your@email.com" autocomplete="email" aria-required="true" aria-describedby="s-phone-note">
-                <span id="s-phone-note" class="field-note">Enter the email address you used at registration</span>
+                <span id="s-phone-note" class="field-note">You'll use this email for future password resets</span>
               </div>
               <button class="login-btn" onclick="signupSendOTP()" aria-label="Send email verification code">Send Email Code →</button>
               <button class="login-btn secondary" onclick="signupBack(1)">← Back</button>
             </div>
             <div id="signup-step-3" style="display:none;">
               <div class="step-pills">
-                <div class="step-pill done">1 Profile</div>
-                <div class="step-pill done">2 Contact</div>
+                <div class="step-pill done">1 Identity</div>
+                <div class="step-pill done">2 Email</div>
                 <div class="step-pill active">3 Verify</div>
+                <div class="step-pill">4 Password</div>
               </div>
               <div class="info-note">
                 <strong>Almost there!</strong>
@@ -1295,9 +1309,31 @@ select { color: var(--dark); }
                 </div>
               </div>
               <p id="signup-otp-timer" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:10px;min-height:18px;"></p>
-              <button class="login-btn teal" onclick="signupVerifyAndCreate()" aria-label="Verify and create your guest account">Create My Guest Card ✓</button>
+              <button class="login-btn teal" onclick="signupVerifyAndCreate()" aria-label="Verify email and continue">Verify Code →</button>
               <button class="login-btn secondary" onclick="signupBack(2)">← Back</button>
               <p class="resend-link">Didn't receive it? <button onclick="signupResend()">Resend code</button></p>
+            </div>
+            <div id="signup-step-4" style="display:none;">
+              <div class="step-pills">
+                <div class="step-pill done">1 Identity</div>
+                <div class="step-pill done">2 Email</div>
+                <div class="step-pill done">3 Verify</div>
+                <div class="step-pill active">4 Password</div>
+              </div>
+              <div class="info-note">
+                <strong>Create your password.</strong>
+                You'll use this to sign in as a returning guest next time.
+              </div>
+              <div class="field">
+                <label for="s-password">Create Password <span aria-label="required">*</span></label>
+                <input type="password" id="s-password" placeholder="Min. 8 characters" autocomplete="new-password" aria-required="true">
+                <span class="field-note">At least 8 characters, including letters and numbers</span>
+              </div>
+              <div class="field">
+                <label for="s-password-confirm">Confirm Password <span aria-label="required">*</span></label>
+                <input type="password" id="s-password-confirm" placeholder="Repeat your password" autocomplete="new-password" aria-required="true">
+              </div>
+              <button class="login-btn teal" onclick="signupFinalize()" aria-label="Complete registration and enter your account">Complete Registration ✓</button>
             </div>
           </div>
         </div>
@@ -1652,7 +1688,7 @@ select { color: var(--dark); }
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpKEzvALulPEcj-aK0m-QeDMWQYDcHVF9DNwkZxee8n-M-2_1WF30_8vYghOO0uE_2/exec";
+const SHEETDB_URL = "https://sheetdb.io/api/v1/xixfih5jg1t6y";
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
@@ -1913,19 +1949,27 @@ function startOTPCountdown(elementId, seconds) {
 }
 
 function wireOTPInputs() {
-  const otpInputs = [
-    { id: 'guest-otp', action: verifyGuestOTP },
-    { id: 's-otp', action: signupVerifyAndCreate },
-  ];
-  otpInputs.forEach(({ id, action }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('input', () => {
-      el.value = el.value.replace(/\D/g, '').slice(0, 6);
-      if (el.value.length === 6) action();
+  // Signup OTP auto-submit
+  const sOtp = document.getElementById('s-otp');
+  if (sOtp) {
+    sOtp.addEventListener('input', () => {
+      sOtp.value = sOtp.value.replace(/\D/g, '').slice(0, 6);
+      if (sOtp.value.length === 6) signupVerifyAndCreate();
     });
-    el.addEventListener('keydown', e => { if (e.key === 'Enter' && el.value.length === 6) action(); });
-  });
+    sOtp.addEventListener('keydown', e => { if (e.key === 'Enter' && sOtp.value.length === 6) signupVerifyAndCreate(); });
+  }
+  // Guest reset OTP
+  const rOtp = document.getElementById('guest-reset-otp');
+  if (rOtp) {
+    rOtp.addEventListener('input', () => { rOtp.value = rOtp.value.replace(/\D/g, '').slice(0, 6); });
+    rOtp.addEventListener('keydown', e => { if (e.key === 'Enter') confirmGuestPasswordReset(); });
+  }
+  // Enter key on guest password login
+  const gpw = document.getElementById('guest-password');
+  if (gpw) gpw.addEventListener('keydown', e => { if (e.key === 'Enter') guestPasswordLogin(); });
+  // Enter key on guest ID
+  const gid = document.getElementById('guest-id');
+  if (gid) gid.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('guest-password')?.focus(); });
 }
 
 // ═══════════════════════════════════════════════════
@@ -2040,122 +2084,119 @@ function switchGuestMode(mode) {
   clearLoginError();
   const t0 = document.getElementById('tab-returning');
   const t1 = document.getElementById('tab-newsignup');
-  const r = document.getElementById('guest-step-1');
-  const r2 = document.getElementById('guest-step-2');
-  const s = document.getElementById('guest-signup-form');
+  const r  = document.getElementById('guest-step-1');
+  const rf = document.getElementById('guest-forgot-view');
+  const s  = document.getElementById('guest-signup-form');
   if (mode === 'returning') {
     t0.classList.add('active'); t0.setAttribute('aria-selected','true');
     t1.classList.remove('active'); t1.setAttribute('aria-selected','false');
-    r.style.display = 'block'; r2.style.display = 'none'; s.style.display = 'none';
+    r.style.display = 'block'; if(rf) rf.style.display = 'none'; s.style.display = 'none';
   } else {
     t1.classList.add('active'); t1.setAttribute('aria-selected','true');
     t0.classList.remove('active'); t0.setAttribute('aria-selected','false');
-    r.style.display = 'none'; r2.style.display = 'none'; s.style.display = 'block';
+    r.style.display = 'none'; if(rf) rf.style.display = 'none'; s.style.display = 'block';
     document.getElementById('signup-step-1').style.display = 'block';
     document.getElementById('signup-step-2').style.display = 'none';
     document.getElementById('signup-step-3').style.display = 'none';
+    document.getElementById('signup-step-4').style.display = 'none';
   }
 }
 
 // ═══════════════════════════════════════════════════
-// RETURNING GUEST OTP FLOW
+// RETURNING GUEST — PASSWORD LOGIN
 // ═══════════════════════════════════════════════════
-function backToStep1() {
-  document.getElementById('guest-step-1').style.display = 'block';
-  document.getElementById('guest-step-2').style.display = 'none';
-  pendingOTP = null; pendingGuestForOTP = null; clearLoginError();
-  if (_otpCountdownTimer) { clearInterval(_otpCountdownTimer); _otpCountdownTimer = null; }
-  const timerEl = document.getElementById('guest-otp-timer');
-  if (timerEl) timerEl.textContent = '';
-}
-
-async function requestGuestOTP() {
-  const guestId = document.getElementById('guest-id').value.trim().toUpperCase();
-  const lastName = document.getElementById('guest-lastname').value.trim();
-  const contact = document.getElementById('guest-contact').value.trim();
+function guestPasswordLogin() {
+  const guestId  = (document.getElementById('guest-id')?.value || '').trim().toUpperCase();
+  const password = (document.getElementById('guest-password')?.value || '').trim();
   clearLoginError();
-  if (!guestId || !lastName) { showLoginError('Please enter your Guest ID and last name.'); return; }
-  if (!contact) { showLoginError('Please enter your email address.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) { showLoginError('Please enter a valid email address.'); return; }
-  if (!checkRateLimit(`otp_req_${guestId}`, 5)) { showLoginError('Too many attempts. Please wait 5 minutes.'); return; }
+  if (!guestId)  { showLoginError('Please enter your Guest ID.'); return; }
+  if (!password) { showLoginError('Please enter your password.'); return; }
+  if (!checkRateLimit(`guest_pw_${guestId}`, 5)) { showLoginError('Too many failed attempts. Please wait 5 minutes.'); return; }
 
-  const guest = guests.find(g => g.id === guestId && g.last.toLowerCase() === lastName.toLowerCase());
-  if (!guest) { showLoginError('No matching guest found. Please check your ID and last name.'); return; }
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) { showLoginError('No guest found with that ID. Please check your Guest ID or use "New Guest" to register.'); return; }
   if (guest.status !== 'Active') { showLoginError('This guest card has been deactivated. Please contact reception.'); return; }
+  if (!guest.guestPassword) { showLoginError('No password set yet. Please use the "New Guest" tab to complete registration first.'); return; }
+  if (guest.guestPassword !== password) { showLoginError('Incorrect password. Try again or use "Forgot your password?" to reset.'); return; }
 
-  // ── SECURITY FIX: Returning Guest must have a registered email on file ──
-  // If no email is stored, they haven't completed New Guest signup yet.
-  if (!guest.email || !guest.email.trim()) {
-    showLoginError('No email registered for this guest ID. Please use the "New Guest" tab to sign up first.');
-    return;
-  }
-  // The email entered must exactly match what is on file — prevents someone
-  // who knows the guest ID + last name from using their own email to receive the OTP.
-  if (contact.toLowerCase() !== guest.email.trim().toLowerCase()) {
-    showLoginError('Email address does not match our records. Please use the email you registered with, or contact reception.');
-    return;
-  }
+  currentUser = { type: 'guest', data: guest }; currentGuest = guest;
+  saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
+  guest.scans = (guest.scans || 0) + 1; saveLocal(); syncSingleGuest(guest);
+  showToast(`Welcome back, ${sanitize(guest.first || 'Guest')}! 🌟`, 'ok');
+  addLog(`${guest.first || guest.id} signed in (password)`);
+}
 
-  const btn = document.getElementById('guest-otp-btn');
-  const originalText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '⏳ Sending...';
-  showSpinner('Sending verification code to your email...');
+// ── Guest Forgot Password ────────────────────────────
+let guestResetPendingOTP  = null;
+let guestResetOtpExpiry   = null;
+let guestResetTargetId    = null;
 
-  const otp = generateOTP();
-  pendingOTP = otp;
-  otpExpiry = Date.now() + 5 * 60 * 1000;
-  pendingGuestForOTP = guest;
-
-  // Always send to the stored email — never to an arbitrary user-supplied address
-  const sent = await sendOTP(guest.email.trim(), otp, guest.first || '');
-
-  btn.disabled = false;
-  btn.textContent = originalText;
-  hideSpinner();
-
-  if (!sent) { pendingOTP = null; pendingGuestForOTP = null; return; }
-
+function showGuestForgotPassword() {
   document.getElementById('guest-step-1').style.display = 'none';
-  document.getElementById('guest-step-2').style.display = 'block';
-  document.getElementById('guest-otp').value = '';
-  document.getElementById('guest-otp').focus();
-  startOTPCountdown('guest-otp-timer', 5 * 60);
-}
-
-async function resendOTP() {
-  if (!pendingGuestForOTP) { backToStep1(); return; }
-  // Always resend to the stored email — never re-read the form input
-  const contact = (pendingGuestForOTP.email || '').trim();
-  if (!contact) { backToStep1(); return; }
-  const otp = generateOTP();
-  pendingOTP = otp;
-  otpExpiry = Date.now() + 5 * 60 * 1000;
-  showSpinner('Resending verification code...');
-  const sent = await sendOTP(contact, otp, pendingGuestForOTP.first || '');
-  hideSpinner();
-  if (sent) {
-    showToast('New verification code sent to your email! ✉️', 'ok');
-    startOTPCountdown('guest-otp-timer', 5 * 60);
-  }
-}
-
-function verifyGuestOTP() {
-  const entered = document.getElementById('guest-otp').value.trim();
+  document.getElementById('guest-forgot-view').style.display = 'block';
+  document.getElementById('guest-reset-otp-view').style.display = 'none';
   clearLoginError();
-  if (!entered) { showLoginError('Please enter the 6-digit code.'); return; }
-  if (Date.now() > otpExpiry) { showLoginError('This code has expired. Please go back and request a new one.'); return; }
-  if (entered !== pendingOTP) { showLoginError('Incorrect code. Please try again.'); return; }
-  const guest = pendingGuestForOTP;
-  if (guest && guest.status === 'Active') {
-    currentUser = { type: 'guest', data: guest }; currentGuest = guest;
-    saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
-    showToast(`Welcome, ${sanitize(guest.first)}! 🌟`, 'ok');
-    addLog(`${guest.first} ${guest.last} signed in (OTP)`);
-    pendingOTP = null; pendingGuestForOTP = null;
-    document.getElementById('guest-step-1').style.display = 'block';
-    document.getElementById('guest-step-2').style.display = 'none';
-  } else { showLoginError('Authentication failed. Please try again.'); }
+}
+
+function hideGuestForgotPassword() {
+  document.getElementById('guest-forgot-view').style.display = 'none';
+  document.getElementById('guest-step-1').style.display = 'block';
+  document.getElementById('guest-reset-id').value = '';
+  document.getElementById('guest-reset-email').value = '';
+  document.getElementById('guest-reset-otp').value = '';
+  document.getElementById('guest-reset-new-pw').value = '';
+  document.getElementById('guest-reset-confirm-pw').value = '';
+  document.getElementById('guest-reset-otp-view').style.display = 'none';
+  guestResetPendingOTP = null; guestResetTargetId = null;
+  clearLoginError();
+}
+
+async function sendGuestPasswordReset() {
+  clearLoginError();
+  const guestId = (document.getElementById('guest-reset-id').value || '').trim().toUpperCase();
+  const email   = (document.getElementById('guest-reset-email').value || '').trim();
+  if (!guestId) { showLoginError('Please enter your Guest ID.'); return; }
+  if (!email)   { showLoginError('Please enter your registered email.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginError('Please enter a valid email address.'); return; }
+
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) { showLoginError('No guest found with that ID.'); return; }
+  if (!guest.email || guest.email.trim().toLowerCase() !== email.toLowerCase()) {
+    showLoginError('Email does not match our records for this Guest ID.'); return;
+  }
+
+  showSpinner('Sending reset code…');
+  const otp = generateOTP();
+  guestResetPendingOTP = otp;
+  guestResetOtpExpiry  = Date.now() + 10 * 60 * 1000;
+  guestResetTargetId   = guestId;
+  const sent = await sendOTP(guest.email.trim(), otp, guest.first || 'Guest');
+  hideSpinner();
+  if (!sent) { guestResetPendingOTP = null; guestResetTargetId = null; return; }
+  document.getElementById('guest-reset-otp-view').style.display = 'block';
+  document.getElementById('guest-reset-otp').focus();
+  showToast('Reset code sent to your email! ✉️', 'ok');
+}
+
+function confirmGuestPasswordReset() {
+  clearLoginError();
+  const entered   = (document.getElementById('guest-reset-otp').value || '').trim();
+  const newPw     = document.getElementById('guest-reset-new-pw').value;
+  const confirmPw = document.getElementById('guest-reset-confirm-pw').value;
+  if (!entered) { showLoginError('Please enter the reset code.'); return; }
+  if (Date.now() > guestResetOtpExpiry) { showLoginError('Code has expired. Please start over.'); return; }
+  if (entered !== guestResetPendingOTP) { showLoginError('Incorrect reset code. Please try again.'); return; }
+  const pwErr = validatePassword(newPw);
+  if (pwErr) { showLoginError(pwErr); return; }
+  if (newPw !== confirmPw) { showLoginError('Passwords do not match.'); return; }
+  const guest = guests.find(g => g.id === guestResetTargetId);
+  if (!guest) { showLoginError('Guest not found. Please start over.'); return; }
+  guest.guestPassword = newPw;
+  saveLocal(); syncSingleGuest(guest);
+  addLog(`Password reset for guest ${guestResetTargetId}`);
+  showToast('Password updated! Please sign in.', 'ok');
+  hideGuestForgotPassword();
+  guestResetPendingOTP = null; guestResetTargetId = null;
 }
 
 // ═══════════════════════════════════════════════════
@@ -2163,19 +2204,15 @@ function verifyGuestOTP() {
 // ═══════════════════════════════════════════════════
 function signupNextStep() {
   clearLoginError();
-  const first = document.getElementById('s-first').value.trim();
-  const last = document.getElementById('s-last').value.trim();
   const guestId = document.getElementById('s-guest-id').value.trim().toUpperCase();
-  if (!first) { showLoginError('Please enter your first name.'); return; }
-  if (!last) { showLoginError('Please enter your last name.'); return; }
-  if (!guestId) { showLoginError('Please enter your Guest ID.'); return; }
+  const first   = document.getElementById('s-first').value.trim();
+  const last    = document.getElementById('s-last').value.trim();
+  if (!guestId) { showLoginError('Please enter your Guest ID — it is required.'); return; }
   const guest = guests.find(g => g.id === guestId);
   if (!guest) { showLoginError('No reservation found with this Guest ID. Please contact reception.'); return; }
-  if (`${guest.first} ${guest.last}`.toLowerCase() !== `${first} ${last}`.toLowerCase()) {
-    showLoginError('Name does not match our records for this Guest ID.'); return;
-  }
   if (guest.status !== 'Active') { showLoginError('This card has been deactivated. Please contact reception.'); return; }
-  signupData = { first, last, guestId, guest };
+  if (guest.guestPassword) { showLoginError('This Guest ID is already registered. Please use the "Returning Guest" tab to sign in.'); return; }
+  signupData = { first: first || guest.first || '', last: last || guest.last || '', guestId, guest };
   document.getElementById('signup-step-1').style.display = 'none';
   document.getElementById('signup-step-2').style.display = 'block';
   document.getElementById('s-phone').focus();
@@ -2215,13 +2252,33 @@ async function signupVerifyAndCreate() {
   if (!entered) { showLoginError('Please enter the 6-digit code.'); return; }
   if (Date.now() > signupOtpExpiry) { showLoginError('Code has expired. Please go back and request a new one.'); return; }
   if (entered !== signupPendingOTP) { showLoginError('Incorrect code. Please try again.'); return; }
+  // Email verified — move to step 4: create password
+  document.getElementById('signup-step-3').style.display = 'none';
+  document.getElementById('signup-step-4').style.display = 'block';
+  document.getElementById('s-password').focus();
+  showToast('Email verified! Now create your password.', 'ok');
+}
+
+async function signupFinalize() {
+  clearLoginError();
+  const newPw     = document.getElementById('s-password').value;
+  const confirmPw = document.getElementById('s-password-confirm').value;
+  const pwErr = validatePassword(newPw);
+  if (pwErr) { showLoginError(pwErr); return; }
+  if (newPw !== confirmPw) { showLoginError('Passwords do not match. Please try again.'); return; }
   const guest = signupData.guest;
-  if (signupData.phone) guest.phone = signupData.phone;
+  if (!guest) { showLoginError('Session error. Please start registration again.'); return; }
+  // Persist name updates if provided
+  if (signupData.first) guest.first = signupData.first;
+  if (signupData.last)  guest.last  = signupData.last;
+  if (signupData.phone) guest.email = signupData.phone;
+  // Store hashed password (stored as plaintext here for compatibility with existing staff approach)
+  guest.guestPassword = newPw;
   saveLocal(); await syncSingleGuest(guest);
   currentUser = { type: 'guest', data: guest }; currentGuest = guest;
   saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
-  showToast(`Welcome, ${sanitize(guest.first)}! Your card is ready. 🌟`, 'ok');
-  addLog(`${guest.first} ${guest.last} self-registered (new signup)`);
+  showToast(`Welcome, ${sanitize(guest.first || guest.id)}! Your card is ready. 🌟`, 'ok');
+  addLog(`${guest.first || guest.id} self-registered with password (new signup)`);
   signupPendingOTP = null; signupData = {};
 }
 
@@ -2229,6 +2286,7 @@ function signupBack(step) {
   clearLoginError();
   if (step === 1) { document.getElementById('signup-step-2').style.display = 'none'; document.getElementById('signup-step-1').style.display = 'block'; }
   else if (step === 2) { document.getElementById('signup-step-3').style.display = 'none'; document.getElementById('signup-step-2').style.display = 'block'; }
+  else if (step === 3) { document.getElementById('signup-step-4').style.display = 'none'; document.getElementById('signup-step-3').style.display = 'block'; }
 }
 
 // ═══════════════════════════════════════════════════
@@ -2566,7 +2624,7 @@ function getRolePermissions(role) {
 async function loadStaffFromSheetDB() {
   showSpinner('Loading staff…');
   try {
-    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=staff&_t=${Date.now()}`, { signal: AbortSignal.timeout(20000) });
+    const r = await fetch(`${SHEETDB_URL}?sheet=staff`);
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -2652,10 +2710,7 @@ async function deleteStaff(staffId) {
   if (!confirm('⚠️ Are you sure you want to permanently remove this team member?')) return;
   staffUsers = staffUsers.filter(u => u.id !== staffId);
   saveStaffLocal();
-  try {
-    const url = `${GOOGLE_SCRIPT_URL}?action=delete&sheet=staff&id=${encodeURIComponent(staffId)}&_t=${Date.now()}`;
-    await fetch(url, { signal: AbortSignal.timeout(25000) });
-  } catch(e) {}
+  try { await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(staffId)}?sheet=staff`, { method: 'DELETE' }); } catch(e) {}
   renderStaffUsers();
   showToast('Team member removed successfully', 'ok');
   addLog(`${currentUser?.data?.fullname} deleted team member`);
@@ -2718,17 +2773,17 @@ async function saveStaffMember() {
 
 async function pushStaffToSheetDB(staff) {
   try {
-    const encoded = encodeURIComponent(JSON.stringify(staff));
-    const url = `${GOOGLE_SCRIPT_URL}?action=upsert&sheet=staff&data=${encoded}&_t=${Date.now()}`;
-    const r = await fetch(url, { signal: AbortSignal.timeout(25000) });
-    const text = await r.text();
-    try { const res = JSON.parse(text); return !res.error; } catch(e) { return true; }
+    const check = await fetch(`${SHEETDB_URL}/search?sheet=staff&id=${encodeURIComponent(staff.id)}`);
+    const existing = await check.json();
+    if (Array.isArray(existing) && existing.length > 0) { await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(staff.id)}?sheet=staff`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: staff }) }); }
+    else { await fetch(`${SHEETDB_URL}?sheet=staff`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: [staff] }) }); }
+    return true;
   } catch(e) { return false; }
 }
 
 // ═══════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════
-// GOOGLE SCRIPT SYNC — Direct URL + Offline Queue
+// SHEETDB SYNC — Permanent Fix: Direct URL + Offline Queue
 // ═══════════════════════════════════════════════════
 
 // ── Offline retry queue (persists in localStorage) ──
@@ -2742,6 +2797,7 @@ function saveQueue(q) {
 }
 function enqueueSync(guest) {
   const q = loadQueue();
+  // Replace any existing entry for this guest so we always push the latest state
   const idx = q.findIndex(item => item.id === guest.id);
   const entry = { ...buildPayload(guest), _queuedAt: Date.now() };
   if (idx >= 0) q[idx] = entry; else q.push(entry);
@@ -2777,21 +2833,30 @@ function buildPayload(guest) {
   };
 }
 
-// Core push: upsert via Google Apps Script
-// Uses GET + encoded payload to avoid all CORS/redirect issues
+// Core push: search → PATCH if exists, POST if new
 async function _doPush(payload) {
-  const encoded = encodeURIComponent(JSON.stringify(payload));
-  const url = `${GOOGLE_SCRIPT_URL}?action=upsert&sheet=guests&data=${encoded}&_t=${Date.now()}`;
-  const r = await fetch(url, { signal: AbortSignal.timeout(25000) });
-  const text = await r.text();
-  try {
-    const res = JSON.parse(text);
-    if (res && res.error) throw new Error(res.error);
-    return true;
-  } catch(e) {
-    if (e.message && !e.message.includes('JSON')) throw e;
-    return true; // got a response, treat as success
+  const searchR = await fetch(`${SHEETDB_URL}/search?id=${encodeURIComponent(payload.id)}`, { signal: AbortSignal.timeout(8000) });
+  if (!searchR.ok) throw new Error(`Search HTTP ${searchR.status}`);
+  const existing = await searchR.json();
+
+  if (Array.isArray(existing) && existing.length > 0) {
+    const r = await fetch(`${SHEETDB_URL}/id/${encodeURIComponent(payload.id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: payload }),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!r.ok) throw new Error(`PATCH HTTP ${r.status}: ${await r.text()}`);
+  } else {
+    const r = await fetch(SHEETDB_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [payload] }),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!r.ok) throw new Error(`POST HTTP ${r.status}: ${await r.text()}`);
   }
+  return true;
 }
 
 // Retry queue flusher — runs automatically, backs off on failure
@@ -2852,7 +2917,7 @@ async function syncSingleGuest(guest) { return await pushGuestToSheetDB(guest); 
 async function loadFromSheetDB() {
   setSyncStatus('syncing'); showSpinner('Loading guest data…');
   try {
-    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests&_t=${Date.now()}`, { signal: AbortSignal.timeout(20000) });
+    const r = await fetch(SHEETDB_URL, { signal: AbortSignal.timeout(12000) });
     if (r.ok) {
       const data = await r.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -2915,22 +2980,22 @@ function loadLocalFallback() {
 async function testSheetDBConnection() {
   showToast('🔍 Testing connection…'); showSpinner('Testing…');
   try {
-    const r = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=guests&_t=${Date.now()}`, { signal: AbortSignal.timeout(10000) });
+    const r = await fetch(SHEETDB_URL, { signal: AbortSignal.timeout(8000) });
     const text = await r.text();
-    console.log('[GScript] Test response:', r.status, text.slice(0, 200));
+    console.log('[SheetDB] Test response:', r.status, text.slice(0, 200));
     if (r.ok) {
       let data;
       try { data = JSON.parse(text); } catch(e) { data = []; }
       showToast(`✅ Connected! ${Array.isArray(data) ? data.length : 0} records found`, 'ok');
       setSyncStatus('online');
-      setTimeout(flushQueue, 300);
+      setTimeout(flushQueue, 300); // flush any queued writes now
     } else {
       showToast(`❌ HTTP ${r.status}: ${text.slice(0,60)}`, 'err');
-      console.error('[GScript] Error:', r.status, text);
+      console.error('[SheetDB] Error:', r.status, text);
     }
   } catch(e) {
     showToast(`❌ ${e.message}`, 'err');
-    console.error('[GScript] Connection failed:', e);
+    console.error('[SheetDB] Connection failed:', e);
   }
   hideSpinner();
 }
