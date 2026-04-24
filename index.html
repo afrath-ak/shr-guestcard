@@ -2736,7 +2736,6 @@ function manualLookup() {
 }
 
 // ==================== ANALYTICS ====================
-let chartLibLoaded = false;
 async function loadChartLib() {
   if (chartLibLoaded || typeof Chart !== 'undefined') { chartLibLoaded = true; return; }
   return new Promise((resolve, reject) => {
