@@ -1693,33 +1693,62 @@ const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
 
 // ═══════════════════════════════════════════════════
-// Helper: call Apps Script with JSON and timeout (FIXED)
+// Helper: call Apps Script via JSONP
 // ═══════════════════════════════════════════════════
-async function callAppsScript(action, data = {}, timeoutMs = 15000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(APP_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, data }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+// fetch() to Apps Script always fails in browsers:
+//   - POST triggers CORS preflight → Apps Script ignores OPTIONS → blocked
+//   - GET still needs CORS headers on response → blocked if not "Anyone anonymous"
+//   - AbortSignal can't cross Apps Script's internal postMessage boundary
+//
+// JSONP uses a <script> tag instead of fetch — <script> tags have
+// NO CORS restrictions at all. Works from any origin, any protocol.
+//
+// REQUIRED: Your Apps Script doGet(e) must wrap the response like:
+//   var cb = e.parameter.callback;
+//   return ContentService.createTextOutput(cb + '(' + JSON.stringify(result) + ')')
+//     .setMimeType(ContentService.MimeType.JAVASCRIPT);
+// See the companion Apps Script code provided separately.
+// ═══════════════════════════════════════════════════
+function callAppsScript(action, data = {}, timeoutMs = 25000) {
+  return new Promise((resolve, reject) => {
+    // Unique callback name
+    const cbName = '_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    let timeoutId;
+
+    function cleanup() {
+      clearTimeout(timeoutId);
+      delete window[cbName];
+      const el = document.getElementById(cbName);
+      if (el) el.remove();
     }
-    const result = await response.json();
-    console.log(`[AppsScript] ${action} response:`, result);
-    return result;
-  } catch (err) {
-    clearTimeout(timeoutId);
-    console.error(`[AppsScript] ${action} error:`, err);
-    if (err.name === 'AbortError') throw new Error('Request timed out (15s). Check Apps Script deployment.');
-    throw new Error(`Network error: ${err.message}`);
-  }
+
+    // Apps Script calls this function with the result
+    window[cbName] = function(result) {
+      cleanup();
+      console.log('[AppsScript] ' + action + ':', result);
+      resolve(result);
+    };
+
+    timeoutId = setTimeout(function() {
+      cleanup();
+      reject(new Error('Request timed out (25s). Check Apps Script URL and deployment settings.'));
+    }, timeoutMs);
+
+    const params = new URLSearchParams({
+      action: action,
+      data: JSON.stringify(data),
+      callback: cbName
+    });
+
+    const script = document.createElement('script');
+    script.id = cbName;
+    script.src = APP_SCRIPT_URL + '?' + params.toString();
+    script.onerror = function() {
+      cleanup();
+      reject(new Error('Could not reach Apps Script. Verify the deployment URL is correct and "Who has access" is set to Anyone.'));
+    };
+    document.head.appendChild(script);
+  });
 }
 
 // Test connection function
