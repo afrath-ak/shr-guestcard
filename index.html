@@ -1080,6 +1080,103 @@ select { color: var(--dark); }
   outline: none !important;
   box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important;
 }
+
+/* ══════════════════════════════════════════════════
+   GUEST REWARDS & POINTS SYSTEM
+══════════════════════════════════════════════════ */
+.rewards-hero {
+  background: linear-gradient(135deg, #0c1a0c 0%, #0a1a15 60%, #0c0c0f 100%);
+  border-radius: var(--radius-lg); padding: 24px 22px; color: white;
+  margin-bottom: 16px; position: relative; overflow: hidden;
+}
+.rewards-hero::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(21,128,61,0.18) 0%, transparent 70%);
+}
+.rewards-hero-label { font-size: 11px; font-weight: 700; color: #4ade80; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.rewards-hero-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #fff; margin-bottom: 4px; }
+.rewards-hero-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+.points-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: linear-gradient(135deg, #15803d, #166534);
+  color: #fff; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.03em;
+}
+.points-badge.gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); }
+.points-badge.large { font-size: 15px; padding: 6px 14px; }
+
+.venue-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.venue-chip {
+  background: var(--cream2); border: 1.5px solid var(--border);
+  color: var(--text); padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; font-family: inherit; font-weight: 500;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.venue-chip:hover { border-color: var(--gold); background: var(--gold-pale); }
+.venue-chip.selected { background: var(--dark); color: var(--gold); border-color: transparent; }
+.venue-chip .venue-pts { font-size: 10px; opacity: 0.65; font-weight: 600; }
+
+.rewards-guest-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  transition: box-shadow var(--trans);
+  border-left: 3px solid transparent;
+}
+.rewards-guest-card:hover { box-shadow: var(--shadow-md); border-left-color: #15803d; }
+.rewards-guest-info { flex: 1; min-width: 0; }
+.rewards-guest-name { font-weight: 700; font-size: 14px; color: var(--dark); }
+.rewards-guest-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+.points-history { max-height: 260px; overflow-y: auto; }
+.points-history-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--cream2);
+  font-size: 13px;
+}
+.points-history-item:last-child { border-bottom: none; }
+.points-history-icon { font-size: 18px; flex-shrink: 0; }
+.points-history-info { flex: 1; }
+.points-history-venue { font-weight: 600; color: var(--dark); }
+.points-history-time { font-size: 11px; color: var(--muted); }
+.points-history-pts { font-weight: 700; color: #15803d; white-space: nowrap; }
+
+.scan-venue-modal { display: none; }
+.scan-venue-modal.open { display: flex; }
+
+/* ══════════════════════════════════════════════════
+   SHARE CREDENTIALS MODAL
+══════════════════════════════════════════════════ */
+.share-modal-option {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--cream); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit;
+}
+.share-modal-option:hover { border-color: var(--gold); background: var(--gold-pale); box-shadow: var(--shadow); }
+.share-modal-option-icon { font-size: 28px; flex-shrink: 0; }
+.share-modal-option-label { font-weight: 700; font-size: 14px; color: var(--dark); }
+.share-modal-option-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.share-modal-option.whatsapp { border-color: rgba(37,211,102,0.3); }
+.share-modal-option.whatsapp:hover { border-color: #25d366; background: #f0fdf4; }
+.share-modal-option.email { border-color: rgba(59,130,246,0.25); }
+.share-modal-option.email:hover { border-color: #3b82f6; background: #eff6ff; }
+
+.share-credentials-box {
+  background: var(--dark2); border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 16px; font-family: 'Courier New', monospace;
+  font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.9;
+  border: 1px solid rgba(201,168,76,0.15);
+}
+.share-credentials-box strong { color: var(--gold); }
+
+/* Manual points input */
+.manual-pts-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
+.manual-pts-row .field { flex: 1; margin-bottom: 0; }
+.manual-pts-row input { background: var(--cream) !important; color: var(--dark) !important; border: 1.5px solid var(--border) !important; border-radius: 9px !important; padding: 10px 12px !important; font-size: 13px !important; width: 100%; }
+.manual-pts-row input:focus { border-color: var(--gold) !important; outline: none !important; }
 </style>
 </head>
 <body>
@@ -1435,6 +1532,7 @@ select { color: var(--dark); }
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests', event)">Guests</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add', event)">Add Guest</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner', event)">Scanner</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-rewards', event)">Rewards</button>
     <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-admin', event)">Team Admin</button>
   </nav>
 
@@ -1462,6 +1560,11 @@ select { color: var(--dark); }
           onclick="showPanel('staff-scanner')" aria-label="QR code scanner">
           <span class="sidebar-icon">📷</span>
           Scanner
+        </button>
+        <button class="sidebar-btn" id="nav-rewards"
+          onclick="showPanel('staff-rewards')" aria-label="Guest rewards">
+          <span class="sidebar-icon">🏆</span>
+          Rewards
         </button>
         <button class="sidebar-btn admin-only" id="nav-admin"
           onclick="showPanel('staff-admin')" aria-label="Team administration">
@@ -1495,8 +1598,6 @@ select { color: var(--dark); }
             <div class="stat-card" role="listitem"><div class="stat-val" id="guest-type">—</div><div class="stat-label">Tier</div></div>
             <div class="stat-card" role="listitem"><div class="stat-val" id="guest-scans">0</div><div class="stat-label">Scans</div></div>
           </div>
-
-          <div id="verification-status" role="region" aria-label="Identity verification status"></div>
 
           <div class="card">
             <div class="card-title">Your Digital Key</div>
@@ -1586,7 +1687,7 @@ select { color: var(--dark); }
             <div class="table-responsive">
               <table class="data" aria-label="Guest list">
                 <thead>
-                  <tr><th scope="col">ID</th><th scope="col">Guest</th><th scope="col">Room</th><th scope="col">Dates</th><th scope="col">Status</th><th scope="col">Identity</th><th scope="col">Scans</th><th scope="col">Actions</th></tr>
+                  <tr><th scope="col">ID</th><th scope="col">Guest</th><th scope="col">Room</th><th scope="col">Dates</th><th scope="col">Status</th><th scope="col">Identity</th><th scope="col">Scans</th><th scope="col">Points</th><th scope="col">Actions</th></tr>
                 </thead>
                 <tbody id="staff-tbody"></tbody>
               </table>
@@ -1640,7 +1741,20 @@ select { color: var(--dark); }
 
         <section class="panel" id="panel-staff-scanner" aria-label="QR Scanner">
           <div class="page-header"><div class="page-title">Scanner</div><div class="page-subtitle">Scan guest QR codes or search manually</div></div>
-          <div class="card"><div class="card-title">QR Camera Scanner</div><div class="scanner-card"><div id="qr-reader" role="img" aria-label="Camera viewfinder for QR scanning"></div><div class="scanner-controls"><button class="btn-teal" id="start-scanner-btn" onclick="startScanner()" aria-label="Start camera">▶ Start Camera</button><button class="btn-ghost" id="stop-scanner-btn" onclick="stopScanner()" aria-label="Stop camera">■ Stop</button></div></div><div id="scan-result" role="alert" aria-live="polite"></div></div>
+          <div class="card"><div class="card-title">QR Camera Scanner</div><div class="scanner-card"><div id="qr-reader" role="img" aria-label="Camera viewfinder for QR scanning"></div><div class="scanner-controls"><button class="btn-teal" id="start-scanner-btn" onclick="startScanner()" aria-label="Start camera">▶ Start Camera</button><button class="btn-ghost" id="stop-scanner-btn" onclick="stopScanner()" aria-label="Stop camera">■ Stop</button></div></div>
+            <!-- Venue selector for points -->
+            <div style="margin-top:14px;">
+              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Select Venue (for points)</div>
+              <div class="venue-chips" id="scanner-venue-chips" role="group" aria-label="Select venue type">
+                <button class="venue-chip selected" data-venue="Restaurant" data-pts="50" onclick="selectScanVenue(this)" type="button">🍽️ Restaurant <span class="venue-pts">+50 pts</span></button>
+                <button class="venue-chip" data-venue="Spa" data-pts="75" onclick="selectScanVenue(this)" type="button">💆 Spa <span class="venue-pts">+75 pts</span></button>
+                <button class="venue-chip" data-venue="Bar & Lounge" data-pts="30" onclick="selectScanVenue(this)" type="button">🍸 Bar & Lounge <span class="venue-pts">+30 pts</span></button>
+                <button class="venue-chip" data-venue="Pool" data-pts="20" onclick="selectScanVenue(this)" type="button">🏊 Pool <span class="venue-pts">+20 pts</span></button>
+                <button class="venue-chip" data-venue="Gym" data-pts="20" onclick="selectScanVenue(this)" type="button">💪 Gym <span class="venue-pts">+20 pts</span></button>
+                <button class="venue-chip" data-venue="Room Service" data-pts="25" onclick="selectScanVenue(this)" type="button">🛎️ Room Service <span class="venue-pts">+25 pts</span></button>
+              </div>
+            </div>
+            <div id="scan-result" role="alert" aria-live="polite"></div></div>
           <div class="card"><div class="card-title">Manual Lookup</div><div class="search-row"><input id="manual-search" type="search" placeholder="Guest ID · Room number · Full name" aria-label="Search guests by ID, room, or name"><button class="btn-primary" onclick="manualLookup()" aria-label="Search for guest">Search</button></div><div id="manual-result" role="alert" aria-live="polite"></div></div>
         </section>
 
@@ -1652,8 +1766,96 @@ select { color: var(--dark); }
           <div class="card"><div class="card-title">📜 Activity Log</div><div id="activity-log" role="log" aria-live="polite" aria-label="Staff activity log" style="max-height:320px;overflow-y:auto;"></div></div>
         </section>
 
+        <!-- ═══════════ GUEST REWARDS PANEL ═══════════ -->
+        <section class="panel" id="panel-staff-rewards" aria-label="Guest Rewards">
+          <div class="rewards-hero">
+            <div class="rewards-hero-label">🏆 Loyalty Program</div>
+            <div class="rewards-hero-title">Guest Rewards</div>
+            <div class="rewards-hero-sub">Track points earned by guests across hotel venues</div>
+          </div>
+
+          <div class="card">
+            <div class="staff-table-head">
+              <div class="card-title" style="margin-bottom:0;">🎯 Manual Points Entry</div>
+            </div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Award points to a guest manually — for special occasions, complaints resolved, or bonus rewards.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="manual-rewards-grid">
+              <div class="field">
+                <label for="reward-guest-id" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Guest ID</label>
+                <input id="reward-guest-id" type="text" placeholder="e.g. SHR-1001" list="reward-guests-datalist" style="background:var(--cream);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;width:100%;font-family:inherit;" aria-label="Guest ID for reward">
+                <datalist id="reward-guests-datalist"></datalist>
+              </div>
+              <div class="field">
+                <label for="reward-venue" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Venue / Reason</label>
+                <select id="reward-venue" style="background:var(--cream);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;width:100%;font-family:inherit;">
+                  <option value="Restaurant|50">🍽️ Restaurant (+50 pts)</option>
+                  <option value="Spa|75">💆 Spa (+75 pts)</option>
+                  <option value="Bar & Lounge|30">🍸 Bar & Lounge (+30 pts)</option>
+                  <option value="Pool|20">🏊 Pool (+20 pts)</option>
+                  <option value="Gym|20">💪 Gym (+20 pts)</option>
+                  <option value="Room Service|25">🛎️ Room Service (+25 pts)</option>
+                  <option value="Special Recognition|100">⭐ Special Recognition (+100 pts)</option>
+                  <option value="Birthday Bonus|150">🎂 Birthday Bonus (+150 pts)</option>
+                  <option value="Custom|0">✏️ Custom amount</option>
+                </select>
+              </div>
+            </div>
+            <div id="custom-pts-row" style="display:none;margin-top:8px;">
+              <div class="field">
+                <label for="reward-custom-pts" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Points Amount</label>
+                <input id="reward-custom-pts" type="number" placeholder="e.g. 50" min="1" max="9999" style="background:var(--cream);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;width:200px;font-family:inherit;">
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label for="reward-note" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Note (optional)</label>
+              <input id="reward-note" type="text" placeholder="e.g. Anniversary dinner, complaint resolved" style="background:var(--cream);border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;width:100%;font-family:inherit;" aria-label="Note for reward">
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;">
+              <button class="btn-primary" onclick="addManualPoints()" aria-label="Award points to guest">🏆 Award Points</button>
+              <button class="btn-ghost" onclick="document.getElementById('reward-guest-id').value='';document.getElementById('reward-note').value='';">Clear</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="staff-table-head" style="margin-bottom:14px;">
+              <div class="card-title" style="margin-bottom:0;">🌟 Guest Points Leaderboard</div>
+              <input type="search" id="rewards-search" placeholder="Search guest…" oninput="renderRewardsPanel()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--cream);width:160px;" aria-label="Search guest rewards">
+            </div>
+            <div id="rewards-guest-list"></div>
+          </div>
+        </section>
+
       </div>
     </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SHARE CREDENTIALS MODAL
+════════════════════════════════════ -->
+<div class="modal-overlay" id="share-modal" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-title" id="share-modal-title">📤 Share Guest Credentials</div>
+      <button class="modal-close" onclick="closeShareModal()" aria-label="Close">×</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Share the guest's login details securely via your preferred channel.</p>
+    <div class="share-credentials-box" id="share-credentials-preview" aria-label="Guest credentials preview"></div>
+    <a class="share-modal-option whatsapp" id="share-whatsapp-link" href="#" target="_blank" rel="noopener" aria-label="Share via WhatsApp">
+      <span class="share-modal-option-icon">📱</span>
+      <div>
+        <div class="share-modal-option-label">Send via WhatsApp</div>
+        <div class="share-modal-option-sub">Opens wa.me with a pre-filled message</div>
+      </div>
+    </a>
+    <a class="share-modal-option email" id="share-email-link" href="#" aria-label="Share via Email">
+      <span class="share-modal-option-icon">✉️</span>
+      <div>
+        <div class="share-modal-option-label">Send via Email</div>
+        <div class="share-modal-option-sub">Opens your email client with credentials</div>
+      </div>
+    </a>
+    <button class="btn-ghost" style="width:100%;margin-top:8px;" onclick="closeShareModal()">Close</button>
   </div>
 </div>
 
@@ -1773,6 +1975,7 @@ async function testConnection() {
 let guests = [];
 let staffUsers = [];
 let verificationRequests = [];
+let guestRewards = {}; // { guestId: { totalPoints, history: [{venue, pts, note, ts}] } }
 let currentUser = null;
 let currentGuest = null;
 let currentFilter = "all";
@@ -1812,6 +2015,15 @@ let _otpCountdownTimer = null;
 function sanitize(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+// Format date string from YYYY-MM-DD (or ISO) → DD/MM/YYYY
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const match = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  // If already DD/MM/YYYY or other human-readable, return as-is
+  return dateStr;
 }
 
 const loginAttempts = {};
@@ -2040,18 +2252,10 @@ function startSessionTimer() {
 
 function updateSessionDisplay() {
   const timeLeft = sessionEndTime - Date.now();
-  if (timeLeft <= 0) return;
-  const minutes = Math.floor(timeLeft / 60000);
-  const seconds = Math.floor((timeLeft % 60000) / 1000);
   const timerDiv = document.getElementById('session-timer');
-  if (currentUser?.type === 'guest') {
-    timerDiv.classList.add('visible');
-    timerDiv.textContent = `⏱ ${minutes}:${seconds.toString().padStart(2,'0')}`;
-    if (timeLeft <= SESSION_WARNING_MINUTES * 60 * 1000) timerDiv.classList.add('warning');
-    else timerDiv.classList.remove('warning');
-  } else {
-    timerDiv.classList.remove('visible');
-  }
+  // Never show countdown timer to guests — removed per UX requirement
+  timerDiv.classList.remove('visible');
+  timerDiv.classList.remove('warning');
 }
 
 function resetSessionTimer() { if (currentUser) { startSessionTimer(); saveSession(); } }
@@ -2278,6 +2482,10 @@ async function addGuest() {
     ['f-first','f-last','f-mandatory-guest-id','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => { el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
     renderTable();
+    // Show share dialog for the newly created guest
+    setTimeout(() => showShareDialog(mandatoryGuestId), 400);
+    // Suggest next ID for next registration
+    suggestNextGuestId();
   } else {
     showToast('Error adding guest', 'err');
   }
@@ -2622,7 +2830,6 @@ function loadGuestDashboard() {
   const scansEl = document.getElementById('guest-scans');
   const privEl = document.getElementById('guest-privileges');
   const stayEl = document.getElementById('guest-stay-info');
-  const verifyEl = document.getElementById('verification-status');
   if (nameEl) nameEl.textContent = `${sanitize(g.first || '')} ${sanitize(g.last || '')}`;
   if (idEl) idEl.textContent = `ID: ${sanitize(g.id)}`;
   if (statusEl) statusEl.textContent = sanitize(g.status || '—');
@@ -2631,8 +2838,8 @@ function loadGuestDashboard() {
   if (scansEl) scansEl.textContent = g.scans || 0;
   if (metaEl) {
     const chips = [];
-    if (g.checkin) chips.push(`<span class="guest-meta-chip">📅 Check-in: ${sanitize(g.checkin)}</span>`);
-    if (g.checkout) chips.push(`<span class="guest-meta-chip">📅 Check-out: ${sanitize(g.checkout)}</span>`);
+    if (g.checkin) chips.push(`<span class="guest-meta-chip">📅 Check-in: ${formatDate(g.checkin)}</span>`);
+    if (g.checkout) chips.push(`<span class="guest-meta-chip">📅 Check-out: ${formatDate(g.checkout)}</span>`);
     if (g.nationality) chips.push(`<span class="guest-meta-chip">🌍 ${sanitize(g.nationality)}</span>`);
     metaEl.innerHTML = chips.join('');
   }
@@ -2643,7 +2850,6 @@ function loadGuestDashboard() {
     if (typeof QRCode !== 'undefined') {
       new QRCode(qrInner, { text: g.id, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
     } else {
-      // Fallback if QRCode lib not loaded yet
       setTimeout(() => { qrInner.innerHTML = ''; if (typeof QRCode !== 'undefined') new QRCode(qrInner, { text: g.id, width: 160, height: 160 }); }, 1500);
     }
   }
@@ -2654,24 +2860,17 @@ function loadGuestDashboard() {
       privEl.innerHTML = `<div class="priv-items">${privs.map(p => `<div class="priv-item ${g.type?.toLowerCase().includes('vip') || g.type?.toLowerCase().includes('diamond') ? 'tier-vip' : ''}"><span class="priv-emoji">${p.split(' ')[0]}</span><span>${sanitize(p.replace(/^[^ ]+ /,''))}</span></div>`).join('')}</div>`;
     } else { privEl.innerHTML = '<p style="color:var(--muted);font-size:13px;">No privileges assigned yet.</p>'; }
   }
-  // Stay info
+  // Stay info — all dates formatted as DD/MM/YYYY
   if (stayEl) {
     const rows = [
       ['Guest ID', g.id], ['Title', g.title], ['Full Name', `${g.first} ${g.last}`],
-      ['Room', g.room || 'TBA'], ['Tier', g.type], ['Check-in', g.checkin],
-      ['Check-out', g.checkout], ['Email', g.email], ['Phone', g.phone], ['Nationality', g.nationality]
+      ['Room', g.room || 'TBA'], ['Tier', g.type],
+      ['Check-in', formatDate(g.checkin)], ['Check-out', formatDate(g.checkout)],
+      ['Email', g.email], ['Phone', g.phone], ['Nationality', g.nationality]
     ];
     stayEl.innerHTML = rows.filter(r => r[1]).map(([label, val]) =>
       `<div class="detail-row"><span class="detail-label">${label}</span><span>${sanitize(String(val))}</span></div>`
     ).join('');
-  }
-  // Verification status
-  if (verifyEl) {
-    if (g.verified) {
-      verifyEl.innerHTML = `<div class="verify-banner verified"><span class="verify-icon">✅</span><div class="verify-text"><strong>Identity Verified</strong><span>Verified on ${g.verifiedAt ? new Date(g.verifiedAt).toLocaleDateString() : '—'}</span></div></div>`;
-    } else {
-      verifyEl.innerHTML = `<div class="verify-banner unverified"><span class="verify-icon">⚠️</span><div class="verify-text"><strong>Identity Not Verified</strong><span>Submit your documents to unlock full access.</span></div><button class="verify-btn" onclick="showVerificationModal()">Verify Now</button></div>`;
-    }
   }
 }
 
@@ -2696,27 +2895,31 @@ function renderTable() {
   const tbody = document.getElementById('staff-tbody');
   if (!tbody) return;
   const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
-  const roleFilter = document.getElementById('staff-filter-role')?.value || '';
   let filtered = guests.filter(g => {
     const matchFilter = currentFilter === 'all' || (currentFilter === 'active' && g.status === 'Active') || (currentFilter === 'revoked' && g.status === 'Revoked') || (currentFilter === 'verified' && g.verified) || (currentFilter === 'unverified' && !g.verified);
     const matchSearch = !search || `${g.first} ${g.last} ${g.id} ${g.room} ${g.email}`.toLowerCase().includes(search);
     return matchFilter && matchSearch;
   });
-  if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px;">No guests found</td></tr>`; return; }
-  tbody.innerHTML = filtered.map(g => `
+  if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px;">No guests found</td></tr>`; return; }
+  tbody.innerHTML = filtered.map(g => {
+    const pts = (guestRewards[g.id]?.totalPoints || 0);
+    return `
     <tr>
       <td><code style="font-size:12px;background:var(--cream2);padding:2px 7px;border-radius:4px;">${sanitize(g.id)}</code></td>
       <td><div style="font-weight:600;">${sanitize(g.title || '')} ${sanitize(g.first || '')} ${sanitize(g.last || '')}</div><div style="font-size:11px;color:var(--muted);">${sanitize(g.email || '')}${g.phone ? ' · ' + sanitize(g.phone) : ''}</div></td>
       <td>${sanitize(g.room || 'TBA')}</td>
-      <td style="font-size:12px;">${sanitize(g.checkin || '—')}<br><span style="color:var(--muted);">${sanitize(g.checkout || '')}</span></td>
+      <td style="font-size:12px;">${formatDate(g.checkin || '')}<br><span style="color:var(--muted);">${formatDate(g.checkout || '')}</span></td>
       <td><span class="badge ${g.status === 'Active' ? 'badge-active' : 'badge-revoked'}">${sanitize(g.status || '—')}</span></td>
       <td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : 'Pending'}</span></td>
       <td>${g.scans || 0}</td>
+      <td>${pts > 0 ? `<span class="points-badge">${pts} pts</span>` : '<span style="color:var(--muted);font-size:12px;">—</span>'}</td>
       <td>
-        <button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" title="${g.status === 'Active' ? 'Revoke' : 'Activate'}">${g.status === 'Active' ? '🔒' : '🔓'}</button>
-        <button class="btn-ghost btn-sm" onclick="viewGuestDetails('${sanitize(g.id)}')" title="View details">👁</button>
+        <button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" title="${g.status === 'Active' ? 'Revoke' : 'Activate'}" aria-label="${g.status === 'Active' ? 'Revoke guest' : 'Activate guest'}">${g.status === 'Active' ? '🔒' : '🔓'}</button>
+        <button class="btn-ghost btn-sm" onclick="viewGuestDetails('${sanitize(g.id)}')" title="View details" aria-label="View guest details">👁</button>
+        <button class="btn-ghost btn-sm" onclick="showShareDialog('${sanitize(g.id)}')" title="Share credentials" aria-label="Share guest credentials">📤</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function viewGuestDetails(id) {
@@ -2741,6 +2944,14 @@ function forceFullSync() {
 function testSheetDBConnection() { testConnection(); }
 
 // ==================== SCANNER ====================
+let selectedScanVenue = { venue: 'Restaurant', pts: 50 };
+
+function selectScanVenue(btn) {
+  document.querySelectorAll('#scanner-venue-chips .venue-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedScanVenue = { venue: btn.dataset.venue, pts: parseInt(btn.dataset.pts) };
+}
+
 function startScanner() {
   if (!window.Html5QrcodeScanner && !window.Html5Qrcode) {
     if (!scannerLibLoaded) {
@@ -2759,10 +2970,22 @@ function startScanner() {
       const guest = guests.find(g => g.id === decodedText);
       const el = document.getElementById('scan-result');
       if (guest) {
-        el.innerHTML = `<div class="scan-result-card success"><div class="scan-result-name">${sanitize(guest.first)} ${sanitize(guest.last)}</div><div class="scan-result-detail">Room ${sanitize(guest.room || 'TBA')} · ${sanitize(guest.type)} · ${guest.verified ? '✅ Verified' : '⚠️ Not Verified'}</div></div>`;
+        // Award points for this scan
+        const venue = selectedScanVenue.venue;
+        const pts = selectedScanVenue.pts;
+        awardPoints(guest.id, venue, pts, `Scanned at ${venue}`);
+        const totalPts = guestRewards[guest.id]?.totalPoints || 0;
+        el.innerHTML = `<div class="scan-result-card success">
+          <div class="scan-result-name">${sanitize(guest.first)} ${sanitize(guest.last)}</div>
+          <div class="scan-result-detail">Room ${sanitize(guest.room || 'TBA')} · ${sanitize(guest.type)} · ${guest.verified ? '✅ Verified' : '⚠️ Not Verified'}</div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+            <span class="points-badge">+${pts} pts at ${sanitize(venue)}</span>
+            <span style="font-size:12px;color:#166534;">Total: ${totalPts} pts</span>
+          </div>
+        </div>`;
         callAppsScript('updateGuest', { guestId: guest.id, updates: { scans: (parseInt(guest.scans) || 0) + 1 } }).then(() => loadGuestsFromBackend());
-        showToast(`Scanned: ${sanitize(guest.first)} ${sanitize(guest.last)}`, 'ok');
-        addLog(`QR scanned: ${guest.first} ${guest.last} (${guest.id})`);
+        showToast(`✅ Scanned: ${sanitize(guest.first)} ${sanitize(guest.last)} · +${pts} pts`, 'ok');
+        addLog(`QR scanned: ${guest.first} ${guest.last} (${guest.id}) at ${venue} — +${pts} pts`);
       } else {
         el.innerHTML = `<div class="scan-result-card error"><div class="scan-result-name">Unknown QR Code</div><div class="scan-result-detail">ID not found: ${sanitize(decodedText)}</div></div>`;
       }
@@ -3024,6 +3247,176 @@ async function rejectVerification(requestId) {
   } else { showToast('Error: ' + (result.error || 'unknown'), 'err'); }
 }
 
+// ==================== GUEST REWARDS SYSTEM ====================
+
+function saveRewardsLocal() {
+  try { localStorage.setItem('steigenberger_rewards', JSON.stringify(guestRewards)); } catch(e) {}
+}
+
+function loadRewardsLocal() {
+  try {
+    const saved = localStorage.getItem('steigenberger_rewards');
+    if (saved) guestRewards = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function awardPoints(guestId, venue, pts, note) {
+  if (!guestRewards[guestId]) guestRewards[guestId] = { totalPoints: 0, history: [] };
+  guestRewards[guestId].totalPoints = (guestRewards[guestId].totalPoints || 0) + pts;
+  guestRewards[guestId].history.unshift({
+    venue, pts, note: note || '',
+    ts: new Date().toISOString(),
+    staff: currentUser?.data?.fullname || 'Staff'
+  });
+  // Cap history at 200 entries per guest
+  if (guestRewards[guestId].history.length > 200) guestRewards[guestId].history.splice(200);
+  saveRewardsLocal();
+  renderRewardsPanel();
+  // Also try to persist to backend (non-blocking)
+  callAppsScript('updateGuest', { guestId, updates: { rewardPoints: guestRewards[guestId].totalPoints } }).catch(() => {});
+}
+
+function addManualPoints() {
+  const guestId = (document.getElementById('reward-guest-id')?.value || '').trim().toUpperCase();
+  const venueRaw = document.getElementById('reward-venue')?.value || '';
+  const note = (document.getElementById('reward-note')?.value || '').trim();
+  const [venue, ptsStr] = venueRaw.split('|');
+  let pts = parseInt(ptsStr) || 0;
+  if (!guestId) { showToast('Please enter a Guest ID', 'err'); return; }
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) { showToast('Guest ID not found', 'err'); return; }
+  if (venue === 'Custom') {
+    pts = parseInt(document.getElementById('reward-custom-pts')?.value) || 0;
+    if (pts <= 0) { showToast('Please enter a valid points amount', 'err'); return; }
+  }
+  awardPoints(guestId, venue, pts, note || `Manual entry: ${venue}`);
+  showToast(`✅ +${pts} points awarded to ${sanitize(guest.first)} ${sanitize(guest.last)}`, 'ok');
+  addLog(`${currentUser?.data?.fullname} awarded ${pts} pts to ${guest.first} ${guest.last} (${venue})`);
+  document.getElementById('reward-guest-id').value = '';
+  document.getElementById('reward-note').value = '';
+}
+
+function renderRewardsPanel() {
+  const container = document.getElementById('rewards-guest-list');
+  if (!container) return;
+  // Populate datalist
+  const dl = document.getElementById('reward-guests-datalist');
+  if (dl) dl.innerHTML = guests.filter(g => g.status === 'Active').map(g => `<option value="${sanitize(g.id)}">${sanitize(g.first)} ${sanitize(g.last)}</option>`).join('');
+  // Show/hide custom pts field
+  const venueEl = document.getElementById('reward-venue');
+  const customRow = document.getElementById('custom-pts-row');
+  if (venueEl && customRow) customRow.style.display = venueEl.value.startsWith('Custom') ? 'block' : 'none';
+
+  const search = (document.getElementById('rewards-search')?.value || '').toLowerCase();
+  // Sort guests by total points desc
+  const guestsWithPts = guests.map(g => ({
+    ...g, totalPoints: guestRewards[g.id]?.totalPoints || 0, history: guestRewards[g.id]?.history || []
+  })).filter(g => !search || `${g.first} ${g.last} ${g.id}`.toLowerCase().includes(search))
+    .sort((a, b) => b.totalPoints - a.totalPoints);
+
+  if (!guestsWithPts.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🏆</div>No guests found</div>';
+    return;
+  }
+  const venueIcons = { Restaurant:'🍽️', Spa:'💆', 'Bar & Lounge':'🍸', Pool:'🏊', Gym:'💪', 'Room Service':'🛎️', 'Special Recognition':'⭐', 'Birthday Bonus':'🎂' };
+  container.innerHTML = guestsWithPts.map((g, idx) => {
+    const rank = idx + 1;
+    const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+    const historyHtml = g.history.length ? `
+      <div class="points-history" style="margin-top:12px;border-top:1px solid var(--cream2);padding-top:10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Points History</div>
+        ${g.history.slice(0, 8).map(h => `
+          <div class="points-history-item">
+            <span class="points-history-icon">${venueIcons[h.venue] || '🏷️'}</span>
+            <div class="points-history-info">
+              <div class="points-history-venue">${sanitize(h.venue)}</div>
+              <div class="points-history-time">${formatDate(h.ts.split('T')[0])} · ${sanitize(h.staff)} ${h.note ? '· ' + sanitize(h.note) : ''}</div>
+            </div>
+            <div class="points-history-pts">+${h.pts} pts</div>
+          </div>`).join('')}
+        ${g.history.length > 8 ? `<div style="font-size:12px;color:var(--muted);padding-top:6px;">+${g.history.length - 8} more entries</div>` : ''}
+      </div>` : '';
+    return `
+    <div class="rewards-guest-card">
+      <div style="font-size:22px;flex-shrink:0;">${rankIcon}</div>
+      <div class="rewards-guest-info">
+        <div class="rewards-guest-name">${sanitize(g.title || '')} ${sanitize(g.first)} ${sanitize(g.last)}</div>
+        <div class="rewards-guest-meta">ID: ${sanitize(g.id)} · Room ${sanitize(g.room || 'TBA')} · ${sanitize(g.type)}</div>
+        ${historyHtml}
+      </div>
+      <div style="flex-shrink:0;text-align:right;">
+        <span class="points-badge large gold">${g.totalPoints} pts</span>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${g.history.length} transaction${g.history.length !== 1 ? 's' : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ==================== AUTO-SUGGEST GUEST ID ====================
+function suggestNextGuestId() {
+  let maxNum = 1000;
+  guests.forEach(g => {
+    const match = (g.id || '').match(/^SHR-(\d+)$/i);
+    if (match) {
+      const n = parseInt(match[1]);
+      if (n > maxNum) maxNum = n;
+    }
+  });
+  const nextId = 'SHR-' + String(maxNum + 1).padStart(4, '0');
+  const field = document.getElementById('f-mandatory-guest-id');
+  if (field && !field.value) field.value = nextId;
+}
+
+// ==================== SHARE CREDENTIALS ====================
+let _shareGuestData = null;
+
+function showShareDialog(guestId) {
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) return;
+  _shareGuestData = guest;
+  const pageUrl = window.location.href.split('?')[0];
+  const name = `${guest.title || ''} ${guest.first} ${guest.last}`.trim();
+  const message = [
+    `🏨 Steigenberger Hotel Doha — Digital Guest Card`,
+    ``,
+    `Dear ${guest.first},`,
+    `Your digital guest card is ready. Please use the details below to sign in.`,
+    ``,
+    `👤 Guest ID: ${guest.id}`,
+    `🔑 Temporary Password: (set by front desk — please ask staff)`,
+    `🌐 Login Link: ${pageUrl}`,
+    ``,
+    `📅 Check-in: ${formatDate(guest.checkin)}`,
+    `📅 Check-out: ${formatDate(guest.checkout)}`,
+    `🏠 Room: ${guest.room || 'TBA'}`,
+    ``,
+    `To access your digital card, go to the login page, select "Guest Access", and sign in with your Guest ID and password.`,
+    ``,
+    `We look forward to your stay! ⭐`
+  ].join('\n');
+  const encodedMessage = encodeURIComponent(message);
+  const subject = encodeURIComponent(`Steigenberger Hotel — Your Digital Guest Card (${guest.id})`);
+  const emailLink = `mailto:${guest.email || ''}?subject=${subject}&body=${encodedMessage}`;
+  const waLink = `https://wa.me/${(guest.phone || '').replace(/[^0-9]/g, '')}?text=${encodedMessage}`;
+  // Render credentials preview
+  document.getElementById('share-credentials-preview').innerHTML = `
+    <strong>Guest ID:</strong> ${sanitize(guest.id)}<br>
+    <strong>Name:</strong> ${sanitize(name)}<br>
+    <strong>Room:</strong> ${sanitize(guest.room || 'TBA')}<br>
+    <strong>Check-in:</strong> ${formatDate(guest.checkin)}<br>
+    <strong>Check-out:</strong> ${formatDate(guest.checkout)}<br>
+    <strong>Login URL:</strong> ${sanitize(pageUrl)}
+  `;
+  document.getElementById('share-whatsapp-link').href = waLink;
+  document.getElementById('share-email-link').href = emailLink;
+  document.getElementById('share-modal').classList.add('open');
+}
+
+function closeShareModal() {
+  document.getElementById('share-modal').classList.remove('open');
+  _shareGuestData = null;
+}
+
 // ==================== PANEL & NAVIGATION ====================
 function setSidebarActive(btnId) {
   document.querySelectorAll('.sidebar-btn').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
@@ -3034,13 +3427,15 @@ function showPanel(pid) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`panel-${pid}`);
   if (panel) panel.classList.add('active');
-  const map = { 'staff-analytics': 'nav-analytics', 'staff-guests': 'nav-guests', 'staff-add': 'nav-add', 'staff-scanner': 'nav-scanner', 'staff-admin': 'nav-admin' };
+  const map = { 'staff-analytics': 'nav-analytics', 'staff-guests': 'nav-guests', 'staff-add': 'nav-add', 'staff-scanner': 'nav-scanner', 'staff-admin': 'nav-admin', 'staff-rewards': 'nav-rewards' };
   if (map[pid]) setSidebarActive(map[pid]);
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   if (pid === 'staff-guests') { renderTable(); }
   if (pid === 'staff-admin') { renderStaffUsers(); renderVerificationRequests(); updateAdminStats(); }
   if (pid === 'staff-scanner') { document.getElementById('scan-result').innerHTML = ''; }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
+  if (pid === 'staff-rewards') { renderRewardsPanel(); }
+  if (pid === 'staff-add') { suggestNextGuestId(); }
 }
 function showPanelMobile(pid, evt) {
   showPanel(pid);
@@ -3170,6 +3565,7 @@ async function restoreSession() {
 async function init() {
   getCsrfToken();
   wireUploadListeners();
+  loadRewardsLocal();
   await loadStaffFromBackend(); // preload staff for login
   await loadGuestsFromBackend();
   const today = new Date().toISOString().split('T')[0];
@@ -3178,6 +3574,14 @@ async function init() {
   const checkout = document.getElementById('f-checkout');
   if (checkin) checkin.value = today;
   if (checkout) checkout.value = nextWeek;
+  // Wire venue change to show/hide custom field
+  const rewardVenueEl = document.getElementById('reward-venue');
+  if (rewardVenueEl) {
+    rewardVenueEl.addEventListener('change', () => {
+      const customRow = document.getElementById('custom-pts-row');
+      if (customRow) customRow.style.display = rewardVenueEl.value.startsWith('Custom') ? 'block' : 'none';
+    });
+  }
   wireOTPInputs();
   const restored = await restoreSession();
   if (!restored) {
