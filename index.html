@@ -1374,13 +1374,13 @@ select { color: var(--dark); }
                 <div class="step-pill">3 Verify</div>
                 <div class="step-pill">4 Password</div>
               </div>
-              <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Enter your email address — we'll send a 6-digit code to verify.</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Enter your <strong style="color:rgba(255,255,255,0.75);">real email address</strong> — we'll verify it and save it to your account in the hotel system.</p>
               <div class="field">
-                <label for="s-phone">Email Address <span aria-label="required">*</span></label>
+                <label for="s-phone">Your Real Email Address <span aria-label="required">*</span></label>
                 <input type="email" id="s-phone" placeholder="your@email.com" autocomplete="email" aria-required="true" aria-describedby="s-phone-note">
-                <span id="s-phone-note" class="field-note">You'll use this email for future password resets</span>
+                <span id="s-phone-note" class="field-note">✅ This verified email will be stored in the hotel sheet and used for future password resets</span>
               </div>
-              <button class="login-btn" onclick="signupSendOTP()" aria-label="Send email verification code">Send Email Code →</button>
+              <button class="login-btn" onclick="signupSendOTP()" aria-label="Send email verification code">Send Verification Code →</button>
               <button class="login-btn secondary" onclick="signupBack(1)">← Back</button>
             </div>
             <div id="signup-step-3" style="display:none;">
@@ -1705,7 +1705,14 @@ select { color: var(--dark); }
               <div class="field"><label for="f-title">Title</label><select id="f-title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option><option>Prof.</option></select></div>
               <div class="field"><label for="f-first">First Name <span aria-label="required">*</span></label><input id="f-first" type="text" placeholder="First name" aria-required="true"></div>
               <div class="field"><label for="f-last">Last Name <span aria-label="required">*</span></label><input id="f-last" type="text" placeholder="Last name" aria-required="true"></div>
-              <div class="field"><label for="f-mandatory-guest-id">Guest ID <span style="color:#dc2626;">* (Mandatory)</span></label><input id="f-mandatory-guest-id" type="text" placeholder="e.g., SHR-2001" aria-required="true"><span class="field-note">Unique identifier for the guest - required field</span></div>
+              <div class="field">
+                <label for="f-mandatory-guest-id">Guest ID <span style="color:#dc2626;">* (Mandatory)</span></label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input id="f-mandatory-guest-id" type="text" placeholder="e.g., SHR-2001" aria-required="true" style="flex:1;">
+                  <button type="button" onclick="refreshAndSuggestGuestId()" title="Fetch latest from sheet and suggest next ID" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit;transition:background 0.2s;" onmouseover="this.style.background='#0a6665'" onmouseout="this.style.background='var(--teal)'">🔄 Refresh ID</button>
+                </div>
+                <span class="field-note" id="guest-id-note">Auto-suggested from sheet data — click 🔄 to fetch latest available ID</span>
+              </div>
               <div class="field"><label for="f-nationality">Nationality</label><input id="f-nationality" type="text" placeholder="Country"></div>
             </div>
             <div class="form-section-title">Contact</div>
@@ -2684,10 +2691,7 @@ async function signupSendOTP() {
   clearLoginError();
   if (!email) { showLoginError('Please enter your email address.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginError('Please enter a valid email address.'); return; }
-  if (signupData.guest && signupData.guest.email && signupData.guest.email.toLowerCase() !== email.toLowerCase()) {
-    showLoginError('This email does not match the one on your booking. Please use your booking email or contact the front desk.');
-    return;
-  }
+  // No restriction on email — guest enters their real email here; it will be verified and saved to sheet
   signupData.email = email;
   const sent = await sendOTP(email, null, signupData.guest?.first || 'Guest');
   if (sent) {
@@ -3290,6 +3294,30 @@ function suggestNextGuestId() {
   const nextId = 'SHR-' + String(maxNum + 1).padStart(4, '0');
   const field = document.getElementById('f-mandatory-guest-id');
   if (field && !field.value) field.value = nextId;
+  const note = document.getElementById('guest-id-note');
+  if (note) note.textContent = `Next available: ${nextId} (based on ${guests.length} guests in sheet)`;
+}
+
+async function refreshAndSuggestGuestId() {
+  const btn = document.querySelector('[onclick="refreshAndSuggestGuestId()"]');
+  if (btn) { btn.textContent = '⏳ Loading…'; btn.disabled = true; }
+  try {
+    await loadGuestsFromBackend();
+    let maxNum = 1000;
+    guests.forEach(g => {
+      const match = (g.id || '').match(/^SHR-(\d+)$/i);
+      if (match) { const n = parseInt(match[1]); if (n > maxNum) maxNum = n; }
+    });
+    const nextId = 'SHR-' + String(maxNum + 1).padStart(4, '0');
+    const field = document.getElementById('f-mandatory-guest-id');
+    if (field) field.value = nextId;
+    const note = document.getElementById('guest-id-note');
+    if (note) note.textContent = `✅ Refreshed from sheet — Next available: ${nextId} (${guests.length} guests total)`;
+    showToast(`Next available Guest ID: ${nextId}`, 'ok');
+  } catch(e) {
+    showToast('Could not refresh from sheet', 'err');
+  }
+  if (btn) { btn.textContent = '🔄 Refresh ID'; btn.disabled = false; }
 }
 
 // ==================== SHARE CREDENTIALS ====================
@@ -3301,35 +3329,37 @@ function showShareDialog(guestId) {
   _shareGuestData = guest;
   const pageUrl = window.location.href.split('?')[0];
   const name = `${guest.title || ''} ${guest.first} ${guest.last}`.trim();
+  const isActivated = !!(guest.passwordSet || guest.password_hash);
+  const statusLabel = isActivated ? '✅ Active (account set up)' : '⏳ Not Active (sign-up pending)';
+  const statusLine = isActivated
+    ? `Your account is active. Sign in at the link below.`
+    : `Your account is ready but you haven't signed up yet. Please visit the link below and select "New Guest" to set up your account.`;
+
   const message = [
     `🏨 Steigenberger Hotel Doha — Digital Guest Card`,
     ``,
     `Dear ${guest.first},`,
-    `Your digital guest card is ready. Please use the details below to sign in.`,
     ``,
     `👤 Guest ID: ${guest.id}`,
-    `🔑 Temporary Password: (set by front desk — please ask staff)`,
-    `🌐 Login Link: ${pageUrl}`,
+    `📛 Name: ${name}`,
+    `🟢 Status: ${statusLabel}`,
+    `🌐 Website: ${pageUrl}`,
     ``,
-    `📅 Check-in: ${formatDate(guest.checkin)}`,
-    `📅 Check-out: ${formatDate(guest.checkout)}`,
-    `🏠 Room: ${guest.room || 'TBA'}`,
-    ``,
-    `To access your digital card, go to the login page, select "Guest Access", and sign in with your Guest ID and password.`,
+    statusLine,
     ``,
     `We look forward to your stay! ⭐`
   ].join('\n');
+
   const encodedMessage = encodeURIComponent(message);
   const subject = encodeURIComponent(`Steigenberger Hotel — Your Digital Guest Card (${guest.id})`);
   const emailLink = `mailto:${guest.email || ''}?subject=${subject}&body=${encodedMessage}`;
   const waLink = `https://wa.me/${(guest.phone || '').replace(/[^0-9]/g, '')}?text=${encodedMessage}`;
+
   document.getElementById('share-credentials-preview').innerHTML = `
     <strong>Guest ID:</strong> ${sanitize(guest.id)}<br>
     <strong>Name:</strong> ${sanitize(name)}<br>
-    <strong>Room:</strong> ${sanitize(guest.room || 'TBA')}<br>
-    <strong>Check-in:</strong> ${formatDate(guest.checkin)}<br>
-    <strong>Check-out:</strong> ${formatDate(guest.checkout)}<br>
-    <strong>Login URL:</strong> ${sanitize(pageUrl)}
+    <strong>Status:</strong> ${sanitize(statusLabel)}<br>
+    <strong>Website:</strong> ${sanitize(pageUrl)}
   `;
   document.getElementById('share-whatsapp-link').href = waLink;
   document.getElementById('share-email-link').href = emailLink;
