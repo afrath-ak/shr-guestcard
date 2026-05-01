@@ -1378,7 +1378,7 @@ select { color: var(--dark); }
               <div class="field">
                 <label for="s-phone">Email Address <span aria-label="required">*</span></label>
                 <input type="email" id="s-phone" placeholder="your@email.com" autocomplete="email" aria-required="true" aria-describedby="s-phone-note">
-                <span id="s-phone-note" class="field-note">You'll use this email for future password resets</span>
+                <span id="s-phone-note" class="field-note">Enter your real email — we'll verify it now and store it for your account</span>
               </div>
               <button class="login-btn" onclick="signupSendOTP()" aria-label="Send email verification code">Send Email Code →</button>
               <button class="login-btn secondary" onclick="signupBack(1)">← Back</button>
@@ -1445,8 +1445,6 @@ select { color: var(--dark); }
             <button class="login-btn" onclick="staffLogin()"
               aria-label="Sign in as staff member">Sign In →</button>
             
-            <button class="login-btn teal" style="margin-top:10px;" onclick="testConnection()">🔍 Test Connection</button>
-
             <div class="staff-login-footer">
               <button class="forgot-link-btn" onclick="showForgotPassword()" aria-label="Forgot password? Reset it">
                 Forgot your password?
@@ -1531,7 +1529,7 @@ select { color: var(--dark); }
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests', event)">Guests</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add', event)">Add Guest</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner', event)">Scanner</button>
-    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-rewards', event)">Rewards</button>
+    <!-- Rewards nav hidden (feature reserved for future use) -->
     <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-admin', event)">Team Admin</button>
   </nav>
 
@@ -1560,11 +1558,12 @@ select { color: var(--dark); }
           <span class="sidebar-icon">📷</span>
           Scanner
         </button>
+        <!-- Rewards sidebar btn hidden (feature reserved for future use)
         <button class="sidebar-btn" id="nav-rewards"
           onclick="showPanel('staff-rewards')" aria-label="Guest rewards">
           <span class="sidebar-icon">🏆</span>
           Rewards
-        </button>
+        </button> -->
         <button class="sidebar-btn admin-only" id="nav-admin"
           onclick="showPanel('staff-admin')" aria-label="Team administration">
           <span class="sidebar-icon">🛡️</span>
@@ -1708,10 +1707,10 @@ select { color: var(--dark); }
               <div class="field">
                 <label for="f-mandatory-guest-id">Guest ID <span style="color:#dc2626;">* (Mandatory)</span></label>
                 <div style="position:relative;">
-                  <input id="f-mandatory-guest-id" type="text" placeholder="e.g., SHR-2001" aria-required="true" style="padding-right:80px;">
-                  <span id="guest-id-auto-badge" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(201,168,76,0.15);color:var(--gold-dark);font-size:10px;font-weight:700;letter-spacing:0.06em;padding:3px 8px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);pointer-events:none;">AUTO</span>
+                  <input id="f-mandatory-guest-id" type="text" placeholder="e.g., SHR-2001" aria-required="true" style="padding-right:76px;">
+                  <span id="guest-id-auto-badge" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(201,168,76,0.15);color:#c9a84c;font-size:10px;font-weight:700;letter-spacing:0.05em;padding:3px 8px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);pointer-events:none;">AUTO</span>
                 </div>
-                <span class="field-note">✨ Next available ID is auto-filled — you can edit it if needed</span>
+                <span class="field-note">✨ Next available ID auto-filled — edit if needed</span>
               </div>
               <div class="field"><label for="f-nationality">Nationality</label><input id="f-nationality" type="text" placeholder="Country"></div>
             </div>
@@ -1770,10 +1769,24 @@ select { color: var(--dark); }
           <div class="card"><div class="staff-table-head"><div class="card-title" style="margin-bottom:0;">👥 Team Members</div><div class="staff-table-head-actions"><select id="staff-filter-role" onchange="renderStaffUsers()" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);color:var(--text);"><option value="">All Roles</option><option value="admin">Admin</option><option value="supervisor">Supervisor</option><option value="staff">Staff</option></select></div></div><div id="staff-cards-container" style="margin-top:8px;"></div></div>
           <div class="card"><div class="card-title">📋 Pending Verification Requests</div><div id="verification-requests" role="list"><div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div></div></div>
           <div class="card"><div class="card-title">📜 Activity Log</div><div id="activity-log" role="log" aria-live="polite" aria-label="Staff activity log" style="max-height:320px;overflow-y:auto;"></div></div>
+
+          <div class="card">
+            <div class="card-title">⚙️ System Settings</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Manage backend connection and application diagnostics.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <button class="btn-primary" onclick="testConnection()" style="display:flex;align-items:center;gap:6px;">
+                <span>🔍</span> Test Backend Connection
+              </button>
+              <button class="btn-ghost" onclick="loadGuestsFromBackend()" style="display:flex;align-items:center;gap:6px;">
+                <span>🔄</span> Force Sync Guests
+              </button>
+            </div>
+            <div id="connection-status-result" style="margin-top:12px;font-size:12px;color:var(--muted);"></div>
+          </div>
         </section>
 
         <!-- ═══════════ GUEST REWARDS PANEL (Fully Backend-Synced) ═══════════ -->
-        <section class="panel" id="panel-staff-rewards" aria-label="Guest Rewards">
+        <section class="panel" id="panel-staff-rewards" aria-label="Guest Rewards" style="display:none!important;">
           <div class="rewards-hero">
             <div class="rewards-hero-label">🏆 Loyalty Program</div>
             <div class="rewards-hero-title">Guest Rewards</div>
@@ -1894,7 +1907,7 @@ select { color: var(--dark); }
 // ═══════════════════════════════════════════════════
 // CONFIGURATION - UPDATED FOR APPS SCRIPT (JSONP)
 // ═══════════════════════════════════════════════════
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6Yo9BQ8BMNEfRaX2PZV-PeBnyfp1K__gFq6fx0OzlvQZbl9IjCJ3yYbj3vN4qqsx6/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSw3jmX_WqqmURf5Ug5oP-wMmjZ2m2u_qtSPY1oMpv_iPUG-UNA4406VT5ELnXLPce/exec';
 const SPREADSHEET_ID = '1d5l6jOII1hSQFzTNh1M1cCgZ2VM1wqjlJPu21K4-3CM';
 const SESSION_TIMEOUT_MINUTES = 30;
 const SESSION_WARNING_MINUTES = 1;
@@ -1936,18 +1949,23 @@ function callAppsScript(action, data = {}, timeoutMs = 25000) {
 
 // Test connection function
 async function testConnection() {
+  const statusEl = document.getElementById('connection-status-result');
+  if (statusEl) statusEl.innerHTML = '<span style="color:var(--muted);">⏳ Testing connection…</span>';
   showSpinner('Testing connection...');
   try {
     const result = await callAppsScript('guestLogin', { guestId: 'TEST', password: 'test' });
     hideSpinner();
     if (result && typeof result.success !== 'undefined') {
-      showToast('✅ Server responded! (expected login fail)', 'ok');
+      showToast('✅ Backend connected successfully', 'ok');
+      if (statusEl) statusEl.innerHTML = '<span style="color:#15803d;">✅ Connected — backend responded at ' + new Date().toLocaleTimeString() + '</span>';
     } else {
       showToast('⚠️ Server returned unexpected format', 'err');
+      if (statusEl) statusEl.innerHTML = '<span style="color:#b45309;">⚠️ Connected but unexpected response format</span>';
     }
   } catch (err) {
     hideSpinner();
     showToast(`❌ Connection failed: ${err.message}`, 'err');
+    if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">❌ Failed: ' + err.message + '</span>';
   }
 }
 
@@ -2691,10 +2709,7 @@ async function signupSendOTP() {
   clearLoginError();
   if (!email) { showLoginError('Please enter your email address.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginError('Please enter a valid email address.'); return; }
-  if (signupData.guest && signupData.guest.email && signupData.guest.email.toLowerCase() !== email.toLowerCase()) {
-    showLoginError('This email does not match the one on your booking. Please use your booking email or contact the front desk.');
-    return;
-  }
+  // No email-match restriction — guest enters their real email freely
   signupData.email = email;
   const sent = await sendOTP(email, null, signupData.guest?.first || 'Guest');
   if (sent) {
@@ -2730,7 +2745,7 @@ async function signupFinalize() {
     const passwordHash = await hashPasswordFrontend(pw, salt);
     const result = await callAppsScript('updateGuest', {
       guestId: signupData.guestId,
-      updates: { password_hash: passwordHash, salt, email: signupData.email || '', verifiedEmail: signupData.email || '', Mail: signupData.email || '', passwordSet: true }
+      updates: { password_hash: passwordHash, salt, email: signupData.email || '', Mail: signupData.email || '', verifiedEmail: signupData.email || '', passwordSet: true }
     });
     hideSpinner();
     if (result.success) {
@@ -3298,9 +3313,8 @@ function suggestNextGuestId() {
   const field = document.getElementById('f-mandatory-guest-id');
   const badge = document.getElementById('guest-id-auto-badge');
   if (field) {
-    field.value = nextId;
+    field.value = nextId; // always overwrite with next available
     if (badge) badge.style.display = '';
-    // Hide AUTO badge when user manually edits the field
     field.oninput = function() {
       if (badge) badge.style.display = (this.value === nextId) ? '' : 'none';
     };
@@ -3316,37 +3330,35 @@ function showShareDialog(guestId) {
   _shareGuestData = guest;
   const pageUrl = window.location.href.split('?')[0];
   const name = `${guest.title || ''} ${guest.first} ${guest.last}`.trim();
-  // Determine active status label
-  const statusLabel = guest.status === 'Active' ? '✅ Active' : '⛔ Not Active (signup pending)';
-  // Simplified message: Guest ID, Name, Status, Link only
   const message = [
-    `🏨 Steigenberger Hotel Doha`,
+    `🏨 Steigenberger Hotel Doha — Digital Guest Card`,
     ``,
     `Dear ${guest.first},`,
+    `Your digital guest card is ready. Please use the details below to sign in.`,
     ``,
     `👤 Guest ID: ${guest.id}`,
-    `📛 Name: ${name}`,
-    `🟢 Status: ${statusLabel}`,
-    `🌐 Access your digital card: ${pageUrl}`,
+    `🔑 Temporary Password: (set by front desk — please ask staff)`,
+    `🌐 Login Link: ${pageUrl}`,
     ``,
-    `Please visit the link above, select "Guest Access", enter your Guest ID and sign up (first time) or sign in.`,
+    `📅 Check-in: ${formatDate(guest.checkin)}`,
+    `📅 Check-out: ${formatDate(guest.checkout)}`,
+    `🏠 Room: ${guest.room || 'TBA'}`,
     ``,
-    `We look forward to welcoming you! ⭐`
+    `To access your digital card, go to the login page, select "Guest Access", and sign in with your Guest ID and password.`,
+    ``,
+    `We look forward to your stay! ⭐`
   ].join('\n');
   const encodedMessage = encodeURIComponent(message);
   const subject = encodeURIComponent(`Steigenberger Hotel — Your Digital Guest Card (${guest.id})`);
   const emailLink = `mailto:${guest.email || ''}?subject=${subject}&body=${encodedMessage}`;
   const waLink = `https://wa.me/${(guest.phone || '').replace(/[^0-9]/g, '')}?text=${encodedMessage}`;
-  const statusBadge = guest.status === 'Active'
-    ? '<span style="background:#dcfce7;color:#15803d;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;">✅ Active</span>'
-    : '<span style="background:#fee2e2;color:#b91c1c;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;">⛔ Not Active</span>';
   document.getElementById('share-credentials-preview').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Guest ID</span><div style="font-size:16px;font-weight:700;font-family:'Playfair Display',serif;color:var(--dark);margin-top:2px;">${sanitize(guest.id)}</div></div>
-      <div><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Name</span><div style="font-size:15px;font-weight:600;color:var(--dark);margin-top:2px;">${sanitize(name)}</div></div>
-      <div><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Status</span><div style="margin-top:4px;">${statusBadge}</div></div>
-      <div><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Login Link</span><div style="font-size:12px;color:var(--teal);word-break:break-all;margin-top:2px;">${sanitize(pageUrl)}</div></div>
-    </div>
+    <strong>Guest ID:</strong> ${sanitize(guest.id)}<br>
+    <strong>Name:</strong> ${sanitize(name)}<br>
+    <strong>Room:</strong> ${sanitize(guest.room || 'TBA')}<br>
+    <strong>Check-in:</strong> ${formatDate(guest.checkin)}<br>
+    <strong>Check-out:</strong> ${formatDate(guest.checkout)}<br>
+    <strong>Login URL:</strong> ${sanitize(pageUrl)}
   `;
   document.getElementById('share-whatsapp-link').href = waLink;
   document.getElementById('share-email-link').href = emailLink;
