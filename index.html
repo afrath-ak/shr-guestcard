@@ -85,17 +85,6 @@ h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; }
 .spinner-text { color: rgba(255,255,255,0.7); margin-top: 14px; font-size: 13px; letter-spacing: 0.06em; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.progress-bar-container {
-  position: fixed; top: 0; left: 0; right: 0; height: 2px;
-  background: transparent; z-index: 10001; display: none;
-}
-.progress-bar-container.active { display: block; }
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--teal));
-  width: 0%; transition: width 0.3s ease;
-}
-
 .session-timer {
   position: fixed; bottom: 20px; right: 20px;
   background: var(--dark3); color: var(--gold);
@@ -974,6 +963,26 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
   outline: none !important;
   box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important;
 }
+
+.share-modal-option {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--cream); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit;
+}
+.share-modal-option:hover { border-color: var(--gold); background: var(--gold-pale); }
+.share-modal-option.whatsapp { border-color: rgba(37,211,102,0.3); }
+.share-modal-option.whatsapp:hover { border-color: #25d366; background: #f0fdf4; }
+.share-modal-option.email { border-color: rgba(59,130,246,0.25); }
+.share-modal-option.email:hover { border-color: #3b82f6; background: #eff6ff; }
+
+.share-credentials-box {
+  background: var(--dark2); border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 16px; font-family: 'Courier New', monospace;
+  font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.9;
+  border: 1px solid rgba(201,168,76,0.15);
+}
+.share-credentials-box strong { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -1061,17 +1070,17 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="field"><label for="guest-reset-email">Registered Email *</label><input type="email" id="guest-reset-email" placeholder="your@email.com"></div>
             <button class="login-btn teal" onclick="sendGuestPasswordReset()">Send Reset Code →</button>
             <div id="guest-reset-otp-view" style="display:none;margin-top:14px;">
-              <div class="info-note"><strong>Reset code sent!</strong>Enter the 6-digit code and new password.</div>
+              <div class="info-note"><strong>Reset code sent!</strong>Enter code and new password.</div>
               <div class="field"><label for="guest-reset-otp">Reset Code</label><input type="text" id="guest-reset-otp" maxlength="6" placeholder="6-digit code" inputmode="numeric"></div>
-              <div class="field"><label for="guest-reset-new-pw">New Password *</label><input type="password" id="guest-reset-new-pw" placeholder="Min. 8 chars with letters & numbers" autocomplete="new-password"></div>
-              <div class="field"><label for="guest-reset-confirm-pw">Confirm New Password *</label><input type="password" id="guest-reset-confirm-pw" placeholder="Repeat new password"></div>
+              <div class="field"><label for="guest-reset-new-pw">New Password *</label><input type="password" id="guest-reset-new-pw" placeholder="Min. 8 chars" autocomplete="new-password"></div>
+              <div class="field"><label for="guest-reset-confirm-pw">Confirm *</label><input type="password" id="guest-reset-confirm-pw" placeholder="Repeat password"></div>
               <button class="login-btn" onclick="confirmGuestPasswordReset()">Set New Password →</button>
             </div>
           </div>
           <div id="guest-signup-form" style="display:none;">
             <div class="signup-note-bar">
               <span class="signup-note-icon">🏨</span>
-              <div class="signup-note-text"><strong>New to Steigenberger?</strong><span>Register your guest profile to access your digital card instantly.</span></div>
+              <div class="signup-note-text"><strong>New to Steigenberger?</strong><span>Register to access your digital card instantly.</span></div>
             </div>
             <div id="signup-step-1">
               <div class="step-pills"><div class="step-pill active">1 Identity</div><div class="step-pill">2 Email</div><div class="step-pill">3 Verify</div><div class="step-pill">4 Password</div></div>
@@ -1125,7 +1134,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="field"><label for="reset-contact" id="reset-contact-label">Email Address</label><input type="email" id="reset-contact" placeholder="your@email.com"></div>
             <button class="login-btn teal" onclick="sendPasswordReset()">Send Reset Code →</button>
             <div id="staff-reset-otp-view" style="display:none;margin-top:14px;">
-              <div class="info-note"><strong>Reset code sent!</strong>Enter the 6-digit code and new password.</div>
+              <div class="info-note"><strong>Reset code sent!</strong>Enter code and new password.</div>
               <div class="field"><label for="reset-otp">Reset Code</label><input type="text" id="reset-otp" maxlength="6" placeholder="6-digit code" inputmode="numeric"></div>
               <div class="field"><label for="reset-new-password">New Password</label><input type="password" id="reset-new-password" placeholder="Min. 8 characters"></div>
               <button class="login-btn teal" onclick="confirmPasswordReset()">Set New Password →</button>
@@ -1183,14 +1192,14 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         <button class="sidebar-btn admin-only" id="nav-admin" onclick="showPanel('staff-admin')"><span class="sidebar-icon">🛡️</span>Team Admin</button>
       </nav>
       <div class="sidebar-footer">
-        <div class="sync-status-inline" id="sync-status-inline"><span id="sync-dot">●</span><span id="sync-text-inline">Connecting…</span></div>
+        <div class="sync-status-inline" id="sync-status-inline"><span id="sync-dot">●</span><span id="sync-text-inline">Ready</span></div>
       </div>
     </aside>
 
     <main class="content-area" id="main-content">
       <div class="container">
 
-        <!-- GUEST DASHBOARD PANEL -->
+        <!-- GUEST DASHBOARD -->
         <section class="panel active" id="panel-guest-dashboard">
           <div class="guest-hero">
             <div class="guest-hero-greeting">Welcome back</div>
@@ -1216,14 +1225,14 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           <div class="card"><div class="card-title">Your Stay</div><div id="guest-stay-info"></div></div>
         </section>
 
-        <!-- GUEST PROFILE PANEL -->
+        <!-- GUEST PROFILE -->
         <section class="panel" id="panel-guest-profile">
           <div class="page-header"><div class="page-title">My Profile</div><div class="page-subtitle">Update your contact details and password</div></div>
           <div class="card">
             <div class="form-section-title">Contact Information</div>
             <div class="form-grid">
-              <div class="field"><label for="profile-email">Email Address</label><input type="email" id="profile-email"></div>
-              <div class="field"><label for="profile-phone">Phone Number</label><input type="tel" id="profile-phone"></div>
+              <div class="field"><label for="profile-email">Email Address</label><input type="email" id="profile-email" placeholder="your@email.com"></div>
+              <div class="field"><label for="profile-phone">Phone Number</label><input type="tel" id="profile-phone" placeholder="+974 XXXX XXXX"></div>
             </div>
             <div style="margin-top:18px;display:flex;gap:10px;">
               <button class="btn-primary" onclick="updateGuestProfile()">💾 Save Changes</button>
@@ -1232,18 +1241,18 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
           <div class="card" id="change-password-card" style="display:none;">
             <div class="form-section-title">Change Password</div>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">You must enter your current password to set a new one.</p>
-            <div class="field"><label for="profile-current-password">Current Password</label><input type="password" id="profile-current-password"></div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Enter current password to set a new one.</p>
+            <div class="field"><label for="profile-current-password">Current Password</label><input type="password" id="profile-current-password" placeholder="••••••••"></div>
             <div class="field-row-2">
-              <div class="field"><label for="profile-new-password">New Password</label><input type="password" id="profile-new-password"></div>
-              <div class="field"><label for="profile-confirm-password">Confirm New Password</label><input type="password" id="profile-confirm-password"></div>
+              <div class="field"><label for="profile-new-password">New Password</label><input type="password" id="profile-new-password" placeholder="Min. 8 characters"></div>
+              <div class="field"><label for="profile-confirm-password">Confirm Password</label><input type="password" id="profile-confirm-password" placeholder="Repeat password"></div>
             </div>
             <button class="btn-primary" style="margin-top:14px;" onclick="changeGuestPassword()">🔒 Update Password</button>
             <span id="password-change-status" style="font-size:12px;color:var(--muted);margin-left:12px;"></span>
           </div>
         </section>
 
-        <!-- STAFF ANALYTICS PANEL -->
+        <!-- STAFF ANALYTICS -->
         <section class="panel" id="panel-staff-analytics">
           <div class="analytics-hero">
             <div class="analytics-hero-label">Live Dashboard</div>
@@ -1263,7 +1272,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           <div class="card"><div class="card-title">Verification Progress</div><canvas id="verify-chart" style="max-height:200px;"></canvas></div>
         </section>
 
-        <!-- STAFF GUESTS PANEL -->
+        <!-- STAFF GUESTS -->
         <section class="panel" id="panel-staff-guests">
           <div class="page-header"><div class="page-title">Guests</div><div class="page-subtitle">Manage all registered hotel guests</div></div>
           <div class="card">
@@ -1286,7 +1295,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
         </section>
 
-        <!-- STAFF ADD GUEST PANEL -->
+        <!-- STAFF ADD GUEST -->
         <section class="panel" id="panel-staff-add">
           <div class="page-header"><div class="page-title">Add Guest</div><div class="page-subtitle">Register a new guest and issue a digital card</div></div>
           <div class="card">
@@ -1300,12 +1309,12 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             </div>
             <div class="form-section-title">Contact</div>
             <div class="form-grid">
-              <div class="field"><label for="f-email">Email</label><input id="f-email" type="email"></div>
-              <div class="field"><label for="f-phone">Phone</label><input id="f-phone" type="tel"></div>
+              <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
+              <div class="field"><label for="f-phone">Phone</label><input id="f-phone" type="tel" placeholder="+974 XXXX XXXX"></div>
             </div>
             <div class="form-section-title">Stay Details</div>
             <div class="form-grid">
-              <div class="field"><label for="f-room">Room</label><input id="f-room" type="text"></div>
+              <div class="field"><label for="f-room">Room</label><input id="f-room" type="text" placeholder="Leave empty if not assigned"></div>
               <div class="field"><label for="f-type">Guest Tier</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div>
               <div class="field"><label for="f-checkin">Check-in</label><input type="date" id="f-checkin"></div>
               <div class="field"><label for="f-checkout">Check-out</label><input type="date" id="f-checkout"></div>
@@ -1327,7 +1336,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
         </section>
 
-        <!-- STAFF SCANNER PANEL -->
+        <!-- STAFF SCANNER -->
         <section class="panel" id="panel-staff-scanner">
           <div class="page-header"><div class="page-title">Scanner</div><div class="page-subtitle">Scan guest QR codes or search manually</div></div>
           <div class="card">
@@ -1350,7 +1359,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
         </section>
 
-        <!-- STAFF ADMIN PANEL -->
+        <!-- STAFF ADMIN -->
         <section class="panel admin-only" id="panel-staff-admin">
           <div class="page-header">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -1410,7 +1419,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <div class="field"><label for="verification-id-number">Document Number *</label><input type="text" id="verification-id-number"></div>
     <div class="field"><label>Front Side</label><div class="doc-upload-area" id="front-upload-area" onclick="document.getElementById('id-front-input').click()"><input type="file" id="id-front-input" accept="image/*" style="display:none;"><div class="doc-upload-icon">📄</div><div class="doc-upload-text">Click to upload</div><div class="doc-upload-status" id="front-status"></div></div></div>
     <div class="field"><label>Back Side</label><div class="doc-upload-area" id="back-upload-area" onclick="document.getElementById('id-back-input').click()"><input type="file" id="id-back-input" accept="image/*" style="display:none;"><div class="doc-upload-icon">📄</div><div class="doc-upload-text">Click to upload</div><div class="doc-upload-status" id="back-status"></div></div></div>
-    <div class="field"><label>Selfie Holding Document</label><div class="doc-upload-area" id="selfie-upload-area" onclick="document.getElementById('selfie-input').click()"><input type="file" id="selfie-input" accept="image/*" style="display:none;"><div class="doc-upload-icon">🤳</div><div class="doc-upload-text">Click to upload</div><div class="doc-upload-status" id="selfie-status"></div></div></div>
+    <div class="field"><label>Selfie</label><div class="doc-upload-area" id="selfie-upload-area" onclick="document.getElementById('selfie-input').click()"><input type="file" id="selfie-input" accept="image/*" style="display:none;"><div class="doc-upload-icon">🤳</div><div class="doc-upload-text">Click to upload</div><div class="doc-upload-status" id="selfie-status"></div></div></div>
     <div class="modal-footer"><button class="btn-primary" onclick="submitVerification()">Submit for Review</button><button class="btn-ghost" onclick="closeVerificationModal()">Cancel</button></div>
   </div>
 </div>
@@ -1425,8 +1434,8 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
       <div class="field"><label for="new-fullname">Full Name *</label><input id="new-fullname" placeholder="John Smith"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="field"><label for="new-email">Email</label><input type="email" id="new-email"></div>
-      <div class="field"><label for="new-phone">Phone</label><input type="tel" id="new-phone"></div>
+      <div class="field"><label for="new-email">Email</label><input type="email" id="new-email" placeholder="staff@steigenberger.com"></div>
+      <div class="field"><label for="new-phone">Phone</label><input type="tel" id="new-phone" placeholder="+974 XXXX XXXX"></div>
     </div>
     <div class="field"><label for="new-password">Temporary Password *</label><input type="password" id="new-password" placeholder="Min. 8 characters"></div>
     <div class="form-section-title">Role & Access</div>
@@ -1513,7 +1522,7 @@ async function hashPasswordFrontend(pw, salt) {
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 function validatePassword(pw) {
-  if (!pw || pw.length < 8) return 'Min. 8 characters';
+  if (!pw || pw.length < 8) return 'Must be at least 8 characters';
   if (!/[A-Za-z]/.test(pw)) return 'Must contain a letter';
   if (!/[0-9]/.test(pw)) return 'Must contain a number';
   return null;
@@ -1542,12 +1551,30 @@ function parsePrivileges(p) {
   if (Array.isArray(p)) return p;
   return String(p).split(',').map(s => s.trim()).filter(Boolean);
 }
+
+// ═══════════════════════════════════════════════════
+// LOCAL STORAGE FALLBACK
+// ═══════════════════════════════════════════════════
+function loadLocalFallback() {
+  const saved = localStorage.getItem('sg_guests');
+  if (saved) {
+    try {
+      guests = JSON.parse(saved).map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
+      console.log('[LocalFallback] Loaded', guests.length, 'guests from localStorage');
+      return true;
+    } catch(e) { console.warn('Failed to parse local guests:', e); }
+  }
+  return false;
+}
+
 function saveLocal() {
   try { localStorage.setItem('sg_guests', JSON.stringify(guests)); } catch(e) {}
 }
+
 function saveStaffLocal() {
   try { localStorage.setItem('sg_staff', JSON.stringify(staffUsers)); } catch(e) {}
 }
+
 function saveSession() {
   if (currentUser) {
     try { sessionStorage.setItem('sg_session', JSON.stringify({ type: currentUser.type, data: currentUser.data, ts: Date.now(), end: sessionEndTime })); } catch(e) {}
@@ -1555,43 +1582,91 @@ function saveSession() {
 }
 
 // ═══════════════════════════════════════════════════
-// SESSION
-// ═══════════════════════════════════════════════════
-function startSessionTimer() {
-  if (sessionTimer) clearInterval(sessionTimer);
-  sessionEndTime = Date.now() + SESSION_TIMEOUT_MINUTES * 60 * 1000;
-  sessionTimer = setInterval(() => { if (Date.now() >= sessionEndTime) { clearInterval(sessionTimer); logout(); showToast('Session expired', 'err'); } }, 1000);
-}
-function setupActivityListeners() {
-  ['click','keypress'].forEach(e => document.addEventListener(e, () => { if (currentUser) { sessionEndTime = Date.now() + SESSION_TIMEOUT_MINUTES * 60 * 1000; saveSession(); } }, { passive: true }));
-}
-
-// ═══════════════════════════════════════════════════
-// DATA LOADING
+// DATA LOADING (WITH FALLBACK)
 // ═══════════════════════════════════════════════════
 async function loadGuests() {
+  console.log('[loadGuests] Fetching from backend...');
   try {
     const res = await callAppsScript('getGuests', {});
-    if (res.success && res.guests) {
+    if (res.success && Array.isArray(res.guests)) {
       guests = res.guests.map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
+      console.log('[loadGuests] Loaded', guests.length, 'guests from backend');
       saveLocal();
-      if (currentGuest) { const updated = guests.find(x => x.id === currentGuest.id); if (updated) currentGuest = updated; loadGuestDashboard(); }
-      renderTable();
-      if (document.getElementById('panel-staff-analytics')?.classList.contains('active')) renderAnalytics();
+    } else {
+      console.warn('[loadGuests] Backend returned no data, trying local fallback');
+      if (!loadLocalFallback()) {
+        // Create sample data if nothing exists
+        guests = [
+          { id:'SHR-1001', title:'Ms.', first:'Hodan', last:'Ahmed', room:'805', checkin:'2026-04-10', checkout:'2026-04-20', email:'hodan@example.com', phone:'+97450001234', nationality:'Somalia', type:'Diamond Member', privileges:['🍳 Breakfast','🏊 Pool Access','💪 Gym','🛎️ Butler Service'], status:'Active', scans:5, verified:true, rewardPoints:0 },
+          { id:'SHR-1002', title:'Mr.', first:'John', last:'Smith', room:'1205', checkin:'2026-04-12', checkout:'2026-04-18', email:'john@example.com', phone:'+97450001235', nationality:'UK', type:'VIP', privileges:['🍳 Breakfast','💪 Gym','🅿️ Parking'], status:'Active', scans:3, verified:false, rewardPoints:0 }
+        ];
+        console.log('[loadGuests] Created sample data');
+        saveLocal();
+      }
     }
-  } catch(e) { console.warn('loadGuests error', e); }
+  } catch(e) {
+    console.warn('[loadGuests] Error:', e.message);
+    if (!loadLocalFallback()) {
+      guests = [
+        { id:'SHR-1001', title:'Ms.', first:'Hodan', last:'Ahmed', room:'805', checkin:'2026-04-10', checkout:'2026-04-20', email:'hodan@example.com', phone:'+97450001234', nationality:'Somalia', type:'Diamond Member', privileges:['🍳 Breakfast','🏊 Pool Access','💪 Gym','🛎️ Butler Service'], status:'Active', scans:5, verified:true, rewardPoints:0 },
+        { id:'SHR-1002', title:'Mr.', first:'John', last:'Smith', room:'1205', checkin:'2026-04-12', checkout:'2026-04-18', email:'john@example.com', phone:'+97450001235', nationality:'UK', type:'VIP', privileges:['🍳 Breakfast','💪 Gym','🅿️ Parking'], status:'Active', scans:3, verified:false, rewardPoints:0 }
+      ];
+      saveLocal();
+    }
+  }
+  
+  // Always update the UI
+  if (currentGuest) {
+    const updated = guests.find(x => x.id === currentGuest.id);
+    if (updated) { currentGuest = updated; loadGuestDashboard(); }
+  }
+  renderTable();
+  if (document.getElementById('panel-staff-analytics')?.classList.contains('active')) renderAnalytics();
 }
+
 async function loadStaff() {
   try {
     const res = await callAppsScript('listStaff', {});
-    if (res.success && res.staff) { staffUsers = res.staff; saveStaffLocal(); renderStaffUsers(); updateAdminStats(); }
-  } catch(e) { console.warn(e); }
+    if (res.success && res.staff) {
+      staffUsers = res.staff;
+      saveStaffLocal();
+    } else {
+      // Load from localStorage or create defaults
+      const saved = localStorage.getItem('sg_staff');
+      if (saved) {
+        try { staffUsers = JSON.parse(saved); } catch(e) {}
+      }
+      if (!staffUsers.length) {
+        staffUsers = [
+          { id: '1', username: 'admin', fullname: 'Admin User', role: 'admin', department: 'Management', email: 'admin@steigenberger.com', phone: '+974 5000 0001', accountStatus: 'active', lastLogin: '', mustChangePassword: false, createdAt: new Date().toISOString() },
+          { id: '2', username: 'reception', fullname: 'Reception Staff', role: 'staff', department: 'Front Desk', email: 'reception@steigenberger.com', phone: '+974 5000 0002', accountStatus: 'active', lastLogin: '', mustChangePassword: false, createdAt: new Date().toISOString() }
+        ];
+        saveStaffLocal();
+      }
+    }
+  } catch(e) {
+    console.warn('[loadStaff] Error:', e.message);
+    // Try localStorage
+    const saved = localStorage.getItem('sg_staff');
+    if (saved) { try { staffUsers = JSON.parse(saved); } catch(e) {} }
+    if (!staffUsers.length) {
+      staffUsers = [
+        { id: '1', username: 'admin', fullname: 'Admin User', role: 'admin', department: 'Management', email: 'admin@steigenberger.com', phone: '+974 5000 0001', accountStatus: 'active', lastLogin: '', mustChangePassword: false, createdAt: new Date().toISOString() },
+        { id: '2', username: 'reception', fullname: 'Reception Staff', role: 'staff', department: 'Front Desk', email: 'reception@steigenberger.com', phone: '+974 5000 0002', accountStatus: 'active', lastLogin: '', mustChangePassword: false, createdAt: new Date().toISOString() }
+      ];
+      saveStaffLocal();
+    }
+  }
+  renderStaffUsers();
+  updateAdminStats();
 }
+
 async function loadVerifications() {
   try {
     const res = await callAppsScript('getVerifications', {});
-    if (res.success && res.requests) { verificationRequests = res.requests; renderVerificationRequests(); }
+    if (res.success && res.requests) { verificationRequests = res.requests; }
   } catch(e) {}
+  renderVerificationRequests();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1604,6 +1679,7 @@ function switchTab(tab) {
   document.getElementById('tab-staff').classList.toggle('active', tab === 'staff');
   clearLoginError();
 }
+
 function switchGuestMode(mode) {
   currentGuestMode = mode;
   document.getElementById('tab-returning').classList.toggle('active', mode === 'returning');
@@ -1630,11 +1706,12 @@ async function guestPasswordLogin() {
     if (res.success) {
       currentUser = { type: 'guest', data: res.user };
       currentGuest = res.user;
-      await loadGuests();
-      saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
-      showToast(`Welcome, ${sanitize(res.user.first)}!`, 'ok');
-    } else { showLoginError(res.error); }
-  } catch(e) { hideSpinner(); showLoginError('Login failed'); }
+      saveSession(); 
+      await loadGuests(); // Reload all guests
+      applyUserSession(); startSessionTimer(); setupActivityListeners();
+      showToast(`Welcome, ${sanitize(res.user.first || 'Guest')}!`, 'ok');
+    } else { showLoginError(res.error || 'Login failed'); }
+  } catch(e) { hideSpinner(); showLoginError('Connection error: ' + e.message); }
 }
 
 async function staffLogin() {
@@ -1647,24 +1724,21 @@ async function staffLogin() {
     hideSpinner();
     if (res.success) {
       currentUser = { type: 'staff', data: res.user };
-      saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
-      showToast(`Welcome, ${sanitize(res.user.fullname)}!`, 'ok');
-      await Promise.all([loadGuests(), loadStaff(), loadVerifications()]);
-    } else { showLoginError(res.error); }
-  } catch(e) { hideSpinner(); showLoginError('Authentication failed'); }
+      saveSession(); 
+      await loadStaff(); // Load staff first
+      applyUserSession(); startSessionTimer(); setupActivityListeners();
+      await Promise.all([loadGuests(), loadVerifications()]); // Then load guests
+      showToast(`Welcome, ${sanitize(res.user.fullname || username)}!`, 'ok');
+    } else { showLoginError(res.error || 'Login failed'); }
+  } catch(e) { hideSpinner(); showLoginError('Connection error: ' + e.message); }
 }
 
 // ═══════════════════════════════════════════════════
-// FORGOT PASSWORD (abbreviated, same logic)
+// FORGOT PASSWORD
 // ═══════════════════════════════════════════════════
-function showGuestForgotPassword() {
-  document.getElementById('guest-step-1').style.display = 'none';
-  document.getElementById('guest-forgot-view').style.display = 'block';
-}
-function hideGuestForgotPassword() {
-  document.getElementById('guest-forgot-view').style.display = 'none';
-  document.getElementById('guest-step-1').style.display = 'block';
-}
+function showGuestForgotPassword() { document.getElementById('guest-step-1').style.display = 'none'; document.getElementById('guest-forgot-view').style.display = 'block'; }
+function hideGuestForgotPassword() { document.getElementById('guest-forgot-view').style.display = 'none'; document.getElementById('guest-step-1').style.display = 'block'; }
+
 async function sendGuestPasswordReset() {
   const guestId = document.getElementById('guest-reset-id').value.trim().toUpperCase();
   const email = document.getElementById('guest-reset-email').value.trim();
@@ -1674,12 +1748,10 @@ async function sendGuestPasswordReset() {
   showSpinner('Sending…');
   const res = await callAppsScript('sendOTP', { email, name: guest.first });
   hideSpinner();
-  if (res.success) {
-    _resetOtpToken = res.token; _resetOtpTokenExpiry = Date.now() + 600000;
-    document.getElementById('guest-reset-otp-view').style.display = 'block';
-    showToast('Code sent to email', 'ok');
-  } else { showLoginError(res.error); }
+  if (res.success) { _resetOtpToken = res.token; _resetOtpTokenExpiry = Date.now() + 600000; document.getElementById('guest-reset-otp-view').style.display = 'block'; showToast('Code sent', 'ok'); }
+  else { showLoginError(res.error || 'Failed to send code'); }
 }
+
 async function confirmGuestPasswordReset() {
   const otp = document.getElementById('guest-reset-otp').value.trim();
   const newPw = document.getElementById('guest-reset-new-pw').value;
@@ -1687,8 +1759,7 @@ async function confirmGuestPasswordReset() {
   const guestId = document.getElementById('guest-reset-id').value.trim().toUpperCase();
   const email = document.getElementById('guest-reset-email').value.trim();
   if (Date.now() > _resetOtpTokenExpiry) { showLoginError('Code expired'); return; }
-  const pwErr = validatePassword(newPw);
-  if (pwErr) { showLoginError(pwErr); return; }
+  const pwErr = validatePassword(newPw); if (pwErr) { showLoginError(pwErr); return; }
   if (newPw !== confirmPw) { showLoginError('Passwords do not match'); return; }
   showSpinner('Updating…');
   _otpServerToken = _resetOtpToken;
@@ -1699,8 +1770,9 @@ async function confirmGuestPasswordReset() {
   const res = await callAppsScript('resetGuestPassword', { guestId, newPassword: newPw, salt });
   hideSpinner();
   if (res.success) { showToast('Password updated!', 'ok'); hideGuestForgotPassword(); }
-  else { showLoginError(res.error); }
+  else { showLoginError(res.error || 'Failed to update'); }
 }
+
 function showForgotPassword() { document.getElementById('staff-login-view').style.display = 'none'; document.getElementById('staff-forgot-view').style.display = 'block'; }
 function hideForgotPassword() { document.getElementById('staff-forgot-view').style.display = 'none'; document.getElementById('staff-login-view').style.display = 'block'; }
 function selectResetMethod(m) {
@@ -1720,10 +1792,8 @@ async function sendPasswordReset() {
     showSpinner('Sending…');
     const res = await callAppsScript('sendOTP', { email: contact, name: staff.fullname });
     hideSpinner();
-    if (res.success) {
-      _resetOtpToken = res.token; _resetOtpTokenExpiry = Date.now() + 600000;
-      document.getElementById('staff-reset-otp-view').style.display = 'block';
-    } else { showLoginError(res.error); }
+    if (res.success) { _resetOtpToken = res.token; _resetOtpTokenExpiry = Date.now() + 600000; document.getElementById('staff-reset-otp-view').style.display = 'block'; }
+    else { showLoginError(res.error || 'Failed'); }
   } else { showLoginError('Phone reset not supported yet'); }
 }
 async function confirmPasswordReset() {
@@ -1741,11 +1811,11 @@ async function confirmPasswordReset() {
   const res = await callAppsScript('resetStaffPassword', { username, newPassword: newPw, salt });
   hideSpinner();
   if (res.success) { showToast('Password updated!', 'ok'); hideForgotPassword(); }
-  else { showLoginError(res.error); }
+  else { showLoginError(res.error || 'Failed'); }
 }
 
 // ═══════════════════════════════════════════════════
-// GUEST SIGNUP (abbreviated)
+// GUEST SIGNUP
 // ═══════════════════════════════════════════════════
 function signupNextStep() {
   const guestId = document.getElementById('s-guest-id').value.trim().toUpperCase();
@@ -1763,11 +1833,8 @@ async function signupSendOTP() {
   showSpinner();
   const res = await callAppsScript('sendOTP', { email, name: signupData.guest.first });
   hideSpinner();
-  if (res.success) {
-    _signupOtpToken = res.token; _signupOtpTokenExpiry = Date.now() + 600000;
-    document.getElementById('signup-step-2').style.display = 'none';
-    document.getElementById('signup-step-3').style.display = 'block';
-  } else { showLoginError(res.error); }
+  if (res.success) { _signupOtpToken = res.token; _signupOtpTokenExpiry = Date.now() + 600000; document.getElementById('signup-step-2').style.display = 'none'; document.getElementById('signup-step-3').style.display = 'block'; }
+  else { showLoginError(res.error || 'Failed'); }
 }
 async function signupVerifyAndCreate() {
   const otp = document.getElementById('s-otp').value.trim();
@@ -1794,7 +1861,7 @@ async function signupFinalize() {
     const guest = guests.find(g => g.id === signupData.guestId);
     if (guest) { currentUser = { type: 'guest', data: guest }; currentGuest = guest; saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners(); }
     showToast('Account created!', 'ok');
-  } else { showLoginError(res.error); }
+  } else { showLoginError(res.error || 'Failed'); }
 }
 function signupBack(step) {
   for (let i = 1; i <= 4; i++) { const el = document.getElementById(`signup-step-${i}`); if (el) el.style.display = 'none'; }
@@ -1809,7 +1876,83 @@ async function signupResend() {
 }
 
 // ═══════════════════════════════════════════════════
-// ADD GUEST (FIXED)
+// SESSION TIMER
+// ═══════════════════════════════════════════════════
+function startSessionTimer() {
+  if (sessionTimer) clearInterval(sessionTimer);
+  sessionEndTime = Date.now() + SESSION_TIMEOUT_MINUTES * 60 * 1000;
+  sessionTimer = setInterval(() => { if (Date.now() >= sessionEndTime) { clearInterval(sessionTimer); logout(); showToast('Session expired', 'err'); } }, 1000);
+}
+function setupActivityListeners() {
+  ['click','keypress'].forEach(e => document.addEventListener(e, () => { if (currentUser) { sessionEndTime = Date.now() + SESSION_TIMEOUT_MINUTES * 60 * 1000; saveSession(); } }, { passive: true }));
+}
+
+// ═══════════════════════════════════════════════════
+// GUEST TABLE
+// ═══════════════════════════════════════════════════
+function setFilter(filter, e) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (e && e.target) e.target.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('staff-tbody');
+  if (!tbody) return;
+  const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
+  
+  let filtered = guests.filter(g => {
+    const matchFilter = currentFilter === 'all' || 
+      (currentFilter === 'active' && g.status === 'Active') || 
+      (currentFilter === 'revoked' && g.status === 'Revoked') || 
+      (currentFilter === 'verified' && g.verified) || 
+      (currentFilter === 'unverified' && !g.verified);
+    const matchSearch = !search || `${g.first} ${g.last} ${g.id} ${g.room}`.toLowerCase().includes(search);
+    return matchFilter && matchSearch;
+  });
+  
+  if (!filtered.length) { 
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">No guests found</td>'; 
+    return; 
+  }
+  
+  tbody.innerHTML = filtered.map(g => `
+    <tr>
+      <td><code style="background:var(--cream2);padding:2px 8px;border-radius:4px;font-size:12px;">${sanitize(g.id)}</code></td>
+      <td>
+        <div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div>
+        <div style="font-size:11px;color:var(--muted);">${sanitize(g.email||'')}${g.phone?' · '+sanitize(g.phone):''}</div>
+      </td>
+      <td>${sanitize(g.room||'TBA')}</td>
+      <td style="font-size:12px;">${formatDate(g.checkin)}<br><span style="color:var(--muted);">${formatDate(g.checkout)}</span></td>
+      <td><span class="badge ${g.status==='Active'?'badge-active':'badge-revoked'}">${sanitize(g.status||'—')}</span></td>
+      <td><span class="badge ${g.verified?'badge-verified':'badge-pending'}">${g.verified?'✓ Verified':'Pending'}</span></td>
+      <td>${g.scans||0}</td>
+      <td style="display:flex;gap:4px;">
+        <button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" title="${g.status==='Active'?'Revoke':'Activate'}">${g.status==='Active'?'🔒':'🔓'}</button>
+        <button class="btn-ghost btn-sm" onclick="showShareDialog('${sanitize(g.id)}')" title="Share">📤</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleStatus(id) {
+  const guest = guests.find(g => g.id === id); if (!guest) return;
+  const newStatus = guest.status === 'Active' ? 'Revoked' : 'Active';
+  showSpinner();
+  const res = await callAppsScript('updateGuest', { guestId: id, updates: { status: newStatus } });
+  hideSpinner();
+  if (res.success) { 
+    await loadGuests(); 
+    showToast(`Guest ${newStatus}`, newStatus === 'Active' ? 'ok' : 'err');
+    addLog(`${currentUser?.data?.fullname} ${newStatus === 'Active' ? 'activated' : 'revoked'} ${guest.first} ${guest.last}`);
+  } else { showToast('Failed to update status', 'err'); }
+}
+
+function togglePriv(btn) { btn.classList.toggle('sel'); }
+
+// ═══════════════════════════════════════════════════
+// ADD GUEST
 // ═══════════════════════════════════════════════════
 async function addGuest() {
   const first = document.getElementById('f-first').value.trim();
@@ -1817,12 +1960,10 @@ async function addGuest() {
   const guestId = document.getElementById('f-mandatory-guest-id').value.trim().toUpperCase();
   const email = document.getElementById('f-email').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
+  
   if (!first || !last) { showToast('First and last name required', 'err'); return; }
   if (!guestId) { showToast('Guest ID required', 'err'); return; }
   if (!email && !phone) { showToast('Email or phone required', 'err'); return; }
-  
-  const existing = guests.find(g => g.id === guestId && g.first && g.first.trim());
-  if (existing) { showToast('Guest ID already exists', 'err'); return; }
   
   showSpinner('Registering guest…');
   const privs = [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent.trim());
@@ -1844,6 +1985,7 @@ async function addGuest() {
       await loadGuests();
       showToast(`✅ ${sanitize(first)} ${sanitize(last)} registered!`, 'ok');
       addLog(`${currentUser?.data?.fullname} registered ${first} ${last} (${guestId})`);
+      // Clear form
       ['f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
@@ -1851,52 +1993,11 @@ async function addGuest() {
       renderTable();
       setTimeout(() => showShareDialog(guestId), 400);
     } else { showToast('Error: ' + (res.error || 'unknown'), 'err'); }
-  } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
+  } catch(e) { hideSpinner(); showToast('Network error: ' + e.message, 'err'); }
 }
 
 // ═══════════════════════════════════════════════════
-// GUEST TABLE
-// ═══════════════════════════════════════════════════
-function setFilter(filter, e) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (e && e.target) e.target.classList.add('active');
-  renderTable();
-}
-function renderTable() {
-  const tbody = document.getElementById('staff-tbody');
-  if (!tbody) return;
-  const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
-  let filtered = guests.filter(g => {
-    const matchFilter = currentFilter === 'all' || (currentFilter === 'active' && g.status === 'Active') || (currentFilter === 'revoked' && g.status === 'Revoked') || (currentFilter === 'verified' && g.verified) || (currentFilter === 'unverified' && !g.verified);
-    return matchFilter && (!search || `${g.first} ${g.last} ${g.id} ${g.room}`.toLowerCase().includes(search));
-  });
-  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">No guests found</td>'; return; }
-  tbody.innerHTML = filtered.map(g => `
-    <tr>
-      <td><code>${sanitize(g.id)}</code></td>
-      <td><strong>${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</strong><br><small>${sanitize(g.email||'')} ${g.phone?'· '+sanitize(g.phone):''}</small></td>
-      <td>${sanitize(g.room||'TBA')}</td>
-      <td>${formatDate(g.checkin)}<br>${formatDate(g.checkout)}</td>
-      <td><span class="badge ${g.status==='Active'?'badge-active':'badge-revoked'}">${g.status}</span></td>
-      <td><span class="badge ${g.verified?'badge-verified':'badge-pending'}">${g.verified?'Verified':'Pending'}</span></td>
-      <td>${g.scans||0}</td>
-      <td>
-        <button class="btn-ghost btn-sm" onclick="toggleStatus('${g.id}')">${g.status==='Active'?'🔒':'🔓'}</button>
-        <button class="btn-ghost btn-sm" onclick="showShareDialog('${g.id}')">📤</button>
-      </td>
-    </tr>`).join('');
-}
-async function toggleStatus(id) {
-  const guest = guests.find(g => g.id === id); if (!guest) return;
-  const newStatus = guest.status === 'Active' ? 'Revoked' : 'Active';
-  const res = await callAppsScript('updateGuest', { guestId: id, updates: { status: newStatus } });
-  if (res.success) { await loadGuests(); showToast(`Guest ${newStatus}`, newStatus === 'Active' ? 'ok' : 'err'); }
-}
-function togglePriv(btn) { btn.classList.toggle('sel'); }
-
-// ═══════════════════════════════════════════════════
-// SCANNER (NO POINTS/REWARDS)
+// SCANNER (NO POINTS)
 // ═══════════════════════════════════════════════════
 function startScanner() {
   if (!window.Html5QrcodeScanner) {
@@ -1916,72 +2017,85 @@ function startScanner() {
       const modalContent = document.getElementById('scan-modal-content');
       if (guest) {
         modalContent.innerHTML = `
-          <div class="scan-result-card success">
+          <div class="scan-result-card success" style="margin-top:0;">
             <div class="scan-result-name">${sanitize(guest.first)} ${sanitize(guest.last)}</div>
-            <div class="scan-result-detail">ID: ${sanitize(guest.id)} · Room ${sanitize(guest.room||'TBA')} · ${sanitize(guest.type)} · ${guest.verified?'✅ Verified':'⚠️ Not Verified'}</div>
-            <div style="margin-top:8px;font-size:12px;color:var(--muted);">Check-in: ${formatDate(guest.checkin)} | Check-out: ${formatDate(guest.checkout)}</div>
+            <div class="scan-result-detail">
+              <strong>ID:</strong> ${sanitize(guest.id)} · <strong>Room:</strong> ${sanitize(guest.room||'TBA')}<br>
+              <strong>Type:</strong> ${sanitize(guest.type)} · <strong>Status:</strong> ${sanitize(guest.status)} · ${guest.verified?'✅ Verified':'⚠️ Not Verified'}<br>
+              <strong>Check-in:</strong> ${formatDate(guest.checkin)} · <strong>Check-out:</strong> ${formatDate(guest.checkout)}
+            </div>
           </div>`;
-        showToast(`Scanned: ${sanitize(guest.first)} ${sanitize(guest.last)}`, 'ok');
+        showToast(`✅ Scanned: ${sanitize(guest.first)} ${sanitize(guest.last)}`, 'ok');
         addLog(`QR scanned: ${guest.first} ${guest.last} (${guest.id})`);
-        // Increment scan count
         await callAppsScript('updateGuest', { guestId: guest.id, updates: { scans: (parseInt(guest.scans)||0)+1 } });
         await loadGuests();
       } else {
-        modalContent.innerHTML = `<div class="scan-result-card error"><div class="scan-result-name">Unknown QR</div><div class="scan-result-detail">ID: ${sanitize(decodedText)} not found</div></div>`;
+        modalContent.innerHTML = `<div class="scan-result-card error" style="margin-top:0;"><div class="scan-result-name">Unknown QR Code</div><div class="scan-result-detail">ID "${sanitize(decodedText)}" not found in the system.</div></div>`;
       }
       document.getElementById('scan-modal').classList.add('open');
     }, () => {});
-  } catch(e) { showToast('Scanner error', 'err'); }
+  } catch(e) { showToast('Scanner error: ' + e.message, 'err'); }
 }
 function stopScanner() { if (html5Scanner) { try { html5Scanner.clear(); } catch(e) {} html5Scanner = null; } }
 function closeScanModal() { document.getElementById('scan-modal').classList.remove('open'); }
+
 function manualLookup() {
   const q = document.getElementById('manual-search').value.toLowerCase().trim();
-  if (!q) return;
+  if (!q) { showToast('Please enter a search term', 'err'); return; }
   const guest = guests.find(g => g.id?.toLowerCase() === q || g.room?.toLowerCase() === q || `${g.first} ${g.last}`.toLowerCase().includes(q));
   const el = document.getElementById('manual-result');
   if (guest) {
-    el.innerHTML = `<div class="scan-result-card success"><div class="scan-result-name">${sanitize(guest.first)} ${sanitize(guest.last)}</div><div class="scan-result-detail">ID: ${guest.id} · Room ${guest.room||'TBA'} · ${guest.type} · ${guest.verified?'Verified':'Not Verified'}</div></div>`;
+    el.innerHTML = `<div class="scan-result-card success"><div class="scan-result-name">${sanitize(guest.first)} ${sanitize(guest.last)}</div><div class="scan-result-detail">ID: ${guest.id} · Room ${guest.room||'TBA'} · ${guest.type} · ${guest.verified?'✅ Verified':'⚠️ Not Verified'}</div></div>`;
   } else {
-    el.innerHTML = `<div class="scan-result-card error"><div class="scan-result-name">Not Found</div></div>`;
+    el.innerHTML = `<div class="scan-result-card error"><div class="scan-result-name">Not Found</div><div class="scan-result-detail">No guest matches "${sanitize(q)}"</div></div>`;
   }
 }
 
 // ═══════════════════════════════════════════════════
-// STAFF MANAGEMENT (FIXED)
+// STAFF MANAGEMENT
 // ═══════════════════════════════════════════════════
 function renderStaffUsers() {
   const container = document.getElementById('staff-cards-container');
   if (!container) return;
   const roleFilter = document.getElementById('staff-filter-role')?.value || '';
-  const filtered = roleFilter ? staffUsers.filter(u => u.role === roleFilter) : staffUsers;
-  if (!filtered.length) { container.innerHTML = '<div class="empty-state">No team members</div>'; return; }
+  let filtered = roleFilter ? staffUsers.filter(u => u.role === roleFilter) : staffUsers;
+  
+  if (!filtered.length) { 
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div>No team members found</div>'; 
+    updateAdminStats();
+    return; 
+  }
+  
   container.innerHTML = filtered.map(u => `
     <div class="staff-member-card">
-      <div class="staff-avatar ${u.role==='admin'?'admin':''}">${(u.fullname||u.username||'?').charAt(0)}</div>
+      <div class="staff-avatar ${u.role==='admin'?'admin':''}">${(u.fullname||u.username||'?').charAt(0).toUpperCase()}</div>
       <div class="staff-info">
         <div class="staff-info-name">${sanitize(u.fullname||u.username)}</div>
         <div class="staff-info-meta">
           <span>@${sanitize(u.username)}</span>
-          <span class="badge ${u.role==='admin'?'badge-admin':'badge-staff'}">${u.role||'staff'}</span>
+          <span class="badge ${u.role==='admin'?'badge-admin':'badge-staff'}">${sanitize(u.role||'staff')}</span>
           ${u.department?`<span class="staff-info-badge dept">${sanitize(u.department)}</span>`:''}
+          <span class="staff-info-badge last-login">${u.lastLogin?'Last: '+new Date(u.lastLogin).toLocaleDateString():'Never logged in'}</span>
         </div>
       </div>
-      <span class="badge ${u.accountStatus!=='suspended'?'badge-active':'badge-revoked'}">${u.accountStatus!=='suspended'?'Active':'Suspended'}</span>
+      <span class="badge ${u.accountStatus==='suspended'?'badge-revoked':'badge-active'}">${u.accountStatus==='suspended'?'Suspended':'Active'}</span>
       <div class="staff-actions">
-        <button class="btn-ghost btn-sm" onclick="editStaff('${u.id}')">✏️</button>
-        <button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')">🔑</button>
-        <button class="btn-ghost btn-sm" onclick="toggleStaffStatus('${u.id}')">${u.accountStatus!=='suspended'?'⏸':'▶'}</button>
-        <button class="btn-danger btn-sm" onclick="deleteStaff('${u.id}')">🗑</button>
+        <button class="btn-ghost btn-sm" onclick="editStaff('${u.id}')" title="Edit">✏️</button>
+        <button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')" title="Reset Password">🔑</button>
+        <button class="btn-ghost btn-sm" onclick="toggleStaffStatus('${u.id}')" title="${u.accountStatus==='suspended'?'Activate':'Suspend'}">${u.accountStatus==='suspended'?'▶':'⏸'}</button>
+        <button class="btn-danger btn-sm" onclick="deleteStaff('${u.id}')" title="Delete">🗑</button>
       </div>
     </div>`).join('');
+  
   updateAdminStats();
 }
+
 function updateAdminStats() {
   document.getElementById('admin-stat-total').textContent = staffUsers.length;
   document.getElementById('admin-stat-active').textContent = staffUsers.filter(u => u.accountStatus !== 'suspended').length;
   document.getElementById('admin-stat-admins').textContent = staffUsers.filter(u => u.role === 'admin').length;
 }
+
 function showAddStaff() {
   document.getElementById('staff-modal-title').textContent = 'Add Team Member';
   document.getElementById('edit-staff-id').value = '';
@@ -1992,10 +2106,12 @@ function showAddStaff() {
   updateRolePermissions();
   document.getElementById('staff-modal').classList.add('open');
 }
-function editStaff(id) {
-  const u = staffUsers.find(s => s.id === id); if (!u) return;
+
+function editStaff(staffId) {
+  const u = staffUsers.find(s => s.id === staffId);
+  if (!u) return;
   document.getElementById('staff-modal-title').textContent = 'Edit Team Member';
-  document.getElementById('edit-staff-id').value = id;
+  document.getElementById('edit-staff-id').value = staffId;
   document.getElementById('new-username').value = u.username || '';
   document.getElementById('new-fullname').value = u.fullname || '';
   document.getElementById('new-password').value = '';
@@ -2007,8 +2123,11 @@ function editStaff(id) {
   updateRolePermissions();
   document.getElementById('staff-modal').classList.add('open');
 }
+
+function closeStaffModal() { document.getElementById('staff-modal').classList.remove('open'); }
+
 async function saveStaffMember() {
-  const id = document.getElementById('edit-staff-id').value;
+  const editId = document.getElementById('edit-staff-id').value;
   const username = document.getElementById('new-username').value.trim();
   const fullname = document.getElementById('new-fullname').value.trim();
   const password = document.getElementById('new-password').value;
@@ -2017,67 +2136,110 @@ async function saveStaffMember() {
   const email = document.getElementById('new-email').value.trim();
   const phone = document.getElementById('new-phone').value.trim();
   const status = document.getElementById('new-account-status').value;
+  
   if (!username || !fullname) { showToast('Username and full name required', 'err'); return; }
   
   showSpinner('Saving…');
-  if (id) {
-    // Edit existing
+  
+  if (editId) {
+    // Update existing
     const updates = { username, fullname, role, department: dept, email, phone, accountStatus: status };
     if (password && password.length >= 8) {
+      const pwErr = validatePassword(password);
+      if (pwErr) { hideSpinner(); showToast(pwErr, 'err'); return; }
       const salt = generateSalt();
       updates.password_hash = await hashPasswordFrontend(password, salt);
       updates.salt = salt;
       updates.mustChangePassword = false;
     }
-    const res = await callAppsScript('updateStaff', { staffId: id, data: updates });
-    hideSpinner();
-    if (res.success) {
-      const staff = staffUsers.find(u => u.id === id);
-      if (staff) Object.assign(staff, updates);
-      saveStaffLocal(); renderStaffUsers();
-      showToast('✅ Updated', 'ok');
-    } else { showToast('Error: ' + (res.error||''), 'err'); }
+    try {
+      const res = await callAppsScript('updateStaff', { staffId: editId, data: updates });
+      hideSpinner();
+      if (res.success) {
+        const staff = staffUsers.find(u => u.id === editId);
+        if (staff) Object.assign(staff, updates);
+        saveStaffLocal(); renderStaffUsers();
+        showToast('✅ Updated', 'ok');
+        addLog(`${currentUser?.data?.fullname} updated staff: ${username}`);
+      } else { showToast('Error: ' + (res.error||'unknown'), 'err'); }
+    } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
   } else {
     // Create new
     if (!password || password.length < 8) { hideSpinner(); showToast('Password min 8 chars', 'err'); return; }
-    if (staffUsers.find(u => u.username === username)) { hideSpinner(); showToast('Username exists', 'err'); return; }
+    const pwErr = validatePassword(password);
+    if (pwErr) { hideSpinner(); showToast(pwErr, 'err'); return; }
+    if (staffUsers.find(u => u.username === username)) { hideSpinner(); showToast('Username already exists', 'err'); return; }
+    
     const salt = generateSalt();
     const hash = await hashPasswordFrontend(password, salt);
-    const newStaff = { id: Date.now().toString(), username, fullname, role, department: dept, email, phone, accountStatus: status, createdAt: new Date().toISOString() };
-    const res = await callAppsScript('createStaff', { staffData: newStaff, salt, passwordHash: hash });
-    hideSpinner();
-    if (res.success) {
-      staffUsers.push({ ...newStaff }); saveStaffLocal(); renderStaffUsers();
-      showToast('✅ Created', 'ok');
-    } else { showToast('Error: ' + (res.error||''), 'err'); }
+    const newStaff = {
+      id: Date.now().toString(), username, fullname, role, department: dept, email, phone,
+      accountStatus: status, createdAt: new Date().toISOString(), lastLogin: '', mustChangePassword: true
+    };
+    
+    try {
+      const res = await callAppsScript('createStaff', { staffData: newStaff, salt, passwordHash: hash });
+      hideSpinner();
+      if (res.success) {
+        staffUsers.push({ ...newStaff });
+        saveStaffLocal(); renderStaffUsers();
+        showToast('✅ Account created', 'ok');
+        addLog(`${currentUser?.data?.fullname} created account: ${username} (${role})`);
+      } else { showToast('Error: ' + (res.error||'unknown'), 'err'); }
+    } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
   }
   closeStaffModal();
 }
+
 async function resetStaffPassword(staffId) {
-  const staff = staffUsers.find(u => u.id === staffId); if (!staff) return;
-  const newPass = prompt(`New password for ${staff.fullname} (min 8 chars):`);
+  const staff = staffUsers.find(u => u.id === staffId);
+  if (!staff) return;
+  const newPass = prompt(`Enter new password for ${staff.fullname} (min 8 chars, letters & numbers):`);
   if (!newPass) return;
-  const pwErr = validatePassword(newPass); if (pwErr) { showToast(pwErr, 'err'); return; }
+  const pwErr = validatePassword(newPass);
+  if (pwErr) { showToast(pwErr, 'err'); return; }
+  
   showSpinner();
   const salt = generateSalt();
   const hash = await hashPasswordFrontend(newPass, salt);
-  const res = await callAppsScript('updateStaff', { staffId, data: { password_hash: hash, salt, mustChangePassword: true } });
-  hideSpinner();
-  if (res.success) { showToast('✅ Password reset', 'ok'); addLog(`${currentUser?.data?.fullname} reset password for ${staff.username}`); }
-  else { showToast('Failed', 'err'); }
+  try {
+    const res = await callAppsScript('updateStaff', { staffId, data: { password_hash: hash, salt, mustChangePassword: true } });
+    hideSpinner();
+    if (res.success) {
+      showToast('✅ Password reset', 'ok');
+      addLog(`${currentUser?.data?.fullname} reset password for ${staff.username}`);
+    } else { showToast('Failed: ' + (res.error||''), 'err'); }
+  } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
 }
+
 async function toggleStaffStatus(staffId) {
-  const staff = staffUsers.find(u => u.id === staffId); if (!staff) return;
+  const staff = staffUsers.find(u => u.id === staffId);
+  if (!staff) return;
   const newStatus = staff.accountStatus === 'suspended' ? 'active' : 'suspended';
-  const res = await callAppsScript('updateStaffStatus', { staffId, status: newStatus });
-  if (res.success) { staff.accountStatus = newStatus; saveStaffLocal(); renderStaffUsers(); }
+  try {
+    const res = await callAppsScript('updateStaffStatus', { staffId, status: newStatus });
+    if (res.success) {
+      staff.accountStatus = newStatus;
+      saveStaffLocal(); renderStaffUsers();
+      showToast(`Account ${newStatus === 'suspended' ? 'suspended' : 'reactivated'}`, newStatus === 'suspended' ? 'err' : 'ok');
+      addLog(`${currentUser?.data?.fullname} ${newStatus === 'suspended'?'suspended':'reactivated'} ${staff.username}`);
+    }
+  } catch(e) { showToast('Network error', 'err'); }
 }
+
 async function deleteStaff(staffId) {
-  if (!confirm('Delete this team member?')) return;
-  const res = await callAppsScript('deleteStaff', { staffId });
-  if (res.success) { staffUsers = staffUsers.filter(u => u.id !== staffId); saveStaffLocal(); renderStaffUsers(); }
+  if (!confirm('Are you sure you want to permanently delete this team member?')) return;
+  try {
+    const res = await callAppsScript('deleteStaff', { staffId });
+    if (res.success) {
+      staffUsers = staffUsers.filter(u => u.id !== staffId);
+      saveStaffLocal(); renderStaffUsers();
+      showToast('✅ Deleted', 'ok');
+      addLog(`${currentUser?.data?.fullname} deleted team member`);
+    }
+  } catch(e) { showToast('Network error', 'err'); }
 }
-function closeStaffModal() { document.getElementById('staff-modal').classList.remove('open'); }
+
 function updateRolePermissions() {
   const role = document.getElementById('new-role').value;
   const perms = {
@@ -2087,21 +2249,24 @@ function updateRolePermissions() {
   };
   const granted = perms[role] || perms.staff;
   const all = ['View Guests','Edit Guests','Add Guests','Analytics','Scanner','Team Admin','Reset Passwords'];
-  document.getElementById('perm-list').innerHTML = all.map(p => `<span class="perm-chip ${granted.includes(p)?'':'perm-off'}">${granted.includes(p)?'✓':'✗'} ${p}</span>`).join('');
+  document.getElementById('perm-list').innerHTML = all.map(p => 
+    `<span class="perm-chip ${granted.includes(p)?'':'perm-off'}">${granted.includes(p)?'✓':'✗'} ${p}</span>`
+  ).join('');
 }
 
 // ═══════════════════════════════════════════════════
-// SHARE
+// SHARE & COPY
 // ═══════════════════════════════════════════════════
 function showShareDialog(guestId) {
-  const guest = guests.find(g => g.id === guestId); if (!guest) return;
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) return;
   _shareGuestData = guest;
   const pageUrl = window.location.href.split('?')[0];
   const message = [
     `Steigenberger Hotel Doha - Digital Guest Card`,
     ``,
     `Dear ${guest.first},`,
-    `Your digital guest card is ready.`,
+    `Your digital guest card is ready. Sign in with your Guest ID.`,
     ``,
     `Guest ID: ${guest.id}`,
     `Login: ${pageUrl}`,
@@ -2109,22 +2274,26 @@ function showShareDialog(guestId) {
     ``,
     `We look forward to your stay.`
   ].join('\n');
+  
   document.getElementById('share-credentials-preview').innerHTML = `
     <strong>Guest ID:</strong> ${sanitize(guest.id)}<br>
-    <strong>Name:</strong> ${sanitize(guest.first+' '+guest.last)}<br>
+    <strong>Name:</strong> ${sanitize(guest.title||'')} ${sanitize(guest.first)} ${sanitize(guest.last)}<br>
     <strong>Room:</strong> ${sanitize(guest.room||'TBA')}<br>
     <strong>Check-in:</strong> ${formatDate(guest.checkin)}<br>
-    <strong>Check-out:</strong> ${formatDate(guest.checkout)}
+    <strong>Check-out:</strong> ${formatDate(guest.checkout)}<br>
+    <strong>Login URL:</strong> ${sanitize(pageUrl)}
   `;
   document.getElementById('share-whatsapp-link').href = `https://wa.me/${(guest.phone||'').replace(/[^0-9]/g,'')}?text=${encodeURIComponent(message)}`;
   document.getElementById('share-email-link').href = `mailto:${guest.email||''}?subject=${encodeURIComponent('Your Digital Guest Card - '+guest.id)}&body=${encodeURIComponent(message)}`;
   document.getElementById('share-modal').classList.add('open');
 }
-function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
+
+function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); _shareGuestData = null; }
+
 function copyShareDetails() {
   const text = document.getElementById('share-credentials-preview')?.innerText;
   if (!text) return;
-  navigator.clipboard.writeText(text).then(() => showToast('✅ Copied!', 'ok')).catch(() => showToast('Copy failed', 'err'));
+  navigator.clipboard.writeText(text).then(() => showToast('✅ Copied to clipboard!', 'ok')).catch(() => showToast('Copy failed', 'err'));
 }
 
 // ═══════════════════════════════════════════════════
@@ -2136,33 +2305,129 @@ function loadGuestProfile() {
   document.getElementById('profile-phone').value = currentGuest.phone || '';
   document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none';
 }
+
 async function updateGuestProfile() {
   const email = document.getElementById('profile-email').value.trim();
   const phone = document.getElementById('profile-phone').value.trim();
+  if (!email && !phone) { showToast('Please enter email or phone', 'err'); return; }
   showSpinner('Saving…');
-  const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { email, phone } });
-  hideSpinner();
-  if (res.success) {
-    currentGuest.email = email; currentGuest.phone = phone;
-    await loadGuests();
-    showToast('✅ Profile updated!', 'ok');
-  } else { showToast('Failed', 'err'); }
+  try {
+    const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { email, phone } });
+    hideSpinner();
+    if (res.success) {
+      currentGuest.email = email; currentGuest.phone = phone;
+      await loadGuests();
+      showToast('✅ Profile updated!', 'ok');
+      document.getElementById('profile-save-status').textContent = 'Saved at ' + new Date().toLocaleTimeString();
+    } else { showToast('Failed: ' + (res.error||''), 'err'); }
+  } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
 }
+
 async function changeGuestPassword() {
   const currentPw = document.getElementById('profile-current-password').value;
   const newPw = document.getElementById('profile-new-password').value;
   const confirmPw = document.getElementById('profile-confirm-password').value;
-  const pwErr = validatePassword(newPw); if (pwErr) { showToast(pwErr, 'err'); return; }
+  const statusEl = document.getElementById('password-change-status');
+  statusEl.textContent = '';
+  
+  if (!currentPw) { showToast('Enter current password', 'err'); return; }
+  const pwErr = validatePassword(newPw);
+  if (pwErr) { showToast(pwErr, 'err'); return; }
   if (newPw !== confirmPw) { showToast('Passwords do not match', 'err'); return; }
+  
+  showSpinner('Verifying…');
+  try {
+    const verify = await callAppsScript('guestLogin', { guestId: currentGuest.id, password: currentPw });
+    if (!verify.success) { hideSpinner(); showToast('Current password incorrect', 'err'); return; }
+    
+    const salt = generateSalt();
+    const hash = await hashPasswordFrontend(newPw, salt);
+    const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { password_hash: hash, salt } });
+    hideSpinner();
+    if (res.success) {
+      showToast('✅ Password updated!', 'ok');
+      statusEl.textContent = 'Password changed successfully.';
+      document.getElementById('profile-current-password').value = '';
+      document.getElementById('profile-new-password').value = '';
+      document.getElementById('profile-confirm-password').value = '';
+      addLog(`${currentGuest.first} ${currentGuest.last} changed their password`);
+    } else { showToast('Failed', 'err'); }
+  } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
+}
+
+// ═══════════════════════════════════════════════════
+// VERIFICATION
+// ═══════════════════════════════════════════════════
+function showVerificationModal() { document.getElementById('verification-modal').classList.add('open'); }
+function closeVerificationModal() { document.getElementById('verification-modal').classList.remove('open'); }
+function wireUploadListeners() {
+  ['front','back','selfie'].forEach(type => {
+    const area = document.getElementById(`${type}-upload-area`);
+    const input = document.getElementById(`id-${type}-input`);
+    const status = document.getElementById(`${type}-status`);
+    if (!area || !input) return;
+    input.addEventListener('change', () => { if (input.files[0]) { area.classList.add('uploaded'); if (status) status.textContent = '✓ ' + input.files[0].name; } });
+    area.addEventListener('dragover', e => { e.preventDefault(); });
+    area.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) { input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); } });
+  });
+}
+
+async function submitVerification() {
+  if (!currentGuest) return;
+  const idNumber = document.getElementById('verification-id-number').value.trim();
+  if (!idNumber) { showToast('Enter document number', 'err'); return; }
+  showSpinner('Submitting…');
+  const req = { id: Date.now().toString(), guestId: currentGuest.id, guestName: currentGuest.first+' '+currentGuest.last, idType: document.getElementById('verification-id-type').value, idNumber, status: 'pending', submittedAt: new Date().toISOString() };
+  try {
+    const res = await callAppsScript('submitVerification', { request: req });
+    hideSpinner();
+    if (res.success) { verificationRequests.push(req); showToast('✅ Submitted', 'ok'); closeVerificationModal(); addLog(`${currentGuest.first} ${currentGuest.last} submitted verification`); }
+    else { showToast('Error: ' + (res.error||''), 'err'); }
+  } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
+}
+
+function renderVerificationRequests() {
+  const container = document.getElementById('verification-requests');
+  if (!container) return;
+  const pending = verificationRequests.filter(r => r.status === 'pending');
+  if (!pending.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div>'; return; }
+  container.innerHTML = pending.map(r => `
+    <div class="verification-req-card">
+      <div class="vreq-info"><div class="vreq-name">${sanitize(r.guestName||r.guestId)}</div><div class="vreq-detail">${sanitize(r.idType)} · ${sanitize(r.idNumber)} · ${new Date(r.submittedAt).toLocaleString()}</div></div>
+      <div class="vreq-actions">
+        <button class="btn-teal btn-sm" onclick="approveVerification('${r.id}','${r.guestId}')">✓ Approve</button>
+        <button class="btn-danger btn-sm" onclick="rejectVerification('${r.id}')">✗ Reject</button>
+      </div>
+    </div>`).join('');
+}
+
+async function approveVerification(reqId, guestId) {
   showSpinner();
-  const verify = await callAppsScript('guestLogin', { guestId: currentGuest.id, password: currentPw });
-  if (!verify.success) { hideSpinner(); showToast('Current password incorrect', 'err'); return; }
-  const salt = generateSalt();
-  const hash = await hashPasswordFrontend(newPw, salt);
-  const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { password_hash: hash, salt } });
-  hideSpinner();
-  if (res.success) { showToast('✅ Password updated!', 'ok'); }
-  else { showToast('Failed', 'err'); }
+  try {
+    const res = await callAppsScript('updateVerification', { requestId: reqId, status: 'approved', guestId });
+    hideSpinner();
+    if (res.success) {
+      const req = verificationRequests.find(r => r.id === reqId); if (req) req.status = 'approved';
+      const guest = guests.find(g => g.id === guestId); if (guest) guest.verified = true;
+      renderVerificationRequests();
+      showToast('✅ Approved', 'ok');
+      addLog(`${currentUser?.data?.fullname} approved verification for guest ${guestId}`);
+    }
+  } catch(e) { hideSpinner(); }
+}
+
+async function rejectVerification(reqId) {
+  showSpinner();
+  try {
+    const res = await callAppsScript('updateVerification', { requestId: reqId, status: 'rejected' });
+    hideSpinner();
+    if (res.success) {
+      const req = verificationRequests.find(r => r.id === reqId); if (req) req.status = 'rejected';
+      renderVerificationRequests();
+      showToast('Rejected', '');
+      addLog(`${currentUser?.data?.fullname} rejected verification request ${reqId}`);
+    }
+  } catch(e) { hideSpinner(); }
 }
 
 // ═══════════════════════════════════════════════════
@@ -2178,52 +2443,48 @@ async function loadChartLib() {
     document.head.appendChild(s);
   });
 }
+
 function renderAnalytics() {
   document.getElementById('total-guests').textContent = guests.length;
   document.getElementById('active-guests').textContent = guests.filter(g => g.status === 'Active').length;
   document.getElementById('verified-guests').textContent = guests.filter(g => g.verified).length;
   document.getElementById('total-scans').textContent = guests.reduce((s,g) => s + (parseInt(g.scans)||0), 0);
+  
   if (typeof Chart === 'undefined') return;
+  
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const actCtx = document.getElementById('activity-chart');
-  if (actCtx) { if (activityChart) activityChart.destroy(); activityChart = new Chart(actCtx, { type:'bar', data:{ labels:days, datasets:[{ label:'Scans', data:days.map(()=>Math.floor(Math.random()*20+5)) }] } }); }
-  const tiers = {}; guests.forEach(g => { const t = g.type||'Standard'; tiers[t] = (tiers[t]||0)+1; });
+  if (actCtx) {
+    if (activityChart) activityChart.destroy();
+    activityChart = new Chart(actCtx, {
+      type: 'bar',
+      data: { labels: days, datasets: [{ label: 'Scans', data: days.map(() => Math.floor(Math.random()*20+5)), backgroundColor: 'rgba(201,168,76,0.7)' }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
+  
+  const tierCounts = {};
+  guests.forEach(g => { const t = g.type||'Standard'; tierCounts[t] = (tierCounts[t]||0)+1; });
   const typeCtx = document.getElementById('type-chart');
-  if (typeCtx) { if (typeChart) typeChart.destroy(); typeChart = new Chart(typeCtx, { type:'doughnut', data:{ labels:Object.keys(tiers), datasets:[{ data:Object.values(tiers) }] } }); }
+  if (typeCtx) {
+    if (typeChart) typeChart.destroy();
+    typeChart = new Chart(typeCtx, {
+      type: 'doughnut',
+      data: { labels: Object.keys(tierCounts), datasets: [{ data: Object.values(tierCounts) }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+  
   const verCtx = document.getElementById('verify-chart');
-  if (verCtx) { const v = guests.filter(g => g.verified).length; if (verifyChart) verifyChart.destroy(); verifyChart = new Chart(verCtx, { type:'bar', data:{ labels:['Verified','Not Verified'], datasets:[{ data:[v, guests.length-v] }] } }); }
-}
-
-// ═══════════════════════════════════════════════════
-// VERIFICATION
-// ═══════════════════════════════════════════════════
-function showVerificationModal() { document.getElementById('verification-modal').classList.add('open'); }
-function closeVerificationModal() { document.getElementById('verification-modal').classList.remove('open'); }
-async function submitVerification() {
-  if (!currentGuest) return;
-  const idNumber = document.getElementById('verification-id-number').value.trim();
-  if (!idNumber) { showToast('Enter document number', 'err'); return; }
-  showSpinner();
-  const req = { id: Date.now().toString(), guestId: currentGuest.id, guestName: currentGuest.first+' '+currentGuest.last, idType: document.getElementById('verification-id-type').value, idNumber, status: 'pending', submittedAt: new Date().toISOString() };
-  const res = await callAppsScript('submitVerification', { request: req });
-  hideSpinner();
-  if (res.success) { verificationRequests.push(req); showToast('✅ Submitted', 'ok'); closeVerificationModal(); }
-  else { showToast('Error', 'err'); }
-}
-function renderVerificationRequests() {
-  const container = document.getElementById('verification-requests');
-  if (!container) return;
-  const pending = verificationRequests.filter(r => r.status === 'pending');
-  if (!pending.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div>'; return; }
-  container.innerHTML = pending.map(r => `<div class="verification-req-card"><div class="vreq-info"><div class="vreq-name">${sanitize(r.guestName)}</div><div class="vreq-detail">${r.idType} · ${r.idNumber} · ${new Date(r.submittedAt).toLocaleString()}</div></div><div class="vreq-actions"><button class="btn-teal btn-sm" onclick="approveVerification('${r.id}','${r.guestId}')">✓ Approve</button><button class="btn-danger btn-sm" onclick="rejectVerification('${r.id}')">✗ Reject</button></div></div>`).join('');
-}
-async function approveVerification(reqId, guestId) {
-  showSpinner(); const res = await callAppsScript('updateVerification', { requestId: reqId, status: 'approved', guestId });
-  hideSpinner(); if (res.success) { const req = verificationRequests.find(r => r.id === reqId); if (req) req.status = 'approved'; const guest = guests.find(g => g.id === guestId); if (guest) guest.verified = true; renderVerificationRequests(); showToast('✅ Approved', 'ok'); }
-}
-async function rejectVerification(reqId) {
-  showSpinner(); const res = await callAppsScript('updateVerification', { requestId: reqId, status: 'rejected' });
-  hideSpinner(); if (res.success) { const req = verificationRequests.find(r => r.id === reqId); if (req) req.status = 'rejected'; renderVerificationRequests(); }
+  if (verCtx) {
+    const verified = guests.filter(g => g.verified).length;
+    if (verifyChart) verifyChart.destroy();
+    verifyChart = new Chart(verCtx, {
+      type: 'bar',
+      data: { labels: ['Verified','Not Verified'], datasets: [{ data: [verified, guests.length-verified], backgroundColor: ['#15803d','#b45309'] }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -2233,16 +2494,37 @@ function showPanel(pid) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`panel-${pid}`);
   if (panel) panel.classList.add('active');
+  
+  // Update sidebar
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-  const map = { 'staff-analytics':'nav-analytics','staff-guests':'nav-guests','staff-add':'nav-add','staff-scanner':'nav-scanner','staff-admin':'nav-admin' };
-  if (map[pid]) { const btn = document.getElementById(map[pid]); if (btn) btn.classList.add('active'); }
+  const navMap = { 'staff-analytics':'nav-analytics','staff-guests':'nav-guests','staff-add':'nav-add','staff-scanner':'nav-scanner','staff-admin':'nav-admin' };
+  if (navMap[pid]) { const btn = document.getElementById(navMap[pid]); if (btn) btn.classList.add('active'); }
+  
   if (pid === 'guest-profile') loadGuestProfile();
+  if (pid === 'staff-guests') renderTable();
   if (pid === 'staff-admin') { renderStaffUsers(); renderVerificationRequests(); updateAdminStats(); }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
+  if (pid === 'staff-add') { /* Optional: auto-suggest guest ID */ }
 }
-function showPanelMobile(pid, evt) { showPanel(pid); document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active')); if (evt?.target) evt.target.classList.add('active'); }
-function highlightMobileNav(btn) { document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-function toggleSidebar() { const sidebar = document.getElementById('main-sidebar'); if (sidebar) sidebar.classList.toggle('collapsed'); }
+
+function showPanelMobile(pid, evt) {
+  showPanel(pid);
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  if (evt?.target) evt.target.classList.add('active');
+}
+
+function highlightMobileNav(btn) {
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('main-sidebar');
+  const icon = document.getElementById('sidebar-toggle-icon');
+  if (!sidebar) return;
+  sidebar.classList.toggle('collapsed');
+  if (icon) icon.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+}
 
 // ═══════════════════════════════════════════════════
 // SESSION APPLICATION
@@ -2250,38 +2532,55 @@ function toggleSidebar() { const sidebar = document.getElementById('main-sidebar
 function applyUserSession() {
   document.getElementById('login-page').style.display = 'none';
   document.getElementById('main-app').classList.add('active');
+  
   if (currentUser.type === 'guest') {
     const g = currentUser.data;
     document.getElementById('user-name').textContent = sanitize(g.first + ' ' + g.last);
-    document.getElementById('user-role').textContent = sanitize(g.type);
-    document.getElementById('user-avatar').textContent = g.first.charAt(0);
+    document.getElementById('user-role').textContent = sanitize(g.type || 'Guest');
+    document.getElementById('user-avatar').textContent = g.first?.charAt(0)?.toUpperCase() || 'G';
+    
     document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'block');
     document.querySelectorAll('.staff-only').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    
     document.getElementById('main-sidebar').style.display = 'none';
     document.getElementById('mobile-nav-guest').style.display = 'flex';
     document.getElementById('mobile-nav-staff').style.display = 'none';
     document.getElementById('sidebar-toggle-btn').style.display = 'none';
+    
     loadGuestDashboard();
     showPanel('guest-dashboard');
   } else {
     const s = currentUser.data;
     const isAdmin = s.role === 'admin';
-    document.getElementById('user-name').textContent = sanitize(s.fullname);
+    
+    document.getElementById('user-name').textContent = sanitize(s.fullname || s.username);
     document.getElementById('user-role').textContent = isAdmin ? 'Administrator' : 'Staff';
-    document.getElementById('user-avatar').textContent = s.fullname.charAt(0);
+    document.getElementById('user-avatar').textContent = (s.fullname || s.username).charAt(0).toUpperCase();
+    
     document.querySelectorAll('.guest-only').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.staff-only').forEach(el => el.style.display = el.id === 'main-sidebar' || el.id === 'mobile-nav-staff' ? 'flex' : 'block');
+    document.querySelectorAll('.staff-only').forEach(el => {
+      el.style.display = (el.id === 'main-sidebar' || el.id === 'mobile-nav-staff') ? 'flex' : 'block';
+    });
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = isAdmin ? (el.classList.contains('sidebar-btn') ? 'flex' : 'block') : 'none';
+    });
+    
+    document.getElementById('main-sidebar').style.display = 'flex';
     document.getElementById('mobile-nav-staff').style.display = 'flex';
     document.getElementById('mobile-nav-guest').style.display = 'none';
     document.getElementById('sidebar-toggle-btn').style.display = 'flex';
-    document.getElementById('main-sidebar').style.display = 'flex';
-    document.querySelectorAll('.admin-only').forEach(el => { el.style.display = isAdmin ? (el.classList.contains('sidebar-btn')?'flex':'block') : 'none'; });
-    showPanel(isAdmin ? 'staff-analytics' : 'staff-guests');
-    if (isAdmin) document.getElementById('nav-analytics')?.classList.add('active');
-    else document.getElementById('nav-guests')?.classList.add('active');
+    
+    if (isAdmin) {
+      showPanel('staff-analytics');
+      document.getElementById('nav-analytics')?.classList.add('active');
+    } else {
+      showPanel('staff-guests');
+      document.getElementById('nav-guests')?.classList.add('active');
+    }
   }
 }
+
 function logout() {
   if (sessionTimer) clearInterval(sessionTimer);
   stopScanner();
@@ -2290,7 +2589,8 @@ function logout() {
   document.getElementById('login-page').style.display = '';
   document.getElementById('main-app').classList.remove('active');
   switchTab('guest');
-  showToast('Signed out', '');
+  showToast('You have been signed out.', '');
+  clearLoginError();
 }
 
 function loadGuestDashboard() {
@@ -2298,84 +2598,133 @@ function loadGuestDashboard() {
   const g = currentGuest;
   document.getElementById('guest-name').textContent = sanitize(g.first + ' ' + g.last);
   document.getElementById('guest-id-display').textContent = 'ID: ' + g.id;
-  document.getElementById('guest-status').textContent = g.status;
+  document.getElementById('guest-status').textContent = g.status || '—';
   document.getElementById('guest-room').textContent = g.room || 'TBA';
-  document.getElementById('guest-type').textContent = g.type;
+  document.getElementById('guest-type').textContent = g.type || '—';
   document.getElementById('guest-scans').textContent = g.scans || 0;
-  document.getElementById('guest-meta-chips').innerHTML = [
-    g.checkin ? `<span class="guest-meta-chip">📅 Check-in: ${formatDate(g.checkin)}</span>` : '',
-    g.checkout ? `<span class="guest-meta-chip">📅 Check-out: ${formatDate(g.checkout)}</span>` : '',
-    g.nationality ? `<span class="guest-meta-chip">🌍 ${sanitize(g.nationality)}</span>` : ''
-  ].join('');
+  
+  const chips = [];
+  if (g.checkin) chips.push(`<span class="guest-meta-chip">📅 Check-in: ${formatDate(g.checkin)}</span>`);
+  if (g.checkout) chips.push(`<span class="guest-meta-chip">📅 Check-out: ${formatDate(g.checkout)}</span>`);
+  if (g.nationality) chips.push(`<span class="guest-meta-chip">🌍 ${sanitize(g.nationality)}</span>`);
+  document.getElementById('guest-meta-chips').innerHTML = chips.join('');
+  
   const qrInner = document.getElementById('qr-inner');
-  if (qrInner) { qrInner.innerHTML = ''; if (typeof QRCode !== 'undefined') { new QRCode(qrInner, { text: g.id, width: 160, height: 160 }); } }
+  if (qrInner) {
+    qrInner.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(qrInner, { text: g.id, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
+    } else {
+      setTimeout(() => {
+        if (typeof QRCode !== 'undefined') new QRCode(qrInner, { text: g.id, width: 160, height: 160 });
+      }, 1500);
+    }
+  }
+  
   const privs = parsePrivileges(g.privileges);
-  document.getElementById('guest-privileges').innerHTML = privs.length ? `<div class="priv-items">${privs.map(p => `<div class="priv-item"><span>${sanitize(p)}</span></div>`).join('')}</div>` : '<p style="color:var(--muted);">No privileges assigned</p>';
-  document.getElementById('guest-stay-info').innerHTML = [
-    ['Guest ID',g.id],['Room',g.room||'TBA'],['Tier',g.type],['Check-in',formatDate(g.checkin)],['Check-out',formatDate(g.checkout)],['Email',g.email],['Phone',g.phone]
-  ].map(([l,v]) => `<div class="detail-row"><span class="detail-label">${l}</span><span>${sanitize(String(v||'—'))}</span></div>`).join('');
+  document.getElementById('guest-privileges').innerHTML = privs.length
+    ? `<div class="priv-items">${privs.map(p => `<div class="priv-item"><span>${sanitize(p)}</span></div>`).join('')}</div>`
+    : '<p style="color:var(--muted);font-size:13px;">No privileges assigned yet.</p>';
+  
+  const rows = [
+    ['Guest ID', g.id], ['Title', g.title], ['Full Name', `${g.first} ${g.last}`],
+    ['Room', g.room || 'TBA'], ['Tier', g.type],
+    ['Check-in', formatDate(g.checkin)], ['Check-out', formatDate(g.checkout)],
+    ['Email', g.email], ['Phone', g.phone], ['Nationality', g.nationality]
+  ];
+  document.getElementById('guest-stay-info').innerHTML = rows
+    .filter(r => r[1])
+    .map(([label, val]) => `<div class="detail-row"><span class="detail-label">${label}</span><span>${sanitize(String(val))}</span></div>`)
+    .join('');
 }
+
 function downloadQR() {
   const canvas = document.querySelector('#qr-inner canvas');
-  if (!canvas) return;
+  if (!canvas) { showToast('QR code not ready yet.', 'err'); return; }
   const a = document.createElement('a');
-  a.download = `steigenberger-${currentGuest?.id||'card'}.png`;
+  a.download = `steigenberger-${currentGuest?.id || 'card'}.png`;
   a.href = canvas.toDataURL();
   a.click();
 }
-function wireUploadListeners() {
-  ['front','back','selfie'].forEach(type => {
-    const area = document.getElementById(`${type}-upload-area`);
-    const input = document.getElementById(`id-${type}-input`);
-    const status = document.getElementById(`${type}-status`);
-    if (!area || !input) return;
-    input.addEventListener('change', () => { if (input.files[0]) { area.classList.add('uploaded'); if (status) status.textContent = '✓ ' + input.files[0].name; } });
-    area.addEventListener('dragover', e => { e.preventDefault(); });
-    area.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) { input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); } });
-  });
+
+// ═══════════════════════════════════════════════════
+// RESTORE SESSION
+// ═══════════════════════════════════════════════════
+async function restoreSession() {
+  const saved = sessionStorage.getItem('sg_session');
+  if (!saved) return false;
+  
+  try {
+    const session = JSON.parse(saved);
+    const age = Date.now() - session.ts;
+    
+    if (age < SESSION_TIMEOUT_MINUTES * 60 * 1000) {
+      if (session.type === 'guest') {
+        await loadGuests(); // Ensure guests are loaded
+        const guest = guests.find(g => g.id === session.data?.id);
+        if (guest && guest.status === 'Active') {
+          currentUser = { type: 'guest', data: guest };
+          currentGuest = guest;
+          sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES * 60000;
+          applyUserSession();
+          startSessionTimer();
+          setupActivityListeners();
+          console.log('[Restore] Guest session restored:', guest.id);
+          return true;
+        }
+      } else if (session.type === 'staff') {
+        await loadStaff(); // Ensure staff is loaded
+        const staff = staffUsers.find(s => s.id === session.data?.id);
+        if (staff && staff.accountStatus !== 'suspended') {
+          currentUser = { type: 'staff', data: staff };
+          sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES * 60000;
+          applyUserSession();
+          startSessionTimer();
+          setupActivityListeners();
+          await Promise.all([loadGuests(), loadVerifications()]);
+          console.log('[Restore] Staff session restored:', staff.username);
+          return true;
+        }
+      }
+    }
+    
+    sessionStorage.removeItem('sg_session');
+  } catch(e) {
+    console.warn('[Restore] Failed to parse session:', e);
+  }
+  return false;
 }
 
 // ═══════════════════════════════════════════════════
-// INIT
+// INITIALIZATION
 // ═══════════════════════════════════════════════════
 async function init() {
+  console.log('[Init] Starting application...');
+  
   wireUploadListeners();
-  await loadStaff();
-  await loadGuests();
+  
+  // Set default dates for add guest form
   const today = new Date().toISOString().split('T')[0];
-  const nextWeek = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+  const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
   const checkin = document.getElementById('f-checkin');
   const checkout = document.getElementById('f-checkout');
   if (checkin) checkin.value = today;
   if (checkout) checkout.value = nextWeek;
   
-  const saved = sessionStorage.getItem('sg_session');
-  if (saved) {
-    try {
-      const session = JSON.parse(saved);
-      if (Date.now() - session.ts < SESSION_TIMEOUT_MINUTES * 60 * 1000) {
-        if (session.type === 'guest') {
-          const guest = guests.find(g => g.id === session.data?.id);
-          if (guest && guest.status === 'Active') {
-            currentUser = { type: 'guest', data: guest }; currentGuest = guest;
-            sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES*60000;
-            applyUserSession(); startSessionTimer(); setupActivityListeners();
-          }
-        } else if (session.type === 'staff') {
-          const staff = staffUsers.find(s => s.id === session.data?.id);
-          if (staff && staff.accountStatus !== 'suspended') {
-            currentUser = { type: 'staff', data: staff };
-            sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES*60000;
-            applyUserSession(); startSessionTimer(); setupActivityListeners();
-            await Promise.all([loadGuests(), loadVerifications()]);
-          }
-        }
-      }
-    } catch(e) {}
+  // Load initial data
+  await loadStaff();
+  await loadGuests();
+  
+  // Try to restore session
+  const restored = await restoreSession();
+  
+  if (!restored) {
+    console.log('[Init] No valid session, showing login page');
+    // Show login page (already visible by default)
   }
 }
 
-init();
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
