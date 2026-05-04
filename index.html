@@ -1559,7 +1559,9 @@ function loadLocalFallback() {
   const saved = localStorage.getItem('sg_guests');
   if (saved) {
     try {
-      guests = JSON.parse(saved).map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
+      guests = JSON.parse(saved)
+        .filter(g => g.first && String(g.first).trim() !== '')
+        .map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
       console.log('[LocalFallback] Loaded', guests.length, 'guests from localStorage');
       return true;
     } catch(e) { console.warn('Failed to parse local guests:', e); }
@@ -1589,7 +1591,10 @@ async function loadGuests() {
   try {
     const res = await callAppsScript('getGuests', {});
     if (res.success && Array.isArray(res.guests)) {
-      guests = res.guests.map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
+      // Filter out spare/placeholder rows — those have an ID but a blank 'first' name
+      guests = res.guests
+        .filter(g => g.first && String(g.first).trim() !== '')
+        .map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
       console.log('[loadGuests] Loaded', guests.length, 'guests from backend');
       saveLocal();
     } else {
@@ -1664,8 +1669,11 @@ async function loadStaff() {
 async function loadVerifications() {
   try {
     const res = await callAppsScript('getVerifications', {});
-    if (res.success && res.requests) { verificationRequests = res.requests; }
-  } catch(e) {}
+    // Backend returns res.verifications (not res.requests) — fixed key name
+    if (res.success && (res.verifications || res.requests)) {
+      verificationRequests = res.verifications || res.requests;
+    }
+  } catch(e) { console.warn('[loadVerifications] Error:', e.message); }
   renderVerificationRequests();
 }
 
@@ -1903,6 +1911,8 @@ function renderTable() {
   const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
   
   let filtered = guests.filter(g => {
+    // Exclude spare rows (ID set but no first name)
+    if (!g.first || String(g.first).trim() === '') return false;
     const matchFilter = currentFilter === 'all' || 
       (currentFilter === 'active' && g.status === 'Active') || 
       (currentFilter === 'revoked' && g.status === 'Revoked') || 
