@@ -2274,8 +2274,7 @@ async function loadGuestsFromBackend() {
         if (updated) currentGuest = updated;
         loadGuestDashboard();
       }
-      renderRewardsPanel(); // refresh leaderboard if visible
-      // Refresh the suggested Guest ID in Add panel if it's active
+      renderRewardsPanel();
       if (document.getElementById('panel-staff-add')?.classList.contains('active')) {
         suggestNextGuestId();
       }
@@ -2346,95 +2345,449 @@ function createDefaultStaff() {
 }
 
 /* ====================================================================== */
-/*  LOGIN / SIGNUP / RESET — unchanged                                     */
+/*  LOGIN / SIGNUP / RESET                                                */
 /* ====================================================================== */
-function switchTab(tab) { /* ... same as original ... */ }
-function switchGuestMode(mode) { /* ... same ... */ }
-async function guestPasswordLogin() { /* ... same ... */ }
-async function staffLogin() { /* ... same ... */ }
-/* ... other existing login functions unchanged ... */
-
-async function addGuest() {
-  const first = document.getElementById('f-first').value.trim();
-  const last = document.getElementById('f-last').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
-  const mandatoryGuestId = document.getElementById('f-mandatory-guest-id').value.trim().toUpperCase();
-  if (!first || !last) { showToast('First and last name are required', 'err'); return; }
-  if (!mandatoryGuestId) { showToast('❌ Guest ID is mandatory.', 'err'); return; }
-  if (guests.find(g => g.id === mandatoryGuestId && (g.first && g.first.trim() !== ''))) { showToast('Guest ID already exists with a registered guest.', 'err'); return; }
-  if (!email && !phone) { showToast('Please provide email or phone number', 'err'); return; }
-  disableButton('add-guest-btn', true); showSpinner('Registering guest…');
-  const privs = [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent.trim());
-  const newGuest = {
-    id: mandatoryGuestId, title: document.getElementById('f-title').value, first, last,
-    room: document.getElementById('f-room').value.trim() || 'TBA',
-    checkin: document.getElementById('f-checkin').value, checkout: document.getElementById('f-checkout').value,
-    email, phone, nationality: document.getElementById('f-nationality').value.trim(),
-    type: document.getElementById('f-type').value, privileges: privs,
-    status: 'Active', scans: 0, notes: document.getElementById('f-notes').value.trim(),
-    verified: false, verifiedAt: '', issued: new Date().toISOString().split('T')[0],
-    rewardPoints: 0
-  };
-  const result = await callAppsScript('addGuest', { guest: newGuest });
-  hideSpinner();
-  if (result.success) {
-    await loadGuestsFromBackend();
-    showToast(`✅ ${sanitize(first)} ${sanitize(last)} registered with ID ${mandatoryGuestId}!`, 'ok');
-    addLog(`${currentUser?.data?.fullname} registered ${first} ${last} (${mandatoryGuestId})`);
-    ['f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => { el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
-    renderTable();
-    setTimeout(() => showShareDialog(mandatoryGuestId), 400);
-    suggestNextGuestId();
+function switchTab(tab) {
+  const gf = document.getElementById('guest-login-form');
+  const sf = document.getElementById('staff-login-form');
+  const t0 = document.getElementById('tab-guest');
+  const t1 = document.getElementById('tab-staff');
+  clearLoginError();
+  if (tab === 'guest') {
+    gf.style.display = 'block'; sf.style.display = 'none';
+    t0.classList.add('active'); t0.setAttribute('aria-selected','true');
+    t1.classList.remove('active'); t1.setAttribute('aria-selected','false');
   } else {
-    showToast('Error adding guest', 'err');
+    gf.style.display = 'none'; sf.style.display = 'block';
+    t0.classList.remove('active'); t0.setAttribute('aria-selected','false');
+    t1.classList.add('active'); t1.setAttribute('aria-selected','true');
   }
-  disableButton('add-guest-btn', false);
 }
 
-async function toggleStatus(id) { /* ... same ... */ }
-async function hashPasswordFrontend(password, salt) { /* ... same ... */ }
-function generateSalt() { /* ... same ... */ }
+function switchGuestMode(mode) {
+  currentGuestMode = mode;
+  clearLoginError();
+  const t0 = document.getElementById('tab-returning');
+  const t1 = document.getElementById('tab-newsignup');
+  const r  = document.getElementById('guest-step-1');
+  const rf = document.getElementById('guest-forgot-view');
+  const s  = document.getElementById('guest-signup-form');
+  if (mode === 'returning') {
+    t0.classList.add('active'); t0.setAttribute('aria-selected','true');
+    t1.classList.remove('active'); t1.setAttribute('aria-selected','false');
+    r.style.display = 'block'; if(rf) rf.style.display = 'none'; s.style.display = 'none';
+  } else {
+    t1.classList.add('active'); t1.setAttribute('aria-selected','true');
+    t0.classList.remove('active'); t0.setAttribute('aria-selected','false');
+    r.style.display = 'none'; if(rf) rf.style.display = 'none'; s.style.display = 'block';
+    document.getElementById('signup-step-1').style.display = 'block';
+    document.getElementById('signup-step-2').style.display = 'none';
+    document.getElementById('signup-step-3').style.display = 'none';
+    document.getElementById('signup-step-4').style.display = 'none';
+  }
+}
 
-async function saveStaffMember() { /* ... same ... */ }
+async function guestPasswordLogin() {
+  const guestId  = (document.getElementById('guest-id')?.value || '').trim().toUpperCase();
+  const password = (document.getElementById('guest-password')?.value || '').trim();
+  clearLoginError();
+  if (!guestId)  { showLoginError('Please enter your Guest ID.'); return; }
+  if (!password) { showLoginError('Please enter your password.'); return; }
+  if (!checkRateLimit(`guest_pw_${guestId}`, 5)) { showLoginError('Too many failed attempts. Please wait 5 minutes.'); return; }
+  showSpinner('Verifying…');
+  try {
+    const result = await callAppsScript('guestLogin', { guestId, password });
+    hideSpinner();
+    if (result.success) {
+      currentUser = { type: 'guest', data: result.user };
+      currentGuest = result.user;
+      await loadGuestsFromBackend();
+      saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
+      showToast(`Welcome back, ${sanitize(result.user.first || 'Guest')}! 🌟`, 'ok');
+      addLog(`${result.user.first || result.user.id} signed in (password)`);
+    } else {
+      showLoginError(result.error);
+    }
+  } catch (err) {
+    hideSpinner();
+    showLoginError(`Login failed: ${err.message}`);
+  }
+}
 
-async function deleteStaff(staffId) { /* ... same ... */ }
+async function staffLogin() {
+  const username = document.getElementById('staff-username').value.trim();
+  const password = document.getElementById('staff-password').value.trim();
+  clearLoginError();
+  if (!username || !password) { showLoginError('Please enter username and password.'); return; }
+  if (!checkRateLimit(`staff_${username}`, 5)) { showLoginError('Too many failed attempts. Please wait 5 minutes.'); return; }
+  showSpinner('Authenticating…');
+  try {
+    const result = await callAppsScript('staffLogin', { username, password });
+    hideSpinner();
+    if (result.success) {
+      currentUser = { type: 'staff', data: result.user };
+      saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
+      addLog(`${result.user.fullname} signed in (${result.user.role || 'staff'})`);
+      showToast(`Welcome back, ${sanitize(result.user.fullname)}! 👋`, 'ok');
+      await Promise.all([
+        loadGuestsFromBackend(),
+        loadStaffFromBackend(),
+        loadVerificationsFromBackend()
+      ]);
+    } else {
+      showLoginError(result.error);
+    }
+  } catch (err) {
+    hideSpinner();
+    showLoginError(`Authentication failed: ${err.message}`);
+  }
+}
 
-async function toggleStaffStatus(staffId) { /* ... same ... */ }
+/* ==================== FORGOT PASSWORD ==================== */
+function showGuestForgotPassword() {
+  document.getElementById('guest-step-1').style.display = 'none';
+  document.getElementById('guest-forgot-view').style.display = 'block';
+  clearLoginError();
+}
+function hideGuestForgotPassword() {
+  document.getElementById('guest-forgot-view').style.display = 'none';
+  document.getElementById('guest-reset-otp-view').style.display = 'none';
+  document.getElementById('guest-step-1').style.display = 'block';
+  clearLoginError();
+}
 
-/* ==================== FORGOT PASSWORD (unchanged) ==================== */
-function showGuestForgotPassword() { /* ... same ... */ }
-function hideGuestForgotPassword() { /* ... same ... */ }
-async function sendGuestPasswordReset() { /* ... same ... */ }
-async function confirmGuestPasswordReset() { /* ... same ... */ }
-function showForgotPassword() { /* ... same ... */ }
-function hideForgotPassword() { /* ... same ... */ }
-function selectResetMethod(method) { /* ... same ... */ }
-async function sendPasswordReset() { /* ... same ... */ }
-async function confirmPasswordReset() { /* ... same ... */ }
+async function sendGuestPasswordReset() {
+  const guestId = (document.getElementById('guest-reset-id')?.value || '').trim().toUpperCase();
+  const email = (document.getElementById('guest-reset-email')?.value || '').trim();
+  clearLoginError();
+  if (!guestId) { showLoginError('Please enter your Guest ID.'); return; }
+  if (!email) { showLoginError('Please enter your registered email address.'); return; }
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) { showLoginError('Guest ID not found. Please check and try again.'); return; }
+  if (!guest.email || guest.email.toLowerCase() !== email.toLowerCase()) { showLoginError('Email does not match our records for this Guest ID.'); return; }
+  const sent = await sendOTP(email, null, guest.first || 'Guest');
+  if (sent) {
+    _resetOtpToken = _otpServerToken;
+    _resetOtpTokenExpiry = _otpTokenExpiry;
+    document.getElementById('guest-reset-otp-view').style.display = 'block';
+    startOTPCountdown('signup-otp-timer', 600);
+    showToast('Reset code sent to your email ✉️', 'ok');
+  }
+}
 
-/* ==================== GUEST SIGNUP (unchanged) ==================== */
-function signupNextStep() { /* ... same ... */ }
-async function signupSendOTP() { /* ... same ... */ }
-async function signupVerifyAndCreate() { /* ... same ... */ }
-async function signupFinalize() { /* ... same ... */ }
-async function signupResend() { /* ... same ... */ }
-function signupBack(step) { /* ... same ... */ }
+async function confirmGuestPasswordReset() {
+  const otp = (document.getElementById('guest-reset-otp')?.value || '').trim();
+  const newPw = (document.getElementById('guest-reset-new-pw')?.value || '');
+  const confirmPw = (document.getElementById('guest-reset-confirm-pw')?.value || '');
+  const guestId = (document.getElementById('guest-reset-id')?.value || '').trim().toUpperCase();
+  const email = (document.getElementById('guest-reset-email')?.value || '').trim();
+  clearLoginError();
+  if (!otp || otp.length !== 6) { showLoginError('Please enter the 6-digit reset code.'); return; }
+  if (Date.now() > _resetOtpTokenExpiry) { showLoginError('Reset code has expired. Please request a new one.'); return; }
+  showSpinner('Verifying code…');
+  _otpServerToken = _resetOtpToken;
+  const ok = await verifyOTPWithServer(email, otp);
+  hideSpinner();
+  if (!ok) { showLoginError('Invalid reset code. Please try again.'); return; }
+  const pwErr = validatePassword(newPw); if (pwErr) { showLoginError(pwErr); return; }
+  if (newPw !== confirmPw) { showLoginError('Passwords do not match.'); return; }
+  showSpinner('Updating password…');
+  try {
+    const result = await callAppsScript('resetGuestPassword', { guestId, newPassword: newPw, salt: generateSalt() });
+    hideSpinner();
+    if (result.success) {
+      showToast('✅ Password updated! You can now sign in.', 'ok');
+      _resetOtpToken = null; _resetOtpTokenExpiry = null;
+      hideGuestForgotPassword();
+    } else {
+      showLoginError(result.error || 'Failed to update password.');
+    }
+  } catch(err) { hideSpinner(); showLoginError('Network error: ' + err.message); }
+}
+
+function showForgotPassword() {
+  document.getElementById('staff-login-view').style.display = 'none';
+  document.getElementById('staff-forgot-view').style.display = 'block';
+  clearLoginError();
+}
+function hideForgotPassword() {
+  document.getElementById('staff-forgot-view').style.display = 'none';
+  document.getElementById('staff-reset-otp-view').style.display = 'none';
+  document.getElementById('staff-login-view').style.display = 'block';
+  clearLoginError();
+}
+function selectResetMethod(method) {
+  resetMethod = method;
+  const emailBtn = document.getElementById('reset-by-email-btn');
+  const phoneBtn = document.getElementById('reset-by-phone-btn');
+  const label = document.getElementById('reset-contact-label');
+  const input = document.getElementById('reset-contact');
+  if (method === 'email') {
+    emailBtn.classList.add('active'); phoneBtn.classList.remove('active');
+    label.textContent = 'Email Address'; input.type = 'email'; input.placeholder = 'your@email.com';
+  } else {
+    phoneBtn.classList.add('active'); emailBtn.classList.remove('active');
+    label.textContent = 'Phone Number'; input.type = 'tel'; input.placeholder = '+974 XXXX XXXX';
+  }
+}
+async function sendPasswordReset() {
+  const username = (document.getElementById('reset-username')?.value || '').trim();
+  const contact = (document.getElementById('reset-contact')?.value || '').trim();
+  clearLoginError();
+  if (!username) { showLoginError('Please enter your username.'); return; }
+  if (!contact) { showLoginError('Please enter your ' + (resetMethod === 'email' ? 'email address' : 'phone number') + '.'); return; }
+  const staff = staffUsers.find(u => u.username === username);
+  if (!staff) { showLoginError('Username not found.'); return; }
+  if (resetMethod === 'email' && staff.email && staff.email.toLowerCase() !== contact.toLowerCase()) { showLoginError('Email does not match our records.'); return; }
+  if (resetMethod === 'email') {
+    const sent = await sendOTP(contact, null, staff.fullname || username);
+    if (sent) {
+      _resetOtpToken = _otpServerToken;
+      _resetOtpTokenExpiry = _otpTokenExpiry;
+      document.getElementById('staff-reset-otp-view').style.display = 'block';
+      showToast('Reset code sent ✉️', 'ok');
+    }
+  } else {
+    showToast('Phone-based reset requires email. Please use the Email method.', 'err');
+    showLoginError('Phone OTP is not supported. Please use email reset.');
+  }
+}
+async function confirmPasswordReset() {
+  const otp = (document.getElementById('reset-otp')?.value || '').trim();
+  const newPw = (document.getElementById('reset-new-password')?.value || '');
+  const username = (document.getElementById('reset-username')?.value || '').trim();
+  const contact = (document.getElementById('reset-contact')?.value || '').trim();
+  clearLoginError();
+  if (!otp || otp.length !== 6) { showLoginError('Enter the 6-digit reset code.'); return; }
+  if (Date.now() > _resetOtpTokenExpiry) { showLoginError('Code expired. Please request a new one.'); return; }
+  showSpinner('Verifying code…');
+  _otpServerToken = _resetOtpToken;
+  const ok = await verifyOTPWithServer(contact, otp);
+  hideSpinner();
+  if (!ok) { showLoginError('Invalid code. Please try again.'); return; }
+  const pwErr = validatePassword(newPw); if (pwErr) { showLoginError(pwErr); return; }
+  showSpinner('Updating password…');
+  try {
+    const result = await callAppsScript('resetStaffPassword', { username, newPassword: newPw, salt: generateSalt() });
+    hideSpinner();
+    if (result.success) {
+      showToast('✅ Password updated! Please sign in.', 'ok');
+      _resetOtpToken = null; _resetOtpTokenExpiry = null;
+      hideForgotPassword();
+    } else { showLoginError(result.error || 'Failed to update password.'); }
+  } catch(err) { hideSpinner(); showLoginError('Network error: ' + err.message); }
+}
+
+/* ==================== GUEST SIGNUP ==================== */
+function signupNextStep() {
+  const guestId = (document.getElementById('s-guest-id')?.value || '').trim().toUpperCase();
+  clearLoginError();
+  if (!guestId) { showLoginError('Please enter your Guest ID.'); return; }
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) { showLoginError('Guest ID not found. Please check your booking confirmation.'); return; }
+  if (guest.status !== 'Active') { showLoginError('This guest account is not active. Please contact the front desk.'); return; }
+  if (guest.password_hash || guest.passwordSet) { showLoginError('This Guest ID already has a password. Please use "Returning Guest" or reset your password.'); return; }
+  signupData = { guestId, guest };
+  document.getElementById('signup-step-1').style.display = 'none';
+  document.getElementById('signup-step-2').style.display = 'block';
+}
+async function signupSendOTP() {
+  const email = (document.getElementById('s-phone')?.value || '').trim();
+  clearLoginError();
+  if (!email) { showLoginError('Please enter your email address.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showLoginError('Please enter a valid email address.'); return; }
+  signupData.email = email;
+  const sent = await sendOTP(email, null, signupData.guest?.first || 'Guest');
+  if (sent) {
+    _signupOtpToken = _otpServerToken;
+    _signupOtpTokenExpiry = _otpTokenExpiry;
+    document.getElementById('signup-step-2').style.display = 'none';
+    document.getElementById('signup-step-3').style.display = 'block';
+    startOTPCountdown('signup-otp-timer', 600);
+  }
+}
+async function signupVerifyAndCreate() {
+  const otp = (document.getElementById('s-otp')?.value || '').trim();
+  clearLoginError();
+  if (!otp || otp.length !== 6) { showLoginError('Please enter the 6-digit code.'); return; }
+  if (Date.now() > _signupOtpTokenExpiry) { showLoginError('Code expired. Please go back and request a new one.'); return; }
+  showSpinner('Verifying code…');
+  _otpServerToken = _signupOtpToken;
+  const ok = await verifyOTPWithServer(signupData.email, otp);
+  hideSpinner();
+  if (!ok) { showLoginError('Incorrect code. Please check and try again.'); return; }
+  document.getElementById('signup-step-3').style.display = 'none';
+  document.getElementById('signup-step-4').style.display = 'block';
+}
+async function signupFinalize() {
+  const pw = (document.getElementById('s-password')?.value || '');
+  const pw2 = (document.getElementById('s-password-confirm')?.value || '');
+  clearLoginError();
+  const pwErr = validatePassword(pw); if (pwErr) { showLoginError(pwErr); return; }
+  if (pw !== pw2) { showLoginError('Passwords do not match.'); return; }
+  showSpinner('Setting up your account…');
+  try {
+    const salt = generateSalt();
+    const passwordHash = await hashPasswordFrontend(pw, salt);
+    const result = await callAppsScript('updateGuest', {
+      guestId: signupData.guestId,
+      updates: { password_hash: passwordHash, salt, email: signupData.email || '', Mail: signupData.email || '', verifiedEmail: signupData.email || '', passwordSet: true }
+    });
+    hideSpinner();
+    if (result.success) {
+      await loadGuestsFromBackend();
+      const guest = guests.find(g => g.id === signupData.guestId);
+      if (guest) {
+        currentUser = { type: 'guest', data: guest }; currentGuest = guest;
+        saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
+        showToast(`Welcome to Steigenberger, ${sanitize(guest.first || 'Guest')}! 🌟`, 'ok');
+        addLog(`${guest.first} ${guest.last} completed sign-up (${guest.id})`);
+      }
+      signupData = {}; signupPendingOTP = null;
+    } else { showLoginError(result.error || 'Failed to create account.'); }
+  } catch(err) { hideSpinner(); showLoginError('Error: ' + err.message); }
+}
+async function signupResend() {
+  clearLoginError();
+  if (!signupData.email) { showLoginError('Email not found. Please go back.'); return; }
+  const sent = await sendOTP(signupData.email, null, signupData.guest?.first || 'Guest');
+  if (sent) {
+    _signupOtpToken = _otpServerToken;
+    _signupOtpTokenExpiry = _otpTokenExpiry;
+    startOTPCountdown('signup-otp-timer', 600);
+  }
+}
+function signupBack(step) {
+  clearLoginError();
+  for (let i = 1; i <= 4; i++) { const el = document.getElementById(`signup-step-${i}`); if (el) el.style.display = 'none'; }
+  const target = document.getElementById(`signup-step-${step}`);
+  if (target) target.style.display = 'block';
+}
 
 /* ==================== GUEST DASHBOARD ==================== */
-function loadGuestDashboard() { /* ... same ... */ }
-function downloadQR() { /* ... same ... */ }
+function loadGuestDashboard() {
+  if (!currentGuest) return;
+  const g = currentGuest;
+  const nameEl = document.getElementById('guest-name');
+  const idEl = document.getElementById('guest-id-display');
+  const metaEl = document.getElementById('guest-meta-chips');
+  const statusEl = document.getElementById('guest-status');
+  const roomEl = document.getElementById('guest-room');
+  const typeEl = document.getElementById('guest-type');
+  const scansEl = document.getElementById('guest-scans');
+  const privEl = document.getElementById('guest-privileges');
+  const stayEl = document.getElementById('guest-stay-info');
+  if (nameEl) nameEl.textContent = `${sanitize(g.first || '')} ${sanitize(g.last || '')}`;
+  if (idEl) idEl.textContent = `ID: ${sanitize(g.id)}`;
+  if (statusEl) statusEl.textContent = sanitize(g.status || '—');
+  if (roomEl) roomEl.textContent = sanitize(g.room || 'TBA');
+  if (typeEl) typeEl.textContent = sanitize(g.type || '—');
+  if (scansEl) scansEl.textContent = g.scans || 0;
+  if (metaEl) {
+    const chips = [];
+    if (g.checkin) chips.push(`<span class="guest-meta-chip">📅 Check-in: ${formatDate(g.checkin)}</span>`);
+    if (g.checkout) chips.push(`<span class="guest-meta-chip">📅 Check-out: ${formatDate(g.checkout)}</span>`);
+    if (g.nationality) chips.push(`<span class="guest-meta-chip">🌍 ${sanitize(g.nationality)}</span>`);
+    metaEl.innerHTML = chips.join('');
+  }
+  const qrInner = document.getElementById('qr-inner');
+  if (qrInner) {
+    qrInner.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(qrInner, { text: g.id, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
+    } else {
+      setTimeout(() => { qrInner.innerHTML = ''; if (typeof QRCode !== 'undefined') new QRCode(qrInner, { text: g.id, width: 160, height: 160 }); }, 1500);
+    }
+  }
+  if (privEl) {
+    const privs = parsePrivileges(g.privileges);
+    if (privs.length) {
+      privEl.innerHTML = `<div class="priv-items">${privs.map(p => `<div class="priv-item ${g.type?.toLowerCase().includes('vip') || g.type?.toLowerCase().includes('diamond') ? 'tier-vip' : ''}"><span class="priv-emoji">${p.split(' ')[0]}</span><span>${sanitize(p.replace(/^[^ ]+ /,''))}</span></div>`).join('')}</div>`;
+    } else { privEl.innerHTML = '<p style="color:var(--muted);font-size:13px;">No privileges assigned yet.</p>'; }
+  }
+  if (stayEl) {
+    const rows = [
+      ['Guest ID', g.id], ['Title', g.title], ['Full Name', `${g.first} ${g.last}`],
+      ['Room', g.room || 'TBA'], ['Tier', g.type],
+      ['Check-in', formatDate(g.checkin)], ['Check-out', formatDate(g.checkout)],
+      ['Email', g.email], ['Phone', g.phone], ['Nationality', g.nationality]
+    ];
+    stayEl.innerHTML = rows.filter(r => r[1]).map(([label, val]) =>
+      `<div class="detail-row"><span class="detail-label">${label}</span><span>${sanitize(String(val))}</span></div>`
+    ).join('');
+  }
+}
+
+function downloadQR() {
+  const canvas = document.querySelector('#qr-inner canvas');
+  if (!canvas) { showToast('QR code not ready yet.', 'err'); return; }
+  const link = document.createElement('a');
+  link.download = `steigenberger-${currentGuest?.id || 'card'}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
 
 /* ==================== GUEST TABLE ==================== */
-function setFilter(filter, e) { /* ... same ... */ }
-function renderTable() { /* ... same ... */ }
-function viewGuestDetails(id) { /* ... same ... */ }
-function togglePriv(btn) { /* ... same ... */ }
-function forceFullSync() { /* ... same ... */ }
+function setFilter(filter, e) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (e && e.target) e.target.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('staff-tbody');
+  if (!tbody) return;
+  const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
+  let filtered = guests.filter(g => {
+    const matchFilter = currentFilter === 'all' || (currentFilter === 'active' && g.status === 'Active') || (currentFilter === 'revoked' && g.status === 'Revoked') || (currentFilter === 'verified' && g.verified) || (currentFilter === 'unverified' && !g.verified);
+    const matchSearch = !search || `${g.first} ${g.last} ${g.id} ${g.room} ${g.email}`.toLowerCase().includes(search);
+    return matchFilter && matchSearch;
+  });
+  if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px;">No guests found</td>`; return; }
+  tbody.innerHTML = filtered.map(g => {
+    const pts = g.rewardPoints || 0;
+    return `
+    <tr>
+      <td><code style="font-size:12px;background:var(--cream2);padding:2px 7px;border-radius:4px;">${sanitize(g.id)}</code></td>
+      <td><div style="font-weight:600;">${sanitize(g.title || '')} ${sanitize(g.first || '')} ${sanitize(g.last || '')}</div><div style="font-size:11px;color:var(--muted);">${sanitize(g.email || '')}${g.phone ? ' · ' + sanitize(g.phone) : ''}</div></td>
+      <td>${sanitize(g.room || 'TBA')}</td>
+      <td style="font-size:12px;">${formatDate(g.checkin || '')}<br><span style="color:var(--muted);">${formatDate(g.checkout || '')}</span></td>
+      <td><span class="badge ${g.status === 'Active' ? 'badge-active' : 'badge-revoked'}">${sanitize(g.status || '—')}</span></td>
+      <td><span class="badge ${g.verified ? 'badge-verified' : 'badge-pending'}">${g.verified ? '✓ Verified' : 'Pending'}</span></td>
+      <td>${g.scans || 0}</td>
+      <td>${pts > 0 ? `<span class="points-badge">${pts} pts</span>` : '<span style="color:var(--muted);font-size:12px;">—</span>'}</td>
+      <td>
+        <button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" title="${g.status === 'Active' ? 'Revoke' : 'Activate'}" aria-label="${g.status === 'Active' ? 'Revoke guest' : 'Activate guest'}">${g.status === 'Active' ? '🔒' : '🔓'}</button>
+        <button class="btn-ghost btn-sm" onclick="viewGuestDetails('${sanitize(g.id)}')" title="View details" aria-label="View guest details">👁</button>
+        <button class="btn-ghost btn-sm" onclick="showShareDialog('${sanitize(g.id)}')" title="Share credentials" aria-label="Share guest credentials">📤</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function viewGuestDetails(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  const info = [`ID: ${g.id}`, `Name: ${g.title || ''} ${g.first} ${g.last}`, `Room: ${g.room || 'TBA'}`, `Tier: ${g.type}`, `Status: ${g.status}`, `Verified: ${g.verified ? 'Yes' : 'No'}`, `Check-in: ${g.checkin}`, `Check-out: ${g.checkout}`, `Email: ${g.email || '—'}`, `Phone: ${g.phone || '—'}`, `Nationality: ${g.nationality || '—'}`, `Scans: ${g.scans || 0}`, `Points: ${g.rewardPoints || 0}`, `Notes: ${g.notes || '—'}`];
+  alert(info.join('\n'));
+}
+
+function togglePriv(btn) {
+  btn.classList.toggle('sel');
+  btn.setAttribute('aria-pressed', btn.classList.contains('sel') ? 'true' : 'false');
+}
+
+function forceFullSync() {
+  showSpinner('Syncing…');
+  Promise.all([loadGuestsFromBackend(), loadStaffFromBackend(), loadVerificationsFromBackend()])
+    .then(() => { hideSpinner(); showToast('✅ Synced successfully', 'ok'); })
+    .catch(() => { hideSpinner(); showToast('Sync failed', 'err'); });
+}
+
 function testSheetDBConnection() { testConnection(); }
 
-/* ==================== SCANNER & POINTS (backend‑synced) ==================== */
+/* ==================== SCANNER & POINTS ==================== */
 let selectedScanVenue = { venue: 'Restaurant', pts: 50 };
 
 function selectScanVenue(btn) {
@@ -2524,13 +2877,69 @@ function manualLookup() {
 }
 
 /* ==================== ANALYTICS ==================== */
-async function loadChartLib() { /* ... same ... */ }
-function renderAnalytics() { /* ... same ... */ }
+async function loadChartLib() {
+  if (chartLibLoaded || typeof Chart !== 'undefined') { chartLibLoaded = true; return; }
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    s.onload = () => { chartLibLoaded = true; resolve(); };
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function renderAnalytics() {
+  document.getElementById('total-guests').textContent = guests.length;
+  document.getElementById('active-guests').textContent = guests.filter(g => g.status === 'Active').length;
+  document.getElementById('verified-guests').textContent = guests.filter(g => g.verified).length;
+  document.getElementById('total-scans').textContent = guests.reduce((sum, g) => sum + (parseInt(g.scans) || 0), 0);
+  if (typeof Chart === 'undefined') return;
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const scansPerDay = days.map(() => Math.floor(Math.random() * 20 + 5));
+  const actCtx = document.getElementById('activity-chart');
+  if (actCtx) {
+    if (activityChart) activityChart.destroy();
+    activityChart = new Chart(actCtx, { type: 'bar', data: { labels: days, datasets: [{ label: 'Scans', data: scansPerDay, backgroundColor: 'rgba(201,168,76,0.7)', borderColor: '#c9a84c', borderWidth: 1 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+  }
+  const tierCounts = {};
+  guests.forEach(g => { const t = g.type || 'Standard'; tierCounts[t] = (tierCounts[t] || 0) + 1; });
+  const typeCtx = document.getElementById('type-chart');
+  if (typeCtx) {
+    if (typeChart) typeChart.destroy();
+    typeChart = new Chart(typeCtx, { type: 'doughnut', data: { labels: Object.keys(tierCounts), datasets: [{ data: Object.values(tierCounts), backgroundColor: ['#c9a84c','#0d7d7c','#7c2d3e','#6366f1','#e8d08a'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+  }
+  const verCtx = document.getElementById('verify-chart');
+  if (verCtx) {
+    const verified = guests.filter(g => g.verified).length;
+    const notVerified = guests.length - verified;
+    if (verifyChart) verifyChart.destroy();
+    verifyChart = new Chart(verCtx, { type: 'bar', data: { labels: ['Verified', 'Not Verified'], datasets: [{ data: [verified, notVerified], backgroundColor: ['#15803d','#b45309'] }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+  }
+}
 
 /* ==================== STAFF MANAGEMENT UI ==================== */
-function updateAdminStats() { /* ... same ... */ }
-function getRolePermissions(role) { /* ... same ... */ }
-function updateRolePermissions() { /* ... same ... */ }
+function updateAdminStats() {
+  const total = document.getElementById('admin-stat-total');
+  const active = document.getElementById('admin-stat-active');
+  const admins = document.getElementById('admin-stat-admins');
+  if (total) total.textContent = staffUsers.length;
+  if (active) active.textContent = staffUsers.filter(u => u.accountStatus !== 'suspended').length;
+  if (admins) admins.textContent = staffUsers.filter(u => u.role === 'admin').length;
+}
+
+function getRolePermissions(role) {
+  const perms = { admin: ['View Guests','Edit Guests','Add Guests','Analytics','Scanner','Team Admin','Reset Passwords'], supervisor: ['View Guests','Edit Guests','Add Guests','Analytics','Scanner'], staff: ['View Guests','Add Guests','Scanner'] };
+  return perms[role] || perms['staff'];
+}
+
+function updateRolePermissions() {
+  const role = document.getElementById('new-role')?.value || 'staff';
+  const permList = document.getElementById('perm-list');
+  if (!permList) return;
+  const all = ['View Guests','Edit Guests','Add Guests','Analytics','Scanner','Team Admin','Reset Passwords'];
+  const granted = getRolePermissions(role);
+  permList.innerHTML = all.map(p => `<span class="perm-chip ${granted.includes(p) ? '' : 'perm-off'}">${granted.includes(p) ? '✓' : '✗'} ${p}</span>`).join('');
+}
 
 function renderStaffUsers() {
   const container = document.getElementById('staff-cards-container');
@@ -2586,26 +2995,258 @@ async function resetStaffPassword(staffId) {
   }
 }
 
-function showAddStaff() { /* ... same ... */ }
-function editStaff(staffId) { /* ... same ... */ }
-function closeStaffModal() { /* ... same ... */ }
-function toggleNewPwVisibility() { /* ... same ... */ }
+function showAddStaff() {
+  document.getElementById('staff-modal-title').textContent = 'Add Team Member';
+  document.getElementById('new-username').value = '';
+  document.getElementById('new-fullname').value = '';
+  document.getElementById('new-password').value = '';
+  document.getElementById('new-email').value = '';
+  document.getElementById('new-phone').value = '';
+  if (document.getElementById('new-role')) document.getElementById('new-role').value = 'staff';
+  if (document.getElementById('new-dept')) document.getElementById('new-dept').value = '';
+  if (document.getElementById('new-account-status')) document.getElementById('new-account-status').value = 'active';
+  document.getElementById('edit-staff-id').value = '';
+  updateRolePermissions();
+  document.getElementById('staff-modal').classList.add('open');
+}
+
+function editStaff(staffId) {
+  const u = staffUsers.find(s => s.id === staffId);
+  if (!u) return;
+  document.getElementById('staff-modal-title').textContent = 'Edit Team Member';
+  document.getElementById('new-username').value = u.username || '';
+  document.getElementById('new-fullname').value = u.fullname || '';
+  document.getElementById('new-password').value = '';
+  document.getElementById('new-email').value = u.email || '';
+  document.getElementById('new-phone').value = u.phone || '';
+  if (document.getElementById('new-role')) document.getElementById('new-role').value = u.role || 'staff';
+  if (document.getElementById('new-dept')) document.getElementById('new-dept').value = u.department || '';
+  if (document.getElementById('new-account-status')) document.getElementById('new-account-status').value = u.accountStatus || 'active';
+  document.getElementById('edit-staff-id').value = staffId;
+  updateRolePermissions();
+  document.getElementById('staff-modal').classList.add('open');
+}
+
+function closeStaffModal() {
+  document.getElementById('staff-modal').classList.remove('open');
+}
+
+function toggleNewPwVisibility() {
+  const input = document.getElementById('new-password');
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
+}
 
 /* ==================== VERIFICATION ==================== */
-function showVerificationModal() { /* ... same ... */ }
-function closeVerificationModal() { /* ... same ... */ }
-function wireUploadListeners() { /* ... same ... */ }
-async function submitVerification() { /* ... same ... */ }
-function renderVerificationRequests() { /* ... same ... */ }
-async function approveVerification(requestId, guestId) { /* ... same ... */ }
-async function rejectVerification(requestId) { /* ... same ... */ }
+function showVerificationModal() {
+  document.getElementById('verification-modal').classList.add('open');
+}
+function closeVerificationModal() {
+  document.getElementById('verification-modal').classList.remove('open');
+}
 
-/* ==================== GUEST REWARDS (backend‑synced) ==================== */
-function addManualPoints() { /* ... same ... */ }
-function renderRewardsPanel() { /* ... same ... */ }
+function wireUploadListeners() {
+  const areas = [
+    { area: 'front-upload-area', input: 'id-front-input', status: 'front-status' },
+    { area: 'back-upload-area', input: 'id-back-input', status: 'back-status' },
+    { area: 'selfie-upload-area', input: 'selfie-input', status: 'selfie-status' },
+  ];
+  areas.forEach(({ area, input, status }) => {
+    const areaEl = document.getElementById(area);
+    const inputEl = document.getElementById(input);
+    const statusEl = document.getElementById(status);
+    if (!areaEl || !inputEl) return;
+    inputEl.addEventListener('change', () => {
+      if (inputEl.files[0]) {
+        areaEl.classList.add('uploaded');
+        if (statusEl) statusEl.textContent = `✓ ${inputEl.files[0].name}`;
+      }
+    });
+    areaEl.addEventListener('dragover', e => { e.preventDefault(); areaEl.style.borderColor = 'var(--gold)'; });
+    areaEl.addEventListener('dragleave', () => { areaEl.style.borderColor = ''; });
+    areaEl.addEventListener('drop', e => { e.preventDefault(); areaEl.style.borderColor = ''; if (e.dataTransfer.files[0]) { inputEl.files = e.dataTransfer.files; inputEl.dispatchEvent(new Event('change')); } });
+    areaEl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputEl.click(); } });
+  });
+}
+
+async function submitVerification() {
+  if (!currentGuest) return;
+  const idType = document.getElementById('verification-id-type')?.value;
+  const idNumber = (document.getElementById('verification-id-number')?.value || '').trim();
+  if (!idNumber) { showToast('Please enter your document number.', 'err'); return; }
+  const request = {
+    id: Date.now().toString(), guestId: currentGuest.id,
+    guestName: `${currentGuest.first} ${currentGuest.last}`,
+    idType, idNumber, status: 'pending', submittedAt: new Date().toISOString()
+  };
+  showSpinner('Submitting…');
+  try {
+    const result = await callAppsScript('submitVerification', { request });
+    hideSpinner();
+    if (result.success) {
+      verificationRequests.push(request); saveLocal();
+      showToast('✅ Verification request submitted!', 'ok');
+      addLog(`${currentGuest.first} ${currentGuest.last} submitted verification`);
+      closeVerificationModal();
+      loadGuestDashboard();
+    } else { showToast('Error submitting: ' + (result.error || 'unknown'), 'err'); }
+  } catch(err) { hideSpinner(); showToast('Network error: ' + err.message, 'err'); }
+}
+
+function renderVerificationRequests() {
+  const container = document.getElementById('verification-requests');
+  if (!container) return;
+  const pending = verificationRequests.filter(r => r.status === 'pending');
+  if (!pending.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div>No pending requests</div>'; return; }
+  container.innerHTML = pending.map(r => `
+    <div class="verification-req-card" role="listitem">
+      <div class="vreq-info">
+        <div class="vreq-name">${sanitize(r.guestName || r.guestId)}</div>
+        <div class="vreq-detail">${sanitize(r.idType)} · ${sanitize(r.idNumber)} · ${new Date(r.submittedAt).toLocaleString()}</div>
+      </div>
+      <div class="vreq-actions">
+        <button class="btn-teal btn-sm" onclick="approveVerification('${r.id}','${r.guestId}')">✓ Approve</button>
+        <button class="btn-danger btn-sm" onclick="rejectVerification('${r.id}')">✗ Reject</button>
+      </div>
+    </div>`).join('');
+}
+
+async function approveVerification(requestId, guestId) {
+  showSpinner('Approving…');
+  const result = await callAppsScript('updateVerification', { requestId, status: 'approved', guestId });
+  hideSpinner();
+  if (result.success) {
+    const req = verificationRequests.find(r => r.id === requestId); if (req) req.status = 'approved';
+    const guest = guests.find(g => g.id === guestId); if (guest) { guest.verified = true; guest.verifiedAt = new Date().toISOString(); }
+    saveLocal(); renderVerificationRequests();
+    showToast('✅ Verification approved', 'ok');
+    addLog(`${currentUser?.data?.fullname} approved verification for guest ${guestId}`);
+  } else { showToast('Error: ' + (result.error || 'unknown'), 'err'); }
+}
+
+async function rejectVerification(requestId) {
+  showSpinner('Rejecting…');
+  const result = await callAppsScript('updateVerification', { requestId, status: 'rejected', guestId: '' });
+  hideSpinner();
+  if (result.success) {
+    const req = verificationRequests.find(r => r.id === requestId); if (req) req.status = 'rejected';
+    saveLocal(); renderVerificationRequests();
+    showToast('Verification rejected', '');
+    addLog(`${currentUser?.data?.fullname} rejected verification request ${requestId}`);
+  } else { showToast('Error: ' + (result.error || 'unknown'), 'err'); }
+}
+
+/* ==================== GUEST REWARDS ==================== */
+function addManualPoints() {
+  const guestId = (document.getElementById('reward-guest-id')?.value || '').trim().toUpperCase();
+  const venueRaw = document.getElementById('reward-venue')?.value || '';
+  const note = (document.getElementById('reward-note')?.value || '').trim();
+  const [venue, ptsStr] = venueRaw.split('|');
+  let pts = parseInt(ptsStr) || 0;
+  if (!guestId) { showToast('Please enter a Guest ID', 'err'); return; }
+  const guest = guests.find(g => g.id === guestId);
+  if (!guest) { showToast('Guest ID not found', 'err'); return; }
+  if (venue === 'Custom') {
+    pts = parseInt(document.getElementById('reward-custom-pts')?.value) || 0;
+    if (pts <= 0) { showToast('Please enter a valid points amount', 'err'); return; }
+  }
+  const oldPoints = guest.rewardPoints || 0;
+  const newPoints = oldPoints + pts;
+  showSpinner('Awarding points...');
+  callAppsScript('updateGuest', {
+    guestId: guest.id,
+    updates: {
+      rewardPoints: newPoints,
+      rewardNote: note || `Manual entry: ${venue}`,
+      staffName: currentUser?.data?.fullname || 'Staff'
+    }
+  }).then(async (res) => {
+    hideSpinner();
+    if (res.success) {
+      guest.rewardPoints = newPoints;
+      await loadGuestsFromBackend();
+      renderRewardsPanel();
+      showToast(`✅ +${pts} points awarded to ${sanitize(guest.first)} ${sanitize(guest.last)}`, 'ok');
+      addLog(`${currentUser?.data?.fullname} awarded ${pts} pts to ${guest.first} ${guest.last} (${venue})`);
+      document.getElementById('reward-guest-id').value = '';
+      document.getElementById('reward-note').value = '';
+    } else {
+      showToast('Failed to award points', 'err');
+    }
+  }).catch(() => { hideSpinner(); showToast('Error awarding points', 'err'); });
+}
+
+function renderRewardsPanel() {
+  const container = document.getElementById('rewards-guest-list');
+  if (!container) return;
+  const dl = document.getElementById('reward-guests-datalist');
+  if (dl) dl.innerHTML = guests.filter(g => g.status === 'Active').map(g => `<option value="${sanitize(g.id)}">${sanitize(g.first)} ${sanitize(g.last)}</option>`).join('');
+  const venueEl = document.getElementById('reward-venue');
+  const customRow = document.getElementById('custom-pts-row');
+  if (venueEl && customRow) customRow.style.display = venueEl.value.startsWith('Custom') ? 'block' : 'none';
+
+  const search = (document.getElementById('rewards-search')?.value || '').toLowerCase();
+  const guestsWithPts = guests.filter(g => !search || `${g.first} ${g.last} ${g.id}`.toLowerCase().includes(search))
+    .sort((a, b) => (b.rewardPoints || 0) - (a.rewardPoints || 0));
+
+  if (!guestsWithPts.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🏆</div>No guests found</div>';
+    return;
+  }
+  const venueIcons = { Restaurant:'🍽️', Spa:'💆', 'Bar & Lounge':'🍸', Pool:'🏊', Gym:'💪', 'Room Service':'🛎️', 'Special Recognition':'⭐', 'Birthday Bonus':'🎂' };
+  container.innerHTML = guestsWithPts.map((g, idx) => {
+    const rank = idx + 1;
+    const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+    return `
+    <div class="rewards-guest-card">
+      <div style="font-size:22px;flex-shrink:0;">${rankIcon}</div>
+      <div class="rewards-guest-info">
+        <div class="rewards-guest-name">${sanitize(g.title || '')} ${sanitize(g.first)} ${sanitize(g.last)}</div>
+        <div class="rewards-guest-meta">ID: ${sanitize(g.id)} · Room ${sanitize(g.room || 'TBA')} · ${sanitize(g.type)}</div>
+      </div>
+      <div style="flex-shrink:0;text-align:right;">
+        <span class="points-badge large gold">${g.rewardPoints || 0} pts</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 /* ==================== AUTO‑SUGGEST GUEST ID ==================== */
-function suggestNextGuestId() { /* ... same ... */ }
+function suggestNextGuestId() {
+  let spareIds = guests.filter(g => g.id && (!g.first || g.first.trim() === ''))
+    .map(g => {
+      const match = (g.id || '').match(/^SHR-(\d+)$/i);
+      return match ? parseInt(match[1]) : null;
+    })
+    .filter(n => n !== null)
+    .sort((a, b) => a - b);
+  
+  let nextId = null;
+  if (spareIds.length > 0) {
+    nextId = spareIds[0];
+  } else {
+    let maxNum = 1000;
+    guests.forEach(g => {
+      const match = (g.id || '').match(/^SHR-(\d+)$/i);
+      if (match) {
+        const n = parseInt(match[1]);
+        if (n > maxNum) maxNum = n;
+      }
+    });
+    nextId = maxNum + 1;
+  }
+  
+  const suggestedId = 'SHR-' + String(nextId).padStart(4, '0');
+  const field = document.getElementById('f-mandatory-guest-id');
+  const badge = document.getElementById('guest-id-auto-badge');
+  if (field) {
+    field.value = suggestedId;
+    if (badge) badge.style.display = '';
+    field.title = 'Auto-suggested based on available IDs. You may edit if needed.';
+    field.oninput = function() {
+      if (badge) badge.style.display = (this.value === suggestedId) ? '' : 'none';
+    };
+  }
+}
 
 /* ==================== SHARE CREDENTIALS ==================== */
 let _shareGuestData = null;
@@ -2666,7 +3307,12 @@ function copyShareDetails() {
 }
 
 /* ==================== PANEL & NAVIGATION ==================== */
-function setSidebarActive(btnId) { /* ... same ... */ }
+function setSidebarActive(btnId) {
+  document.querySelectorAll('.sidebar-btn').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+  const btn = document.getElementById(btnId);
+  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current','page'); }
+}
+
 function showPanel(pid) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`panel-${pid}`);
@@ -2689,16 +3335,26 @@ function showPanel(pid) {
   if (pid === 'staff-add') { suggestNextGuestId(); }
   if (pid === 'guest-profile') loadGuestProfile();
 }
+
 function showPanelMobile(pid, evt) {
   showPanel(pid);
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   if (evt && evt.target) evt.target.classList.add('active');
 }
+
 function highlightMobileNav(btn) {
   document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
-function toggleSidebar() { /* ... same ... */ }
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('main-sidebar');
+  const icon = document.getElementById('sidebar-toggle-icon');
+  if (!sidebar) return;
+  sidebar.classList.toggle('collapsed');
+  if (sidebar.classList.contains('collapsed')) { if (icon) icon.textContent = '▶'; }
+  else { if (icon) icon.textContent = '◀'; }
+}
 
 /* ==================== SESSION APPLICATION ==================== */
 function applyUserSession() {
