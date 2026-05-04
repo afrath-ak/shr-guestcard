@@ -1472,18 +1472,27 @@ function callAppsScript(action, data = {}, timeoutMs = 25000) {
     }
     window[cbName] = function(result) {
       cleanup();
-      console.log('[AppsScript] ' + action + ':', result);
+      console.log('[AppsScript] ✅ ' + action + ' callback received:', result);
       resolve(result);
     };
     timeoutId = setTimeout(function() {
       cleanup();
+      console.error('[AppsScript] ⏱️ TIMEOUT after ' + timeoutMs + 'ms for action: ' + action);
+      console.error('[AppsScript] Check: Is the web app deployed? Is "Who has access" set to "Anyone"?');
       reject(new Error('Request timed out'));
     }, timeoutMs);
     const params = new URLSearchParams({ action, data: JSON.stringify(data), callback: cbName });
+    const fullUrl = APP_SCRIPT_URL + '?' + params.toString();
+    console.log('[AppsScript] 🚀 Calling action=' + action + ' URL=' + fullUrl);
     const script = document.createElement('script');
     script.id = cbName;
-    script.src = APP_SCRIPT_URL + '?' + params.toString();
-    script.onerror = function() { cleanup(); reject(new Error('Cannot reach Apps Script')); };
+    script.src = fullUrl;
+    script.onerror = function() {
+      cleanup();
+      console.error('[AppsScript] ❌ Script load error for action: ' + action);
+      console.error('[AppsScript] The Apps Script URL may be wrong or the script is not deployed as a web app.');
+      reject(new Error('Cannot reach Apps Script'));
+    };
     document.head.appendChild(script);
   });
 }
@@ -1559,13 +1568,15 @@ function loadLocalFallback() {
   const saved = localStorage.getItem('sg_guests');
   if (saved) {
     try {
-      guests = JSON.parse(saved)
+      const parsed = JSON.parse(saved);
+      guests = parsed
         .filter(g => g.first && String(g.first).trim() !== '')
         .map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
       console.log('[LocalFallback] Loaded', guests.length, 'guests from localStorage');
       return true;
     } catch(e) { console.warn('Failed to parse local guests:', e); }
   }
+  console.warn('[LocalFallback] No localStorage data found (key: sg_guests)');
   return false;
 }
 
@@ -1587,31 +1598,44 @@ function saveSession() {
 // DATA LOADING (WITH FALLBACK)
 // ═══════════════════════════════════════════════════
 async function loadGuests() {
-  console.log('[loadGuests] Fetching from backend...');
+  console.log('%c[loadGuests] START — calling Apps Script...', 'color:blue;font-weight:bold');
+  console.log('[loadGuests] URL:', APP_SCRIPT_URL);
   try {
     const res = await callAppsScript('getGuests', {});
+    console.log('%c[loadGuests] RAW RESPONSE:', 'color:green;font-weight:bold', JSON.stringify(res));
+    console.log('[loadGuests] res.success =', res.success);
+    console.log('[loadGuests] res.guests type =', typeof res.guests, Array.isArray(res.guests) ? '(array, length='+res.guests.length+')' : '(NOT array)');
+    if (res.guests && res.guests.length > 0) {
+      console.log('[loadGuests] FIRST GUEST SAMPLE:', JSON.stringify(res.guests[0]));
+    }
     if (res.success && Array.isArray(res.guests)) {
-      // Filter out spare/placeholder rows — those have an ID but a blank 'first' name
-      guests = res.guests
-        .filter(g => g.first && String(g.first).trim() !== '')
-        .map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
-      console.log('[loadGuests] Loaded', guests.length, 'guests from backend');
+      const all = res.guests.map(g => ({ ...g, rewardPoints: parseInt(g.rewardPoints) || 0 }));
+      const real = all.filter(g => g.first && String(g.first).trim() !== '');
+      console.log('[loadGuests] Total rows from sheet:', all.length, '| Real guests (non-spare):', real.length);
+      if (all.length > real.length) {
+        console.log('[loadGuests] Spare/blank rows filtered out:', all.length - real.length);
+      }
+      guests = real;
       saveLocal();
+      console.log('%c[loadGuests] SUCCESS — guests loaded: ' + guests.length, 'color:green;font-weight:bold');
     } else {
-      console.warn('[loadGuests] Backend returned no data, trying local fallback');
+      console.warn('%c[loadGuests] Backend returned no usable data!', 'color:orange;font-weight:bold');
+      console.warn('[loadGuests] res.error =', res.error);
+      console.warn('[loadGuests] Full response:', res);
       if (!loadLocalFallback()) {
-        // Create sample data if nothing exists
+        console.warn('[loadGuests] No localStorage either. Showing SAMPLE DATA — fix your Apps Script deployment!');
         guests = [
           { id:'SHR-1001', title:'Ms.', first:'Hodan', last:'Ahmed', room:'805', checkin:'2026-04-10', checkout:'2026-04-20', email:'hodan@example.com', phone:'+97450001234', nationality:'Somalia', type:'Diamond Member', privileges:['🍳 Breakfast','🏊 Pool Access','💪 Gym','🛎️ Butler Service'], status:'Active', scans:5, verified:true, rewardPoints:0 },
           { id:'SHR-1002', title:'Mr.', first:'John', last:'Smith', room:'1205', checkin:'2026-04-12', checkout:'2026-04-18', email:'john@example.com', phone:'+97450001235', nationality:'UK', type:'VIP', privileges:['🍳 Breakfast','💪 Gym','🅿️ Parking'], status:'Active', scans:3, verified:false, rewardPoints:0 }
         ];
-        console.log('[loadGuests] Created sample data');
         saveLocal();
       }
     }
   } catch(e) {
-    console.warn('[loadGuests] Error:', e.message);
+    console.error('%c[loadGuests] EXCEPTION: ' + e.message, 'color:red;font-weight:bold');
+    console.error('[loadGuests] This usually means: Apps Script URL is wrong, not deployed, or set to wrong permissions.');
     if (!loadLocalFallback()) {
+      console.warn('[loadGuests] Falling back to sample data');
       guests = [
         { id:'SHR-1001', title:'Ms.', first:'Hodan', last:'Ahmed', room:'805', checkin:'2026-04-10', checkout:'2026-04-20', email:'hodan@example.com', phone:'+97450001234', nationality:'Somalia', type:'Diamond Member', privileges:['🍳 Breakfast','🏊 Pool Access','💪 Gym','🛎️ Butler Service'], status:'Active', scans:5, verified:true, rewardPoints:0 },
         { id:'SHR-1002', title:'Mr.', first:'John', last:'Smith', room:'1205', checkin:'2026-04-12', checkout:'2026-04-18', email:'john@example.com', phone:'+97450001235', nationality:'UK', type:'VIP', privileges:['🍳 Breakfast','💪 Gym','🅿️ Parking'], status:'Active', scans:3, verified:false, rewardPoints:0 }
@@ -1669,7 +1693,8 @@ async function loadStaff() {
 async function loadVerifications() {
   try {
     const res = await callAppsScript('getVerifications', {});
-    // Backend returns res.verifications (not res.requests) — fixed key name
+    console.log('[loadVerifications] Response:', res);
+    // Backend returns res.verifications but original code checked res.requests — fixed
     if (res.success && (res.verifications || res.requests)) {
       verificationRequests = res.verifications || res.requests;
     }
@@ -1911,7 +1936,6 @@ function renderTable() {
   const search = (document.getElementById('staff-search')?.value || '').toLowerCase();
   
   let filtered = guests.filter(g => {
-    // Exclude spare rows (ID set but no first name)
     if (!g.first || String(g.first).trim() === '') return false;
     const matchFilter = currentFilter === 'all' || 
       (currentFilter === 'active' && g.status === 'Active') || 
