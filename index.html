@@ -1050,12 +1050,12 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="info-note"><strong>Welcome back!</strong>Sign in with your Guest ID and password.</div>
             <div class="field">
               <label for="guest-id">Guest ID <span aria-label="required">*</span></label>
-              <input type="text" id="guest-id" placeholder="e.g. SHR-1001" autocomplete="off" aria-required="true">
+              <input type="text" id="guest-id" placeholder="e.g. SHR-1001" autocomplete="off" aria-required="true" onkeydown="if(event.key==='Enter')document.getElementById('guest-password').focus()">
               <span class="field-note">Found on your welcome card or check-in email</span>
             </div>
             <div class="field">
               <label for="guest-password">Password <span aria-label="required">*</span></label>
-              <input type="password" id="guest-password" placeholder="••••••••" autocomplete="current-password" aria-required="true">
+              <input type="password" id="guest-password" placeholder="••••••••" autocomplete="current-password" aria-required="true" onkeydown="if(event.key==='Enter')guestPasswordLogin()">
             </div>
             <button class="login-btn" id="guest-login-btn" onclick="guestPasswordLogin()">Sign In →</button>
             <div class="staff-login-footer">
@@ -1117,8 +1117,8 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         </div>
         <div id="staff-login-form" style="display:none;" role="tabpanel" aria-labelledby="tab-staff">
           <div id="staff-login-view">
-            <div class="field"><label for="staff-username">Username *</label><input type="text" id="staff-username" placeholder="Enter username" autocomplete="username"></div>
-            <div class="field"><label for="staff-password">Password *</label><input type="password" id="staff-password" placeholder="••••••••" autocomplete="current-password"></div>
+            <div class="field"><label for="staff-username">Username *</label><input type="text" id="staff-username" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('staff-password').focus()"></div>
+            <div class="field"><label for="staff-password">Password *</label><input type="password" id="staff-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')staffLogin()"></div>
             <button class="login-btn" onclick="staffLogin()">Sign In →</button>
             <div class="staff-login-footer"><button class="forgot-link-btn" onclick="showForgotPassword()">Forgot your password?</button></div>
           </div>
@@ -1411,10 +1411,10 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 
 <!-- SCAN RESULT MODAL -->
 <div class="modal-overlay" id="scan-modal" role="dialog" aria-modal="true">
-  <div class="modal-box" style="max-width:500px;">
-    <div class="modal-header"><div class="modal-title">🔍 QR Scan Result</div><button class="modal-close" onclick="closeScanModal()">×</button></div>
+  <div class="modal-box" style="max-width:560px;padding:20px;">
+    <div class="modal-header" style="margin-bottom:14px;"><div class="modal-title">🔍 Guest Scan Result</div><button class="modal-close" onclick="closeScanModal()">×</button></div>
     <div id="scan-modal-content"></div>
-    <div class="modal-footer" style="flex-direction:column;gap:8px;">
+    <div class="modal-footer" style="flex-direction:column;gap:8px;margin-top:14px;">
       <button class="btn-ghost" id="scan-share-btn" style="display:none;width:100%;" onclick="scanShareGuest()">📤 Send Credentials</button>
       <button class="btn-primary" style="width:100%;" onclick="closeScanModal()">Close</button>
     </div>
@@ -1467,7 +1467,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyi-ypRBIqY-zKjz_gY9LHXO3AFpOzn7ub0b5SMFA1Uc5fvqN6sDUr76OVmWynGj937IQ/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_nDKdZ2MTYrd5Eo88AkAnVXcj2cCndtEG0pk12DJ5ZhitIBBVoythnx5FGzVEVNMtvQ/exec';
 const SESSION_TIMEOUT_MINUTES = 30;
 
 function callAppsScript(action, data = {}, timeoutMs = 25000) {
@@ -1752,30 +1752,32 @@ async function guestPasswordLogin() {
     if (res.success) {
       currentUser = { type: 'guest', data: res.user };
       currentGuest = res.user;
-      saveSession(); 
-      await loadGuests(); // Reload all guests
+      saveSession();
       applyUserSession(); startSessionTimer(); setupActivityListeners();
       showToast(`Welcome, ${sanitize(res.user.first || 'Guest')}!`, 'ok');
+      // Reload guests in background to get fresh data
+      loadGuests().catch(()=>{});
     } else { showLoginError(res.error || 'Login failed'); }
   } catch(e) { hideSpinner(); showLoginError('Connection error: ' + e.message); }
 }
 
 async function staffLogin() {
+
   const username = document.getElementById('staff-username').value.trim();
   const pw = document.getElementById('staff-password').value.trim();
   if (!username || !pw) { showLoginError('Enter username and password'); return; }
   showSpinner('Authenticating…');
   try {
     const res = await callAppsScript('staffLogin', { username, password: pw });
-    hideSpinner();
     if (res.success) {
       currentUser = { type: 'staff', data: res.user };
-      saveSession(); 
-      await loadStaff(); // Load staff first
+      saveSession();
       applyUserSession(); startSessionTimer(); setupActivityListeners();
-      await Promise.all([loadGuests(), loadVerifications()]); // Then load guests
+      hideSpinner();
       showToast(`Welcome, ${sanitize(res.user.fullname || username)}!`, 'ok');
-    } else { showLoginError(res.error || 'Login failed'); }
+      // Load staff and guests in background
+      Promise.all([loadStaff(), loadGuests(), loadVerifications()]).catch(()=>{});
+    } else { hideSpinner(); showLoginError(res.error || 'Login failed'); }
   } catch(e) { hideSpinner(); showLoginError('Connection error: ' + e.message); }
 }
 
@@ -2072,8 +2074,8 @@ async function addGuest() {
       if (suggBox) suggBox.textContent = '';
       setTimeout(() => suggestGuestId(), 300);
       renderTable();
-      // Show share popup
-      setTimeout(() => showShareDialog(guestId), 400);
+      // Show share popup immediately after registration
+      showShareDialog(guestId);
     } else { showToast('Error: ' + (res.error || 'unknown'), 'err'); }
   } catch(e) { hideSpinner(); showToast('Network error: ' + e.message, 'err'); }
 }
@@ -2126,49 +2128,78 @@ function startScanner() {
         }
         
         modalContent.innerHTML = `
-          <div style="background:linear-gradient(135deg,#0c0c0f,#1e1e24);border-radius:14px;padding:20px;margin-bottom:14px;color:#fff;">
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-              <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#0c0c0f;flex-shrink:0;">${sanitize((guest.first||'?').charAt(0).toUpperCase())}</div>
-              <div>
-                <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">${sanitize(guest.title||'')} ${sanitize(guest.first)} ${sanitize(guest.last)}</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">${sanitize(guest.id)} &nbsp;·&nbsp; ${sanitize(guest.type||'Standard')}</div>
+          <div style="font-family:'Outfit',sans-serif;border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.18);">
+            <!-- Hero Header -->
+            <div style="background:linear-gradient(135deg,#0c0c0f 0%,#1e1e24 60%,#141410 100%);padding:28px 24px 20px;position:relative;overflow:hidden;">
+              <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 90%,rgba(201,168,76,0.12) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 90% 10%,rgba(13,125,124,0.08) 0%,transparent 55%);pointer-events:none;"></div>
+              <!-- Hotel brand strip -->
+              <div style="display:flex;gap:3px;height:3px;border-radius:40px;overflow:hidden;margin-bottom:18px;position:relative;z-index:1;">
+                <div style="flex:1;background:#c9a84c;"></div><div style="flex:1;background:#0d7d7c;"></div><div style="flex:1;background:#7c2d3e;"></div><div style="flex:1;background:#6366f1;"></div><div style="flex:1;background:#e8d08a;"></div>
+              </div>
+              <div style="position:relative;z-index:1;display:flex;align-items:flex-start;gap:16px;">
+                <!-- Avatar -->
+                <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#9a7a30);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#0c0c0f;flex-shrink:0;border:3px solid rgba(201,168,76,0.3);box-shadow:0 4px 16px rgba(201,168,76,0.25);">${sanitize((guest.first||'?').charAt(0).toUpperCase())}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Steigenberger Hotel Doha · Digital Guest Card</div>
+                  <div style="font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.01em;line-height:1.15;">${sanitize(guest.title||'')} ${sanitize(guest.first)} ${sanitize(guest.last)}</div>
+                  <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <code style="background:rgba(201,168,76,0.12);color:#c9a84c;padding:2px 9px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid rgba(201,168,76,0.25);">${sanitize(guest.id)}</code>
+                    <span style="opacity:.6;">·</span>
+                    <span>${sanitize(guest.type||'Standard')}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Status badges row -->
+              <div style="position:relative;z-index:1;display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;">
+                <span style="background:rgba(${guest.status==='Active'?'21,128,61':'185,28,28'},.18);color:${guest.status==='Active'?'#4ade80':'#f87171'};padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(${guest.status==='Active'?'74,222,128':'248,113,113'},.25);">${guest.status==='Active'?'✓ Active':'✗ Revoked'}</span>
+                <span style="background:rgba(${guest.verified?'21,128,61':'180,83,9'},.18);color:${guest.verified?'#4ade80':'#fbbf24'};padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(${guest.verified?'74,222,128':'251,191,36'},.25);">${guest.verified?'✅ Verified':'⚠️ Pending Verification'}</span>
+                ${stayStatus}
               </div>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-              <span style="background:rgba(201,168,76,0.15);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(201,168,76,0.3);">${guest.status==='Active'?'✓ Active':'✗ Revoked'}</span>
-              <span style="background:rgba(${guest.verified?'21,128,61':'180,83,9'},.15);color:${guest.verified?'#4ade80':'#fbbf24'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${guest.verified?'✅ Verified':'⚠️ Pending Verification'}</span>
-              ${stayStatus}
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
-              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Room</div>
-                <div style="font-weight:700;font-size:16px;">${sanitize(guest.room||'TBA')}</div>
+
+            <!-- Stay Details Grid -->
+            <div style="background:#fff;padding:20px 20px 0;">
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;">
+                <div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
+                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">🛏 Room</div>
+                  <div style="font-size:20px;font-weight:800;color:#0c0c0f;font-family:'Playfair Display',serif;">${sanitize(guest.room||'TBA')}</div>
+                </div>
+                <div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
+                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">📊 Total Scans</div>
+                  <div style="font-size:20px;font-weight:800;color:#0c0c0f;font-family:'Playfair Display',serif;">${(parseInt(guest.scans)||0)+1}</div>
+                </div>
+                ${guest.checkin ? `<div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
+                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">📅 Check-in</div>
+                  <div style="font-size:14px;font-weight:700;color:#0c0c0f;">${formatDate(guest.checkin)}</div>
+                </div>` : ''}
+                ${guest.checkout ? `<div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
+                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">📅 Check-out</div>
+                  <div style="font-size:14px;font-weight:700;color:#0c0c0f;">${formatDate(guest.checkout)}</div>
+                </div>` : ''}
               </div>
-              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Total Scans</div>
-                <div style="font-weight:700;font-size:16px;">${(parseInt(guest.scans)||0)+1}</div>
-              </div>
-              ${guest.checkin||guest.checkout ? `
-              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Check-in</div>
-                <div style="font-weight:600;">${formatDate(guest.checkin)||'—'}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Check-out</div>
-                <div style="font-weight:600;">${formatDate(guest.checkout)||'—'}</div>
+
+              <!-- Contact row -->
+              ${guest.email||guest.phone||guest.nationality ? `
+              <div style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 14px;background:#f0fafa;border-radius:10px;margin-bottom:14px;border:1px solid #e0f4f4;">
+                ${guest.email?`<span style="font-size:12px;color:#0d7d7c;display:flex;align-items:center;gap:5px;">✉️ <strong>${sanitize(guest.email)}</strong></span>`:''}
+                ${guest.phone?`<span style="font-size:12px;color:#0d7d7c;display:flex;align-items:center;gap:5px;">📞 <strong>${sanitize(guest.phone)}</strong></span>`:''}
+                ${guest.nationality?`<span style="font-size:12px;color:#0d7d7c;display:flex;align-items:center;gap:5px;">🌍 <strong>${sanitize(guest.nationality)}</strong></span>`:''}
               </div>` : ''}
+
+              <!-- Privileges -->
+              ${privs.length ? `
+              <div style="margin-bottom:14px;">
+                <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px;">🎖 Guest Privileges</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  ${privs.map(p=>`<span style="background:#f7f0dc;color:#9a7a30;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:600;border:1px solid #ddd4c4;">${sanitize(p)}</span>`).join('')}
+                </div>
+              </div>` : ''}
+
+              <!-- Hotel footer -->
+              <div style="border-top:1px solid #e8e0d4;padding:12px 0 16px;text-align:center;">
+                <div style="font-size:10px;color:#aaa;letter-spacing:.06em;text-transform:uppercase;">Steigenberger Hotel Doha · Digital Guest Pass · Verified by Staff</div>
+              </div>
             </div>
-            ${guest.email||guest.phone||guest.nationality ? `
-            <div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.5);display:flex;flex-wrap:wrap;gap:12px;">
-              ${guest.email?`<span>✉️ ${sanitize(guest.email)}</span>`:''}
-              ${guest.phone?`<span>📞 ${sanitize(guest.phone)}</span>`:''}
-              ${guest.nationality?`<span>🌍 ${sanitize(guest.nationality)}</span>`:''}
-            </div>` : ''}
-            ${privs.length ? `
-            <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
-              <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Privileges</div>
-              <div style="display:flex;flex-wrap:wrap;gap:6px;">${privs.map(p=>`<span style="background:rgba(201,168,76,0.12);color:var(--gold-light);padding:3px 10px;border-radius:16px;font-size:12px;border:1px solid rgba(201,168,76,0.2);">${sanitize(p)}</span>`).join('')}</div>
-            </div>` : ''}
           </div>`;
         
         // Show share button in modal footer
