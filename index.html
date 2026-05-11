@@ -2095,58 +2095,29 @@ async function addGuest() {
 }
 
 // ═══════════════════════════════════════════════════
-// AUTO SEND GUEST WELCOME EMAIL
+// AUTO SEND GUEST WELCOME EMAIL — via Apps Script alias
 // ═══════════════════════════════════════════════════
 async function sendGuestWelcomeEmail(guest) {
-  const ALIAS_EMAIL = 'doha@steigenberger.com';
   if (!guest.email) return;
   const loginUrl = window.location.href.split('?')[0];
-  const subject = `Welcome to Steigenberger Hotel Doha — Your Digital Guest Card`;
-  const privList = (Array.isArray(guest.privileges) ? guest.privileges : [guest.privileges]).filter(Boolean);
-  const body = [
-    `Dear ${guest.title || ''} ${guest.first} ${guest.last},`,
-    ``,
-    `Welcome to Steigenberger Hotel Doha! Your digital guest card has been created.`,
-    ``,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `GUEST CARD DETAILS`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `Guest ID:  ${guest.id}`,
-    `Room:      ${guest.room || 'To be assigned'}`,
-    `Tier:      ${guest.type || 'Standard'}`,
-    ...(privList.length ? [`Privileges:${privList.join(', ')}`] : []),
-    `Login URL: ${loginUrl}`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    ``,
-    `Sign in with your Guest ID. Use the "New Guest" option to set up your password.`,
-    ``,
-    `We look forward to welcoming you.`,
-    ``,
-    `Warm regards,`,
-    `Steigenberger Hotel Doha`,
-    ALIAS_EMAIL
-  ].join('\n');
-
   try {
     const res = await callAppsScript('sendGuestWelcomeEmail', {
-      to: guest.email,
-      from: ALIAS_EMAIL,
-      subject,
-      body,
+      to:        guest.email,
       guestName: `${guest.title || ''} ${guest.first} ${guest.last}`.trim(),
-      guestId: guest.id,
-      room: guest.room || 'TBA',
-      type: guest.type,
+      guestId:   guest.id,
+      room:      guest.room || 'TBA',
+      type:      guest.type || 'Standard',
       loginUrl
     });
     if (res && res.success) {
-      showToast('📧 Welcome email sent to guest', 'ok');
+      showToast('📧 Welcome email sent to ' + guest.email, 'ok');
       addLog(`Guest welcome email sent to ${guest.first} ${guest.last} (${guest.email})`);
     } else {
-      console.warn('[GuestEmail] Apps Script email failed, opening mailto fallback');
-      window.open(`mailto:${guest.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+      showToast('⚠️ Email not sent: ' + (res?.error || 'Check alias setup in Gmail'), 'err');
+      console.warn('[GuestEmail] GAS email failed:', res?.error);
     }
   } catch(e) {
+    showToast('⚠️ Email send failed — check Apps Script', 'err');
     console.warn('[GuestEmail] Could not auto-send email:', e);
     window.open(`mailto:${guest.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
   }
@@ -2619,8 +2590,8 @@ function showShareDialog(guestId, guestFallback) {
     `Your digital guest card is ready. Sign in with your Guest ID.`,
     ``,
     `Guest ID: ${guest.id}`,
+    `Room: ${guest.room||'TBA'}`,
     `Login: ${pageUrl}`,
-    `Check-in: ${formatDate(guest.checkin)} | Check-out: ${formatDate(guest.checkout)} | Room: ${guest.room||'TBA'}`,
     ``,
     `We look forward to your stay.`
   ].join('\n');
@@ -2629,8 +2600,7 @@ function showShareDialog(guestId, guestFallback) {
     <strong>Guest ID:</strong> ${sanitize(guest.id)}<br>
     <strong>Name:</strong> ${sanitize(guest.title||'')} ${sanitize(guest.first)} ${sanitize(guest.last)}<br>
     <strong>Room:</strong> ${sanitize(guest.room||'TBA')}<br>
-    <strong>Check-in:</strong> ${formatDate(guest.checkin)}<br>
-    <strong>Check-out:</strong> ${formatDate(guest.checkout)}<br>
+    <strong>Tier:</strong> ${sanitize(guest.type||'Standard')}<br>
     <strong>Login URL:</strong> ${sanitize(pageUrl)}
   `;
 
