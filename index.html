@@ -1467,7 +1467,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrhNDmEkB2pH6B-NolwCa4twcFsHwlOGl7effaXdmsOiy-OKFkEPCA4m-znwq9I6MPg/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUQh4iJ5uJrpZKLacTX1y44z1mRJKFvAE6L0tNCv-Km9CqR7u7esPBqd20-aSDkkT2yg/exec';
 const SESSION_TIMEOUT_MINUTES = 30;
 
 function callAppsScript(action, data = {}, timeoutMs = 25000) {
@@ -2117,9 +2117,8 @@ async function sendGuestWelcomeEmail(guest) {
       console.warn('[GuestEmail] GAS email failed:', res?.error);
     }
   } catch(e) {
-    showToast('⚠️ Email send failed — check Apps Script', 'err');
+    showToast('⚠️ Email send failed — check Apps Script deployment', 'err');
     console.warn('[GuestEmail] Could not auto-send email:', e);
-    window.open(`mailto:${guest.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
   }
 }
 
@@ -2437,77 +2436,44 @@ async function saveStaffMember() {
         saveStaffLocal(); renderStaffUsers();
         showToast('✅ Account created', 'ok');
         addLog(`${currentUser?.data?.fullname} created account: ${username} (${role})`);
-        // Auto-send welcome email to new staff member
+        closeStaffModal();
+        // Auto-send welcome email — runs after modal closed, errors won't interfere
         if (email) {
           sendStaffWelcomeEmail(newStaff, password);
         }
       } else { showToast('Error: ' + (res.error||'unknown'), 'err'); }
-    } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
+    } catch(e) { hideSpinner(); showToast('Network error: ' + e.message, 'err'); }
+    return; // prevent closeStaffModal below from running twice
   }
   closeStaffModal();
 }
 
 // ═══════════════════════════════════════════════════
-// AUTO SEND STAFF WELCOME EMAIL
+// AUTO SEND STAFF WELCOME EMAIL — via Apps Script alias
 // ═══════════════════════════════════════════════════
 async function sendStaffWelcomeEmail(staffMember, tempPassword) {
-  const ALIAS_EMAIL = 'doha@steigenberger.com'; // Hotel alias email
   if (!staffMember.email) return;
   const loginUrl = window.location.href.split('?')[0];
-  const subject = `Welcome to Steigenberger Doha — Your Staff Account`;
-  const body = [
-    `Dear ${staffMember.fullname},`,
-    ``,
-    `Your staff account for the Steigenberger Digital Guest Card System has been created.`,
-    ``,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `ACCOUNT DETAILS`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `Username:  ${staffMember.username}`,
-    `Password:  ${tempPassword}`,
-    `Role:      ${staffMember.role}`,
-    `Department:${staffMember.department || 'Not assigned'}`,
-    `Login URL: ${loginUrl}`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    ``,
-    `⚠️ Please change your password after first login.`,
-    ``,
-    `For support contact: ${ALIAS_EMAIL}`,
-    ``,
-    `Regards,`,
-    `Steigenberger Hotel Doha — Administration`
-  ].join('\n');
-
   try {
-    // Use Apps Script to send email from hotel alias
     const res = await callAppsScript('sendStaffWelcomeEmail', {
-      to: staffMember.email,
-      from: ALIAS_EMAIL,
-      subject,
-      body,
-      staffName: staffMember.fullname,
-      username: staffMember.username,
+      to:          staffMember.email,
+      staffName:   staffMember.fullname,
+      username:    staffMember.username,
       tempPassword,
-      role: staffMember.role,
-      department: staffMember.department || '',
+      role:        staffMember.role,
+      department:  staffMember.department || '',
       loginUrl
     });
     if (res && res.success) {
       showToast('📧 Welcome email sent to ' + staffMember.email, 'ok');
       addLog(`Welcome email sent to ${staffMember.fullname} (${staffMember.email})`);
     } else {
-      // Fallback: open mailto if Apps Script email not configured
-      console.warn('[Email] Apps Script email failed, opening mailto fallback');
-      const mailtoLink = `mailto:${staffMember.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.open(mailtoLink, '_blank');
-      showToast('📧 Email client opened for welcome email', '');
+      showToast('⚠️ Email not sent: ' + (res?.error || 'Check alias setup in Gmail'), 'err');
+      console.warn('[StaffEmail] GAS email failed:', res?.error);
     }
   } catch(e) {
-    console.warn('[Email] Could not auto-send email:', e);
-    // Fallback: open mailto
-    const mailtoLink = `mailto:${staffMember.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoLink, '_blank');
-    showToast('📧 Email client opened for welcome email', '');
+    showToast('⚠️ Email send failed — check Apps Script deployment', 'err');
+    console.warn('[StaffEmail] Could not send welcome email:', e);
   }
 }
 
@@ -2590,8 +2556,8 @@ function showShareDialog(guestId, guestFallback) {
     `Your digital guest card is ready. Sign in with your Guest ID.`,
     ``,
     `Guest ID: ${guest.id}`,
-    `Room: ${guest.room||'TBA'}`,
     `Login: ${pageUrl}`,
+    `Check-in: ${formatDate(guest.checkin)} | Check-out: ${formatDate(guest.checkout)} | Room: ${guest.room||'TBA'}`,
     ``,
     `We look forward to your stay.`
   ].join('\n');
@@ -2600,7 +2566,8 @@ function showShareDialog(guestId, guestFallback) {
     <strong>Guest ID:</strong> ${sanitize(guest.id)}<br>
     <strong>Name:</strong> ${sanitize(guest.title||'')} ${sanitize(guest.first)} ${sanitize(guest.last)}<br>
     <strong>Room:</strong> ${sanitize(guest.room||'TBA')}<br>
-    <strong>Tier:</strong> ${sanitize(guest.type||'Standard')}<br>
+    <strong>Check-in:</strong> ${formatDate(guest.checkin)}<br>
+    <strong>Check-out:</strong> ${formatDate(guest.checkout)}<br>
     <strong>Login URL:</strong> ${sanitize(pageUrl)}
   `;
 
