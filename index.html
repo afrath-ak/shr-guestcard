@@ -1117,9 +1117,9 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         </div>
         <div id="staff-login-form" style="display:none;" role="tabpanel" aria-labelledby="tab-staff">
           <div id="staff-login-view">
-            <div class="field"><label for="staff-username">Username *</label><input type="text" id="staff-username" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('staff-password').focus()"></div>
-            <div class="field"><label for="staff-password">Password *</label><input type="password" id="staff-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')staffLogin()"></div>
-            <button class="login-btn" onclick="staffLogin()">Sign In →</button>
+            <div class="field"><label for="staff-username">Username *</label><input type="text" id="staff-username" placeholder="Enter username" autocomplete="username" autofocus onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('staff-password').focus();}"></div>
+            <div class="field"><label for="staff-password">Password *</label><input type="password" id="staff-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();staffLogin();}"></div>
+            <button class="login-btn" id="staff-login-btn" onclick="staffLogin()">Sign In →</button>
             <div class="staff-login-footer"><button class="forgot-link-btn" onclick="showForgotPassword()">Forgot your password?</button></div>
           </div>
           <div id="staff-forgot-view" style="display:none;">
@@ -1467,7 +1467,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 // ═══════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwf60_FhlPVkq2FWLg4d-oFkKM8-7ZPHd4JNNLgY5jJ3-et8HWPU-32mM739I1FCgLI/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfrhNDmEkB2pH6B-NolwCa4twcFsHwlOGl7effaXdmsOiy-OKFkEPCA4m-znwq9I6MPg/exec';
 const SESSION_TIMEOUT_MINUTES = 30;
 
 function callAppsScript(action, data = {}, timeoutMs = 25000) {
@@ -1724,6 +1724,11 @@ function switchTab(tab) {
   document.getElementById('tab-guest').classList.toggle('active', tab === 'guest');
   document.getElementById('tab-staff').classList.toggle('active', tab === 'staff');
   clearLoginError();
+  // Auto-focus the first input for quick login
+  setTimeout(() => {
+    if (tab === 'staff') document.getElementById('staff-username')?.focus();
+    else document.getElementById('guest-id')?.focus();
+  }, 80);
 }
 
 function switchGuestMode(mode) {
@@ -1742,9 +1747,11 @@ function switchGuestMode(mode) {
 }
 
 async function guestPasswordLogin() {
+  const btn = document.getElementById('guest-login-btn');
   const guestId = document.getElementById('guest-id').value.trim().toUpperCase();
   const pw = document.getElementById('guest-password').value.trim();
   if (!guestId || !pw) { showLoginError('Enter Guest ID and password'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
   showSpinner('Signing in…');
   try {
     const res = await callAppsScript('guestLogin', { guestId, password: pw });
@@ -1759,13 +1766,15 @@ async function guestPasswordLogin() {
       loadGuests().catch(()=>{});
     } else { showLoginError(res.error || 'Login failed'); }
   } catch(e) { hideSpinner(); showLoginError('Connection error: ' + e.message); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; } }
 }
 
 async function staffLogin() {
-
+  const btn = document.getElementById('staff-login-btn');
   const username = document.getElementById('staff-username').value.trim();
   const pw = document.getElementById('staff-password').value.trim();
   if (!username || !pw) { showLoginError('Enter username and password'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
   showSpinner('Authenticating…');
   try {
     const res = await callAppsScript('staffLogin', { username, password: pw });
@@ -1779,6 +1788,7 @@ async function staffLogin() {
       Promise.all([loadStaff(), loadGuests(), loadVerifications()]).catch(()=>{});
     } else { hideSpinner(); showLoginError(res.error || 'Login failed'); }
   } catch(e) { hideSpinner(); showLoginError('Connection error: ' + e.message); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; } }
 }
 
 // ═══════════════════════════════════════════════════
@@ -1962,7 +1972,7 @@ function renderTable() {
   });
   
   if (!filtered.length) { 
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">No guests found</td>'; 
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">No guests found</td></tr>'; 
     return; 
   }
   
@@ -2062,6 +2072,10 @@ async function addGuest() {
       await loadGuests();
       showToast(`✅ ${sanitize(first)} ${sanitize(last)} registered!`, 'ok');
       addLog(`${currentUser?.data?.fullname} registered ${first} ${last} (${guestId})`);
+      // Auto-send welcome email to guest if email provided
+      if (email) {
+        sendGuestWelcomeEmail(newGuest);
+      }
       // Clear form
       ['f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes','f-checkin','f-checkout'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
@@ -2078,6 +2092,64 @@ async function addGuest() {
       showShareDialog(guestId, newGuest);
     } else { showToast('Error: ' + (res.error || 'unknown'), 'err'); }
   } catch(e) { hideSpinner(); showToast('Network error: ' + e.message, 'err'); }
+}
+
+// ═══════════════════════════════════════════════════
+// AUTO SEND GUEST WELCOME EMAIL
+// ═══════════════════════════════════════════════════
+async function sendGuestWelcomeEmail(guest) {
+  const ALIAS_EMAIL = 'doha@steigenberger.com';
+  if (!guest.email) return;
+  const loginUrl = window.location.href.split('?')[0];
+  const subject = `Welcome to Steigenberger Hotel Doha — Your Digital Guest Card`;
+  const privList = (Array.isArray(guest.privileges) ? guest.privileges : [guest.privileges]).filter(Boolean);
+  const body = [
+    `Dear ${guest.title || ''} ${guest.first} ${guest.last},`,
+    ``,
+    `Welcome to Steigenberger Hotel Doha! Your digital guest card has been created.`,
+    ``,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `GUEST CARD DETAILS`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `Guest ID:  ${guest.id}`,
+    `Room:      ${guest.room || 'To be assigned'}`,
+    `Tier:      ${guest.type || 'Standard'}`,
+    ...(privList.length ? [`Privileges:${privList.join(', ')}`] : []),
+    `Login URL: ${loginUrl}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    ``,
+    `Sign in with your Guest ID. Use the "New Guest" option to set up your password.`,
+    ``,
+    `We look forward to welcoming you.`,
+    ``,
+    `Warm regards,`,
+    `Steigenberger Hotel Doha`,
+    ALIAS_EMAIL
+  ].join('\n');
+
+  try {
+    const res = await callAppsScript('sendGuestWelcomeEmail', {
+      to: guest.email,
+      from: ALIAS_EMAIL,
+      subject,
+      body,
+      guestName: `${guest.title || ''} ${guest.first} ${guest.last}`.trim(),
+      guestId: guest.id,
+      room: guest.room || 'TBA',
+      type: guest.type,
+      loginUrl
+    });
+    if (res && res.success) {
+      showToast('📧 Welcome email sent to guest', 'ok');
+      addLog(`Guest welcome email sent to ${guest.first} ${guest.last} (${guest.email})`);
+    } else {
+      console.warn('[GuestEmail] Apps Script email failed, opening mailto fallback');
+      window.open(`mailto:${guest.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+    }
+  } catch(e) {
+    console.warn('[GuestEmail] Could not auto-send email:', e);
+    window.open(`mailto:${guest.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -2119,18 +2191,6 @@ function startScanner() {
       
       if (guest) {
         const privs = parsePrivileges(guest.privileges);
-        // Determine check-in status
-        const today = new Date(); today.setHours(0,0,0,0);
-        const cin = guest.checkin ? new Date(guest.checkin) : null;
-        const cout = guest.checkout ? new Date(guest.checkout) : null;
-        let stayStatus = '';
-        if (cin && cout) {
-          if (today < cin) stayStatus = `<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">⏳ Arriving ${formatDate(guest.checkin)}</span>`;
-          else if (today > cout) stayStatus = `<span style="background:#fee2e2;color:#b91c1c;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🔴 Checked Out</span>`;
-          else stayStatus = `<span style="background:#dcfce7;color:#15803d;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🟢 In-House</span>`;
-        } else if (!cin && !cout) {
-          stayStatus = `<span style="background:var(--teal-light);color:var(--teal);padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🚶 Walk-in / External Guest</span>`;
-        }
         
         modalContent.innerHTML = `
           <div style="font-family:'Outfit',sans-serif;border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.18);">
@@ -2158,7 +2218,6 @@ function startScanner() {
               <div style="position:relative;z-index:1;display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;">
                 <span style="background:rgba(${guest.status==='Active'?'21,128,61':'185,28,28'},.18);color:${guest.status==='Active'?'#4ade80':'#f87171'};padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(${guest.status==='Active'?'74,222,128':'248,113,113'},.25);">${guest.status==='Active'?'✓ Active':'✗ Revoked'}</span>
                 <span style="background:rgba(${guest.verified?'21,128,61':'180,83,9'},.18);color:${guest.verified?'#4ade80':'#fbbf24'};padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(${guest.verified?'74,222,128':'251,191,36'},.25);">${guest.verified?'✅ Verified':'⚠️ Pending Verification'}</span>
-                ${stayStatus}
               </div>
             </div>
 
@@ -2173,14 +2232,14 @@ function startScanner() {
                   <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">📊 Total Scans</div>
                   <div style="font-size:20px;font-weight:800;color:#0c0c0f;font-family:'Playfair Display',serif;">${(parseInt(guest.scans)||0)+1}</div>
                 </div>
-                ${guest.checkin ? `<div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
-                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">📅 Check-in</div>
-                  <div style="font-size:14px;font-weight:700;color:#0c0c0f;">${formatDate(guest.checkin)}</div>
-                </div>` : ''}
-                ${guest.checkout ? `<div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
-                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">📅 Check-out</div>
-                  <div style="font-size:14px;font-weight:700;color:#0c0c0f;">${formatDate(guest.checkout)}</div>
-                </div>` : ''}
+                <div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
+                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">🎫 Guest Tier</div>
+                  <div style="font-size:14px;font-weight:800;color:#0c0c0f;">${sanitize(guest.type||'Standard')}</div>
+                </div>
+                <div style="background:#f9f7f3;border:1px solid #e8e0d4;border-radius:12px;padding:13px 14px;">
+                  <div style="font-size:10px;color:#6b6570;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px;">🌍 Nationality</div>
+                  <div style="font-size:14px;font-weight:800;color:#0c0c0f;">${sanitize(guest.nationality||'—')}</div>
+                </div>
               </div>
 
               <!-- Contact row -->
@@ -2407,10 +2466,78 @@ async function saveStaffMember() {
         saveStaffLocal(); renderStaffUsers();
         showToast('✅ Account created', 'ok');
         addLog(`${currentUser?.data?.fullname} created account: ${username} (${role})`);
+        // Auto-send welcome email to new staff member
+        if (email) {
+          sendStaffWelcomeEmail(newStaff, password);
+        }
       } else { showToast('Error: ' + (res.error||'unknown'), 'err'); }
     } catch(e) { hideSpinner(); showToast('Network error', 'err'); }
   }
   closeStaffModal();
+}
+
+// ═══════════════════════════════════════════════════
+// AUTO SEND STAFF WELCOME EMAIL
+// ═══════════════════════════════════════════════════
+async function sendStaffWelcomeEmail(staffMember, tempPassword) {
+  const ALIAS_EMAIL = 'doha@steigenberger.com'; // Hotel alias email
+  if (!staffMember.email) return;
+  const loginUrl = window.location.href.split('?')[0];
+  const subject = `Welcome to Steigenberger Doha — Your Staff Account`;
+  const body = [
+    `Dear ${staffMember.fullname},`,
+    ``,
+    `Your staff account for the Steigenberger Digital Guest Card System has been created.`,
+    ``,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `ACCOUNT DETAILS`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `Username:  ${staffMember.username}`,
+    `Password:  ${tempPassword}`,
+    `Role:      ${staffMember.role}`,
+    `Department:${staffMember.department || 'Not assigned'}`,
+    `Login URL: ${loginUrl}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    ``,
+    `⚠️ Please change your password after first login.`,
+    ``,
+    `For support contact: ${ALIAS_EMAIL}`,
+    ``,
+    `Regards,`,
+    `Steigenberger Hotel Doha — Administration`
+  ].join('\n');
+
+  try {
+    // Use Apps Script to send email from hotel alias
+    const res = await callAppsScript('sendStaffWelcomeEmail', {
+      to: staffMember.email,
+      from: ALIAS_EMAIL,
+      subject,
+      body,
+      staffName: staffMember.fullname,
+      username: staffMember.username,
+      tempPassword,
+      role: staffMember.role,
+      department: staffMember.department || '',
+      loginUrl
+    });
+    if (res && res.success) {
+      showToast('📧 Welcome email sent to ' + staffMember.email, 'ok');
+      addLog(`Welcome email sent to ${staffMember.fullname} (${staffMember.email})`);
+    } else {
+      // Fallback: open mailto if Apps Script email not configured
+      console.warn('[Email] Apps Script email failed, opening mailto fallback');
+      const mailtoLink = `mailto:${staffMember.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailtoLink, '_blank');
+      showToast('📧 Email client opened for welcome email', '');
+    }
+  } catch(e) {
+    console.warn('[Email] Could not auto-send email:', e);
+    // Fallback: open mailto
+    const mailtoLink = `mailto:${staffMember.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink, '_blank');
+    showToast('📧 Email client opened for welcome email', '');
+  }
 }
 
 async function resetStaffPassword(staffId) {
