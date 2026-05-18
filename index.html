@@ -886,6 +886,139 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 400px) { .field-row-2 { grid-template-columns: 1fr; } }
 
+/* ══ PHYSICAL CARD REQUEST ══ */
+.pgc-request-box {
+  background: linear-gradient(135deg, #1a1a22 0%, #12120f 100%);
+  border-radius: var(--radius-lg); padding: 26px 22px;
+  color: #fff; position: relative; overflow: hidden;
+  border: 1px solid rgba(201,168,76,0.18);
+}
+.pgc-request-box::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.pgc-card-visual {
+  background: linear-gradient(135deg, #1a1a22 0%, #0c0c0f 100%);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 14px; padding: 18px 20px;
+  font-family: 'Playfair Display', serif;
+  position: relative; overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(201,168,76,0.15);
+  width: 100%; max-width: 340px;
+}
+.pgc-card-visual::after {
+  content: '';
+  position: absolute; bottom: -30px; right: -30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+}
+.pgc-card-chip {
+  width: 34px; height: 26px; border-radius: 5px;
+  background: linear-gradient(135deg, #e8d08a, #c9a84c);
+  margin-bottom: 16px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.pgc-card-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.06em; margin-bottom: 4px; }
+.pgc-card-id { font-size: 11px; color: rgba(201,168,76,0.8); letter-spacing: 0.1em; font-family: 'Outfit', sans-serif; }
+.pgc-card-tier { position: absolute; top: 18px; right: 18px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; background: rgba(201,168,76,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(201,168,76,0.2); font-family: 'Outfit', sans-serif; }
+.pgc-card-hotel { position: absolute; bottom: 14px; right: 16px; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 0.12em; font-family: 'Outfit', sans-serif; text-align: right; }
+
+.pgc-status-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.pgc-status-badge.none     { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+.pgc-status-badge.pending  { background: rgba(180,83,9,0.18); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.pgc-status-badge.approved { background: rgba(21,128,61,0.18); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+.pgc-status-badge.rejected { background: rgba(185,28,28,0.18); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+.pgc-status-badge.printed  { background: rgba(13,125,124,0.18); color: #2dd4bf; border: 1px solid rgba(45,212,191,0.3); }
+
+.pgc-request-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.pgc-request-btn {
+  padding: 11px 22px; border-radius: 10px; cursor: pointer; font-size: 13px;
+  font-family: inherit; font-weight: 700; border: none; letter-spacing: 0.04em;
+  transition: all 0.2s;
+}
+.pgc-request-btn.gold  { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); }
+.pgc-request-btn.gold:hover  { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+.pgc-request-btn.ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.12); }
+.pgc-request-btn.ghost:hover { background: rgba(255,255,255,0.1); }
+.pgc-request-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.pgc-info-note { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 12px; line-height: 1.7; }
+
+/* Staff card requests table */
+.card-req-row {
+  display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; align-items: center;
+  padding: 14px 16px; border-radius: 12px; margin-bottom: 8px;
+  background: #fff; border: 1px solid var(--border);
+  transition: box-shadow var(--trans);
+}
+.card-req-row:hover { box-shadow: var(--shadow-md); }
+@media (max-width: 600px) { .card-req-row { grid-template-columns: 1fr; } }
+.card-req-name { font-weight: 700; font-size: 14px; color: var(--dark); }
+.card-req-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.card-req-actions { display: flex; gap: 6px; }
+.card-req-btn {
+  padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px;
+  font-family: inherit; font-weight: 600; border: none; transition: all 0.18s;
+}
+.card-req-btn.approve { background: rgba(21,128,61,0.12); color: #15803d; border: 1px solid rgba(21,128,61,0.25); }
+.card-req-btn.approve:hover { background: rgba(21,128,61,0.22); }
+.card-req-btn.reject  { background: rgba(185,28,28,0.08); color: var(--danger); border: 1px solid rgba(185,28,28,0.2); }
+.card-req-btn.reject:hover  { background: rgba(185,28,28,0.15); }
+.card-req-btn.print   { background: rgba(13,125,124,0.12); color: var(--teal); border: 1px solid rgba(13,125,124,0.25); }
+.card-req-btn.print:hover   { background: rgba(13,125,124,0.22); }
+
+/* ══ PRINT CARD ══ */
+@media print {
+  body > *:not(#print-card-template) { display: none !important; }
+  #print-card-template { display: block !important; }
+  @page { size: 85.6mm 54mm; margin: 0; }
+}
+#print-card-template {
+  display: none;
+  position: fixed; inset: 0; z-index: 99999;
+  background: #f3ede3;
+  align-items: center; justify-content: center;
+}
+#print-card-template.show { display: flex; }
+.print-card-wrap {
+  width: 85.6mm; height: 54mm;
+  background: linear-gradient(135deg, #1a1a22 0%, #0c0c0f 100%);
+  border-radius: 8px; overflow: hidden; position: relative;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  font-family: 'Outfit', sans-serif;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 10px 14px;
+  border: 1px solid rgba(201,168,76,0.3);
+}
+.print-card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.print-card-chip { width: 22px; height: 17px; border-radius: 3px; background: linear-gradient(135deg, #e8d08a, #c9a84c); }
+.print-card-hotel { font-size: 7px; color: rgba(255,255,255,0.35); letter-spacing: 0.12em; text-align: right; }
+.print-card-hotel strong { display: block; font-size: 8px; color: var(--gold); font-family: 'Playfair Display', serif; letter-spacing: 0.06em; }
+.print-card-mid { flex: 1; display: flex; align-items: flex-end; padding-bottom: 4px; }
+.print-card-name { font-size: 12px; font-weight: 700; color: #fff; letter-spacing: 0.04em; font-family: 'Playfair Display', serif; }
+.print-card-bottom { display: flex; align-items: flex-end; justify-content: space-between; }
+.print-card-id { font-size: 8px; color: rgba(201,168,76,0.8); letter-spacing: 0.12em; }
+.print-card-tier { font-size: 7px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; text-align: right; }
+.print-card-qr { position: absolute; bottom: 8px; right: 44px; }
+.print-close-btn {
+  position: fixed; top: 20px; right: 20px; z-index: 100000;
+  background: var(--dark); color: var(--gold); border: 1px solid rgba(201,168,76,0.3);
+  padding: 8px 18px; border-radius: 8px; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 600;
+}
+@media print { .print-close-btn { display: none !important; } }
+.print-actions-bar {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 12px; z-index: 100000;
+}
+@media print { .print-actions-bar { display: none !important; } }
+
 .hosp-strip { display:flex; height:3px; border-radius:40px; overflow:hidden; margin: 0 0 20px; }
 .hosp-strip span { flex:1; }
 .hosp-strip .s1 { background: var(--gold); }
@@ -946,121 +1079,19 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 /* Country code phone row */
 .phone-flex {
   display: flex;
-  align-items: stretch;
-  gap: 0;
-  position: relative;
-}
-.phone-flex #f-phone {
-  border-radius: 0 10px 10px 0 !important;
-  border-left: none !important;
-  flex: 1;
-}
-/* Custom country code picker */
-.cc-picker-wrap {
-  position: relative;
-  flex-shrink: 0;
-  z-index: 10;
-}
-.cc-trigger {
-  display: flex;
   align-items: center;
-  gap: 5px;
-  height: 100%;
-  padding: 0 10px;
-  background: var(--cream2);
+  gap: 8px;
+}
+.country-code-select {
+  width: 100px;
+  flex-shrink: 0;
+  background: var(--cream);
   border: 1.5px solid var(--border);
-  border-right: none;
-  border-radius: 10px 0 0 10px;
-  cursor: pointer;
+  border-radius: 10px;
+  padding: 12px 8px;
   font-size: 13px;
   font-family: inherit;
   color: var(--dark);
-  white-space: nowrap;
-  min-width: 90px;
-  transition: border-color 0.2s, background 0.2s;
-  user-select: none;
-}
-.cc-trigger:hover { background: var(--cream); border-color: var(--gold); }
-.cc-trigger.open  { border-color: var(--gold); background: #fff; }
-.cc-trigger-flag  { font-size: 16px; line-height: 1; }
-.cc-trigger-code  { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.02em; }
-.cc-trigger-arrow { font-size: 9px; color: var(--muted); margin-left: auto; transition: transform 0.2s; }
-.cc-trigger.open .cc-trigger-arrow { transform: rotate(180deg); }
-
-.cc-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  width: 260px;
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
-  overflow: hidden;
-  z-index: 999;
-  animation: ccFadeIn 0.15s ease;
-}
-@keyframes ccFadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-.cc-dropdown.open { display: block; }
-
-.cc-search-wrap {
-  padding: 8px 8px 6px;
-  border-bottom: 1px solid var(--border);
-  background: var(--cream2);
-}
-.cc-search {
-  width: 100% !important;
-  padding: 6px 10px 6px 28px !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 7px !important;
-  font-size: 12px !important;
-  font-family: inherit !important;
-  background: #fff !important;
-  color: var(--dark) !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-.cc-search:focus { border-color: var(--gold) !important; }
-.cc-search-icon {
-  position: absolute;
-  left: 17px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 11px; color: var(--muted);
-  pointer-events: none;
-}
-.cc-search-box { position: relative; }
-
-.cc-list {
-  max-height: 200px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-.cc-list::-webkit-scrollbar { width: 4px; }
-.cc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-.cc-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text);
-  transition: background 0.12s;
-}
-.cc-option:hover, .cc-option.active { background: var(--gold-pale); }
-.cc-option-flag  { font-size: 15px; line-height: 1; flex-shrink: 0; }
-.cc-option-name  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dark); }
-.cc-option-code  { font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
-.cc-empty { padding: 14px; text-align: center; font-size: 12px; color: var(--muted); }
-
-/* When phone field is focused, highlight full group */
-.phone-flex:focus-within .cc-trigger:not(.open) {
-  border-color: var(--gold);
-}
-.phone-flex:focus-within #f-phone {
-  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
 }
 </style>
 </head>
@@ -1257,6 +1288,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests',event)">Guests</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add',event)">Add Guest</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner',event)">Scanner</button>
+    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-cardrequests',event)">Card Requests</button>
     <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-admin',event)">Team Admin</button>
   </nav>
 
@@ -1268,6 +1300,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         <button class="sidebar-btn" id="nav-guests" onclick="showPanel('staff-guests')"><span class="sidebar-icon">👥</span>Guests</button>
         <button class="sidebar-btn" id="nav-add" onclick="showPanel('staff-add')"><span class="sidebar-icon">➕</span>Add Guest</button>
         <button class="sidebar-btn" id="nav-scanner" onclick="showPanel('staff-scanner')"><span class="sidebar-icon">📷</span>Scanner</button>
+        <button class="sidebar-btn" id="nav-cardrequests" onclick="showPanel('staff-cardrequests')"><span class="sidebar-icon">🪪</span>Card Requests<span class="sidebar-badge" id="card-req-badge" style="display:none;">0</span></button>
         <button class="sidebar-btn admin-only" id="nav-admin" onclick="showPanel('staff-admin')"><span class="sidebar-icon">🛡️</span>Team Admin</button>
       </nav>
       <div class="sidebar-footer">
@@ -1328,6 +1361,49 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             </div>
             <button class="btn-primary" style="margin-top:14px;" onclick="changeGuestPassword()">🔒 Update Password</button>
             <span id="password-change-status" style="font-size:12px;color:var(--muted);margin-left:12px;"></span>
+          </div>
+
+          <!-- PHYSICAL CARD REQUEST -->
+          <div class="card">
+            <div class="card-title">Physical Guest Card</div>
+            <div class="pgc-request-box">
+              <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:20px;">
+                <div class="pgc-card-visual">
+                  <div class="pgc-card-chip"></div>
+                  <div class="pgc-card-name" id="pgc-preview-name">—</div>
+                  <div class="pgc-card-id" id="pgc-preview-id">—</div>
+                  <div class="pgc-card-tier" id="pgc-preview-tier">—</div>
+                  <div class="pgc-card-hotel">STEIGENBERGER<br>Hotel Doha</div>
+                </div>
+                <div style="flex:1;min-width:180px;">
+                  <p style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:14px;">Request a personalised physical card for exclusive access and a premium stay experience at Steigenberger Hotel Doha.</p>
+                  <div style="margin-bottom:12px;">
+                    <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Request Status</div>
+                    <span class="pgc-status-badge none" id="pgc-guest-status-badge">⬜ No request yet</span>
+                  </div>
+                  <div id="pgc-status-detail" style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;display:none;"></div>
+                </div>
+              </div>
+              <div id="pgc-request-form-area">
+                <div class="field" style="margin-bottom:12px;">
+                  <label style="color:rgba(255,255,255,0.4)!important;">Delivery / Collection Preference</label>
+                  <select id="pgc-delivery-pref" style="background:rgba(255,255,255,0.07)!important;color:#fff!important;border:1px solid rgba(255,255,255,0.12)!important;border-radius:10px!important;padding:11px 14px!important;width:100%;font-family:inherit;font-size:14px;">
+                    <option value="reception">Collect at Reception</option>
+                    <option value="room">Deliver to Room</option>
+                    <option value="concierge">Collect from Concierge</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                  <label style="color:rgba(255,255,255,0.4)!important;">Notes (optional)</label>
+                  <textarea id="pgc-request-notes" rows="2" placeholder="Any special instructions…" style="background:rgba(255,255,255,0.07)!important;color:#fff!important;border:1px solid rgba(255,255,255,0.12)!important;border-radius:10px!important;padding:11px 14px!important;width:100%;font-family:inherit;font-size:14px;resize:vertical;"></textarea>
+                </div>
+              </div>
+              <div class="pgc-request-actions">
+                <button class="pgc-request-btn gold" id="pgc-submit-btn" onclick="submitPhysicalCardRequest()">🪪 Request Physical Card</button>
+                <button class="pgc-request-btn ghost" id="pgc-cancel-btn" onclick="cancelPhysicalCardRequest()" style="display:none;">✕ Cancel Request</button>
+              </div>
+              <p class="pgc-info-note" id="pgc-info-note">Your card will be prepared by our front desk team and ready within 15–30 minutes after approval.</p>
+            </div>
           </div>
         </section>
 
@@ -1393,27 +1469,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="form-section-title">Contact</div>
             <div class="form-grid">
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
-              <div class="field"><label>Phone</label><div class="phone-flex">
-                <div class="cc-picker-wrap" id="cc-picker-wrap">
-                  <div class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)">
-                    <span class="cc-trigger-flag" id="cc-flag">🇶🇦</span>
-                    <span class="cc-trigger-code" id="cc-code">+974</span>
-                    <span class="cc-trigger-arrow">▼</span>
-                  </div>
-                  <div class="cc-dropdown" id="cc-dropdown">
-                    <div class="cc-search-wrap">
-                      <div class="cc-search-box">
-                        <span class="cc-search-icon">🔍</span>
-                        <input class="cc-search" id="cc-search" type="text" placeholder="Search country…" oninput="filterCCList(this.value)" autocomplete="off">
-                      </div>
-                    </div>
-                    <div class="cc-list" id="cc-list"></div>
-                  </div>
-                </div>
-                <input id="f-phone" type="tel" placeholder="Phone number">
-                <input type="hidden" id="country-code" value="+974">
-              </div></div>
-
+              <div class="field"><label>Phone</label><div class="phone-flex"><select id="country-code" class="country-code-select"><option value="+974">🇶🇦 +974</option><option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+971">🇦🇪 +971</option><option value="+966">🇸🇦 +966</option><option value="+91">🇮🇳 +91</option><option value="+33">🇫🇷 +33</option><option value="+49">🇩🇪 +49</option></select><input id="f-phone" type="tel" placeholder="XXXX XXXX"></div></div>
             </div>
             <div class="form-section-title">Room & Tier</div>
             <div class="form-grid">
@@ -1485,8 +1541,57 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           <div class="card"><div class="card-title">📜 Activity Log</div><div id="activity-log" style="max-height:320px;overflow-y:auto;"></div></div>
         </section>
 
+        <!-- STAFF CARD REQUESTS -->
+        <section class="panel" id="panel-staff-cardrequests">
+          <div class="page-header">
+            <div class="page-title">Physical Card Requests</div>
+            <div class="page-subtitle">Review and process guest physical card requests</div>
+          </div>
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+              <button class="filter-btn active" id="cr-filter-all" onclick="setCRFilter('all',this)">All</button>
+              <button class="filter-btn" id="cr-filter-pending" onclick="setCRFilter('pending',this)">⏳ Pending</button>
+              <button class="filter-btn" id="cr-filter-approved" onclick="setCRFilter('approved',this)">✅ Approved</button>
+              <button class="filter-btn" id="cr-filter-printed" onclick="setCRFilter('printed',this)">🖨️ Printed</button>
+              <button class="filter-btn" id="cr-filter-rejected" onclick="setCRFilter('rejected',this)">✕ Rejected</button>
+              <button class="btn-primary btn-sm" style="margin-left:auto;" onclick="loadCardRequests()">🔄 Refresh</button>
+            </div>
+            <div id="card-requests-list"><div class="empty-state"><div class="empty-icon">🪪</div>Loading card requests…</div></div>
+          </div>
+        </section>
+
       </div>
     </main>
+  </div>
+</div>
+
+<!-- PRINT CARD TEMPLATE -->
+<div id="print-card-template">
+  <button class="print-close-btn" onclick="closePrintCard()">✕ Close</button>
+  <div style="text-align:center;">
+    <div class="print-card-wrap" id="print-card-inner">
+      <div class="print-card-top">
+        <div class="print-card-chip"></div>
+        <div class="print-card-hotel"><strong>STEIGENBERGER</strong>HOTEL DOHA</div>
+      </div>
+      <div class="print-card-mid">
+        <div>
+          <div class="print-card-name" id="print-card-name">—</div>
+        </div>
+      </div>
+      <div class="print-card-bottom">
+        <div>
+          <div class="print-card-id" id="print-card-id">—</div>
+          <div style="font-size:7px;color:rgba(255,255,255,0.25);margin-top:2px;" id="print-card-room">—</div>
+        </div>
+        <div class="print-card-tier" id="print-card-tier">—</div>
+      </div>
+      <div class="print-card-qr" id="print-card-qr-wrap"></div>
+    </div>
+    <div class="print-actions-bar">
+      <button class="pgc-request-btn gold" onclick="window.print()">🖨️ Print Card</button>
+      <button class="pgc-request-btn ghost" onclick="closePrintCard()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -1563,7 +1668,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 // ═══════════════════════════════════════════════════
 // CONFIGURATION (same Apps Script URL)
 // ═══════════════════════════════════════════════════
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz57ZISWGTRop5ebLKc05q8vVtR2dcc9SAwWXsjJROKs-J7S9vSUtLVNfkRWCTsBir3dQ/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDI9DL1ITkM4D1VheCuX5v-jInNW6zHcRhxzbi7qMv9ep3Z91iFHLWgTnsFP4zMItr2w/exec';
 const SESSION_TIMEOUT_MINUTES = 30;
 
 function callAppsScript(action, data = {}, timeoutMs = 25000) {
@@ -2260,7 +2365,7 @@ function copyShareDetails() { const text = document.getElementById('share-creden
 // ═══════════════════════════════════════════════════
 // GUEST PROFILE
 // ═══════════════════════════════════════════════════
-function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; }
+function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; loadGuestProfileWithCard(); }
 async function updateGuestProfile() { const email = document.getElementById('profile-email').value.trim(); const phone = document.getElementById('profile-phone').value.trim(); if (!email && !phone) { showToast('Enter email or phone', 'err'); return; } showSpinner(); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { email, phone } }); hideSpinner(); if (res.success) { currentGuest.email = email; currentGuest.phone = phone; await loadGuests(); showToast('Profile updated', 'ok'); } else { showToast('Failed', 'err'); } }
 async function changeGuestPassword() { const currentPw = document.getElementById('profile-current-password').value; const newPw = document.getElementById('profile-new-password').value; const confirmPw = document.getElementById('profile-confirm-password').value; if (!currentPw) { showToast('Enter current password', 'err'); return; } const err = validatePassword(newPw); if (err) { showToast(err, 'err'); return; } if (newPw !== confirmPw) { showToast('Passwords do not match', 'err'); return; } showSpinner(); const verify = await callAppsScript('guestLogin', { guestId: currentGuest.id, password: currentPw }); if (!verify.success) { hideSpinner(); showToast('Current password incorrect', 'err'); return; } const salt = generateSalt(); const hash = await hashPasswordFrontend(newPw, salt); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { password_hash: hash, salt } }); hideSpinner(); if (res.success) { showToast('Password updated', 'ok'); addLog(`${currentGuest.first} changed password`); document.getElementById('profile-current-password').value = ''; document.getElementById('profile-new-password').value = ''; document.getElementById('profile-confirm-password').value = ''; } else { showToast('Failed', 'err'); } }
 
@@ -2335,6 +2440,7 @@ function applyUserSession() {
     document.getElementById('sidebar-toggle-btn').style.display = 'flex';
     if (isAdmin) { showPanel('staff-analytics'); document.getElementById('nav-analytics')?.classList.add('active'); }
     else { showPanel('staff-guests'); document.getElementById('nav-guests')?.classList.add('active'); }
+    updateCardRequestBadge();
   }
 }
 function logout() { if (sessionTimer) clearInterval(sessionTimer); stopScanner(); currentUser = null; currentGuest = null; sessionStorage.removeItem('sg_session'); document.getElementById('login-page').style.display = ''; document.getElementById('main-app').classList.remove('active'); switchTab('guest'); showToast('Signed out', ''); clearLoginError(); }
@@ -2353,6 +2459,319 @@ function loadGuestDashboard() {
   document.getElementById('guest-stay-info').innerHTML = rows.filter(r => r[1]).map(([label, val]) => `<div class="detail-row"><span class="detail-label">${label}</span><span>${sanitize(String(val))}</span></div>`).join('');
 }
 function downloadQR() { const canvas = document.querySelector('#qr-inner canvas'); if (!canvas) { showToast('QR code not ready', 'err'); return; } const a = document.createElement('a'); a.download = `steigenberger-${currentGuest?.id || 'card'}.png`; a.href = canvas.toDataURL(); a.click(); }
+
+// ═══════════════════════════════════════════════════
+// PHYSICAL CARD REQUEST — LOCAL STORAGE LAYER
+// (Replace with Apps Script backend calls in production)
+// ═══════════════════════════════════════════════════
+
+function getCardRequests() {
+  try { return JSON.parse(localStorage.getItem('pgc_card_requests') || '[]'); } catch(e) { return []; }
+}
+function saveCardRequests(reqs) {
+  try { localStorage.setItem('pgc_card_requests', JSON.stringify(reqs)); } catch(e) {}
+}
+function getGuestCardRequest(guestId) {
+  return getCardRequests().find(r => r.guestId === guestId) || null;
+}
+
+// ═══════════════════════════════════════════════════
+// GUEST SIDE — REQUEST PHYSICAL CARD
+// ═══════════════════════════════════════════════════
+
+function loadGuestProfileWithCard() {
+  if (!currentGuest) return;
+  const g = currentGuest;
+  // Populate profile fields
+  const emailEl = document.getElementById('profile-email');
+  const phoneEl = document.getElementById('profile-phone');
+  if (emailEl) emailEl.value = g.email || '';
+  if (phoneEl) phoneEl.value = g.phone || '';
+  // Show password card if passwordSet
+  const pwCard = document.getElementById('change-password-card');
+  if (pwCard) pwCard.style.display = g.passwordSet ? 'block' : 'none';
+  // Fill card preview
+  const previewName = document.getElementById('pgc-preview-name');
+  const previewId   = document.getElementById('pgc-preview-id');
+  const previewTier = document.getElementById('pgc-preview-tier');
+  if (previewName) previewName.textContent = `${g.title || ''} ${g.first} ${g.last}`.trim();
+  if (previewId)   previewId.textContent   = g.id;
+  if (previewTier) previewTier.textContent  = g.type || 'Standard';
+  // Render request status
+  renderGuestCardRequestStatus();
+}
+
+function renderGuestCardRequestStatus() {
+  if (!currentGuest) return;
+  const req = getGuestCardRequest(currentGuest.id);
+  const badge      = document.getElementById('pgc-guest-status-badge');
+  const detail     = document.getElementById('pgc-status-detail');
+  const formArea   = document.getElementById('pgc-request-form-area');
+  const submitBtn  = document.getElementById('pgc-submit-btn');
+  const cancelBtn  = document.getElementById('pgc-cancel-btn');
+  const infoNote   = document.getElementById('pgc-info-note');
+  if (!badge) return;
+
+  if (!req) {
+    badge.className = 'pgc-status-badge none';
+    badge.textContent = '⬜ No request yet';
+    if (detail) detail.style.display = 'none';
+    if (formArea) formArea.style.display = 'block';
+    if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🪪 Request Physical Card'; }
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (infoNote) infoNote.textContent = 'Your card will be prepared by our front desk team and ready within 15–30 minutes after approval.';
+    return;
+  }
+
+  // Has a request
+  if (formArea) formArea.style.display = 'none';
+  const ts = req.requestedAt ? new Date(req.requestedAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+
+  switch (req.status) {
+    case 'pending':
+      badge.className = 'pgc-status-badge pending';
+      badge.textContent = '⏳ Pending Review';
+      if (detail) { detail.innerHTML = `Submitted: <strong>${ts}</strong><br>Preference: <strong>${req.deliveryPref || '—'}</strong>${req.notes ? '<br>Notes: ' + sanitize(req.notes) : ''}`; detail.style.display = 'block'; }
+      if (submitBtn) submitBtn.style.display = 'none';
+      if (cancelBtn) { cancelBtn.style.display = 'inline-flex'; }
+      if (infoNote) infoNote.textContent = 'Your request is under review by our front desk team. We will prepare your card shortly.';
+      break;
+    case 'approved':
+      badge.className = 'pgc-status-badge approved';
+      badge.textContent = '✅ Approved';
+      if (detail) { detail.innerHTML = `Approved by: <strong>${sanitize(req.reviewedBy || 'Staff')}</strong><br>Preference: <strong>${req.deliveryPref || '—'}</strong>`; detail.style.display = 'block'; }
+      if (submitBtn) submitBtn.style.display = 'none';
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      if (infoNote) infoNote.textContent = '🎉 Your physical card has been approved and is being prepared. Please collect it at the agreed location.';
+      break;
+    case 'printed':
+      badge.className = 'pgc-status-badge printed';
+      badge.textContent = '🖨️ Card Printed & Ready';
+      if (detail) { detail.innerHTML = `Ready for: <strong>${req.deliveryPref || '—'}</strong><br>Printed: <strong>${req.printedAt ? new Date(req.printedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</strong>`; detail.style.display = 'block'; }
+      if (submitBtn) submitBtn.style.display = 'none';
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      if (infoNote) infoNote.textContent = '✅ Your physical card is ready. Please collect it at the Front Desk / Concierge as arranged.';
+      break;
+    case 'rejected':
+      badge.className = 'pgc-status-badge rejected';
+      badge.textContent = '✕ Request Declined';
+      if (detail) { detail.innerHTML = `Reason: <strong>${sanitize(req.rejectReason || 'See front desk for details')}</strong>`; detail.style.display = 'block'; }
+      if (formArea) formArea.style.display = 'block';
+      if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🔄 Re-submit Request'; }
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      if (infoNote) infoNote.textContent = 'Your previous request was declined. You may submit a new request below.';
+      break;
+  }
+}
+
+async function submitPhysicalCardRequest() {
+  if (!currentGuest) return;
+  const btn = document.getElementById('pgc-submit-btn');
+  const pref  = document.getElementById('pgc-delivery-pref')?.value || 'reception';
+  const notes = document.getElementById('pgc-request-notes')?.value?.trim() || '';
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+  showSpinner('Submitting card request…');
+
+  // Remove any existing rejected request for this guest
+  let reqs = getCardRequests().filter(r => r.guestId !== currentGuest.id || r.status !== 'rejected');
+
+  const newReq = {
+    id:           'PCR_' + Date.now(),
+    guestId:      currentGuest.id,
+    guestName:    `${currentGuest.title || ''} ${currentGuest.first} ${currentGuest.last}`.trim(),
+    guestType:    currentGuest.type || 'Standard',
+    room:         currentGuest.room || 'TBA',
+    email:        currentGuest.email || '',
+    deliveryPref: pref,
+    notes:        notes,
+    status:       'pending',
+    requestedAt:  new Date().toISOString(),
+    reviewedBy:   '',
+    rejectReason: '',
+    printedAt:    ''
+  };
+  reqs.push(newReq);
+  saveCardRequests(reqs);
+
+  // Optional: sync to Apps Script (graceful fail)
+  try {
+    await callAppsScript('addCardRequest', { request: newReq });
+  } catch(e) { /* local-only is fine */ }
+
+  hideSpinner();
+  showToast('Card request submitted! Front desk will review shortly.', 'ok');
+  addLog(`Guest ${currentGuest.id} requested a physical card`);
+  renderGuestCardRequestStatus();
+  updateCardRequestBadge();
+}
+
+async function cancelPhysicalCardRequest() {
+  if (!currentGuest) return;
+  if (!confirm('Cancel your physical card request?')) return;
+  let reqs = getCardRequests().filter(r => !(r.guestId === currentGuest.id && r.status === 'pending'));
+  saveCardRequests(reqs);
+  showToast('Request cancelled', '');
+  renderGuestCardRequestStatus();
+  updateCardRequestBadge();
+}
+
+// ═══════════════════════════════════════════════════
+// STAFF SIDE — MANAGE CARD REQUESTS
+// ═══════════════════════════════════════════════════
+
+let crFilter = 'all';
+
+function setCRFilter(f, btn) {
+  crFilter = f;
+  document.querySelectorAll('#panel-staff-cardrequests .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderCardRequestsList();
+}
+
+function loadCardRequests() {
+  updateCardRequestBadge();
+  renderCardRequestsList();
+}
+
+function updateCardRequestBadge() {
+  const reqs = getCardRequests();
+  const pending = reqs.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('card-req-badge');
+  if (badge) {
+    badge.textContent = pending;
+    badge.style.display = pending > 0 ? 'inline-block' : 'none';
+  }
+}
+
+function renderCardRequestsList() {
+  const container = document.getElementById('card-requests-list');
+  if (!container) return;
+  let reqs = getCardRequests();
+  if (crFilter !== 'all') reqs = reqs.filter(r => r.status === crFilter);
+  reqs = reqs.slice().reverse(); // newest first
+
+  if (!reqs.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div>No card requests' + (crFilter !== 'all' ? ' in this category' : '') + '.</div>';
+    return;
+  }
+
+  const statusLabel = { pending:'⏳ Pending', approved:'✅ Approved', rejected:'✕ Rejected', printed:'🖨️ Printed' };
+  const statusClass = { pending:'pending', approved:'approved', rejected:'rejected', printed:'printed' };
+
+  container.innerHTML = reqs.map(r => {
+    const ts = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const actions = r.status === 'pending'
+      ? `<button class="card-req-btn approve" onclick="approveCardRequest('${r.id}')">✅ Approve</button>
+         <button class="card-req-btn reject" onclick="rejectCardRequest('${r.id}')">✕ Reject</button>`
+      : r.status === 'approved'
+      ? `<button class="card-req-btn print" onclick="openPrintCard('${r.id}')">🖨️ Print Card</button>`
+      : r.status === 'printed'
+      ? `<button class="card-req-btn print" onclick="openPrintCard('${r.id}')">🔁 Re-print</button>`
+      : `<button class="card-req-btn approve" onclick="approveCardRequest('${r.id}')">↩ Re-approve</button>`;
+    return `
+      <div class="card-req-row" data-id="${r.id}">
+        <div>
+          <div class="card-req-name">${sanitize(r.guestName)}</div>
+          <div class="card-req-meta">${sanitize(r.guestId)} · Room ${sanitize(r.room)} · ${sanitize(r.guestType)} · ${sanitize(r.deliveryPref || '—')}</div>
+          <div class="card-req-meta" style="margin-top:3px;">Requested: ${ts}${r.notes ? ' · ' + sanitize(r.notes) : ''}</div>
+        </div>
+        <span class="pgc-status-badge ${statusClass[r.status] || 'none'}">${statusLabel[r.status] || r.status}</span>
+        <div class="card-req-actions">${actions}</div>
+      </div>`;
+  }).join('');
+}
+
+function approveCardRequest(id) {
+  const reqs = getCardRequests();
+  const req = reqs.find(r => r.id === id);
+  if (!req) return;
+  const staffName = currentUser?.data?.fullname || currentUser?.data?.username || 'Staff';
+  req.status     = 'approved';
+  req.reviewedBy = staffName;
+  req.reviewedAt = new Date().toISOString();
+  saveCardRequests(reqs);
+  showToast(`Card request for ${req.guestName} approved`, 'ok');
+  addLog(`Approved physical card request for ${req.guestId}`);
+  renderCardRequestsList();
+  updateCardRequestBadge();
+}
+
+function rejectCardRequest(id) {
+  const reason = prompt('Reason for rejection (optional):') ?? null;
+  if (reason === null) return; // cancelled
+  const reqs = getCardRequests();
+  const req = reqs.find(r => r.id === id);
+  if (!req) return;
+  const staffName = currentUser?.data?.fullname || currentUser?.data?.username || 'Staff';
+  req.status       = 'rejected';
+  req.reviewedBy   = staffName;
+  req.reviewedAt   = new Date().toISOString();
+  req.rejectReason = reason || 'No reason given';
+  saveCardRequests(reqs);
+  showToast(`Request rejected`, '');
+  addLog(`Rejected physical card request for ${req.guestId}`);
+  renderCardRequestsList();
+  updateCardRequestBadge();
+}
+
+function openPrintCard(id) {
+  const reqs = getCardRequests();
+  const req = reqs.find(r => r.id === id);
+  if (!req) return;
+
+  // Find full guest data
+  const guest = guests.find(g => g.id === req.guestId) || {
+    id: req.guestId, first: req.guestName, last: '', type: req.guestType, room: req.room, title: ''
+  };
+
+  document.getElementById('print-card-name').textContent  = sanitize(req.guestName);
+  document.getElementById('print-card-id').textContent    = sanitize(req.guestId);
+  document.getElementById('print-card-tier').textContent  = sanitize(req.guestType || 'Standard');
+  document.getElementById('print-card-room').textContent  = 'Room ' + sanitize(req.room || 'TBA');
+
+  // QR for the print card
+  const qrWrap = document.getElementById('print-card-qr-wrap');
+  if (qrWrap) {
+    qrWrap.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(qrWrap, { text: req.guestId, width: 50, height: 50, correctLevel: QRCode.CorrectLevel.H });
+    }
+  }
+
+  document.getElementById('print-card-template').classList.add('show');
+
+  // Mark as printed
+  req.status    = 'printed';
+  req.printedAt = new Date().toISOString();
+  saveCardRequests(reqs);
+  addLog(`Printed physical card for ${req.guestId}`);
+  updateCardRequestBadge();
+  renderCardRequestsList();
+}
+
+function closePrintCard() {
+  document.getElementById('print-card-template').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════
+// HOOK INTO showPanel for card requests
+// ═══════════════════════════════════════════════════
+const _origShowPanel = showPanel;
+function showPanel(pid) {
+  _origShowPanel(pid);
+  const navMap2 = { 'staff-cardrequests': 'nav-cardrequests' };
+  if (navMap2[pid]) {
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(navMap2[pid]);
+    if (btn) btn.classList.add('active');
+  }
+  if (pid === 'staff-cardrequests') loadCardRequests();
+  if (pid === 'guest-profile') {
+    loadGuestProfileWithCard();
+    return; // already handled profile loading
+  }
+}
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
@@ -2397,125 +2816,6 @@ async function init() {
   }
 }
 document.addEventListener('DOMContentLoaded', init);
-
-// ═══════════════════════════════════════════════════
-// COUNTRY CODE PICKER
-// ═══════════════════════════════════════════════════
-const COUNTRIES = [
-  {name:'Qatar',flag:'🇶🇦',code:'+974'},{name:'United Arab Emirates',flag:'🇦🇪',code:'+971'},
-  {name:'Saudi Arabia',flag:'🇸🇦',code:'+966'},{name:'Kuwait',flag:'🇰🇼',code:'+965'},
-  {name:'Bahrain',flag:'🇧🇭',code:'+973'},{name:'Oman',flag:'🇴🇲',code:'+968'},
-  {name:'Jordan',flag:'🇯🇴',code:'+962'},{name:'Lebanon',flag:'🇱🇧',code:'+961'},
-  {name:'Egypt',flag:'🇪🇬',code:'+20'},{name:'Iraq',flag:'🇮🇶',code:'+964'},
-  {name:'Turkey',flag:'🇹🇷',code:'+90'},{name:'Iran',flag:'🇮🇷',code:'+98'},
-  {name:'Pakistan',flag:'🇵🇰',code:'+92'},{name:'India',flag:'🇮🇳',code:'+91'},
-  {name:'Bangladesh',flag:'🇧🇩',code:'+880'},{name:'Sri Lanka',flag:'🇱🇰',code:'+94'},
-  {name:'Nepal',flag:'🇳🇵',code:'+977'},{name:'Philippines',flag:'🇵🇭',code:'+63'},
-  {name:'Indonesia',flag:'🇮🇩',code:'+62'},{name:'Malaysia',flag:'🇲🇾',code:'+60'},
-  {name:'Singapore',flag:'🇸🇬',code:'+65'},{name:'Thailand',flag:'🇹🇭',code:'+66'},
-  {name:'Vietnam',flag:'🇻🇳',code:'+84'},{name:'China',flag:'🇨🇳',code:'+86'},
-  {name:'Japan',flag:'🇯🇵',code:'+81'},{name:'South Korea',flag:'🇰🇷',code:'+82'},
-  {name:'United States',flag:'🇺🇸',code:'+1'},{name:'Canada',flag:'🇨🇦',code:'+1'},
-  {name:'United Kingdom',flag:'🇬🇧',code:'+44'},{name:'Germany',flag:'🇩🇪',code:'+49'},
-  {name:'France',flag:'🇫🇷',code:'+33'},{name:'Italy',flag:'🇮🇹',code:'+39'},
-  {name:'Spain',flag:'🇪🇸',code:'+34'},{name:'Netherlands',flag:'🇳🇱',code:'+31'},
-  {name:'Belgium',flag:'🇧🇪',code:'+32'},{name:'Switzerland',flag:'🇨🇭',code:'+41'},
-  {name:'Sweden',flag:'🇸🇪',code:'+46'},{name:'Norway',flag:'🇳🇴',code:'+47'},
-  {name:'Denmark',flag:'🇩🇰',code:'+45'},{name:'Finland',flag:'🇫🇮',code:'+358'},
-  {name:'Poland',flag:'🇵🇱',code:'+48'},{name:'Austria',flag:'🇦🇹',code:'+43'},
-  {name:'Portugal',flag:'🇵🇹',code:'+351'},{name:'Greece',flag:'🇬🇷',code:'+30'},
-  {name:'Russia',flag:'🇷🇺',code:'+7'},{name:'Ukraine',flag:'🇺🇦',code:'+380'},
-  {name:'Australia',flag:'🇦🇺',code:'+61'},{name:'New Zealand',flag:'🇳🇿',code:'+64'},
-  {name:'South Africa',flag:'🇿🇦',code:'+27'},{name:'Nigeria',flag:'🇳🇬',code:'+234'},
-  {name:'Kenya',flag:'🇰🇪',code:'+254'},{name:'Ethiopia',flag:'🇪🇹',code:'+251'},
-  {name:'Morocco',flag:'🇲🇦',code:'+212'},{name:'Tunisia',flag:'🇹🇳',code:'+216'},
-  {name:'Algeria',flag:'🇩🇿',code:'+213'},{name:'Libya',flag:'🇱🇾',code:'+218'},
-  {name:'Sudan',flag:'🇸🇩',code:'+249'},{name:'Syria',flag:'🇸🇾',code:'+963'},
-  {name:'Yemen',flag:'🇾🇪',code:'+967'},{name:'Afghanistan',flag:'🇦🇫',code:'+93'},
-  {name:'Brazil',flag:'🇧🇷',code:'+55'},{name:'Argentina',flag:'🇦🇷',code:'+54'},
-  {name:'Mexico',flag:'🇲🇽',code:'+52'},{name:'Colombia',flag:'🇨🇴',code:'+57'},
-  {name:'Chile',flag:'🇨🇱',code:'+56'},{name:'Peru',flag:'🇵🇪',code:'+51'},
-  {name:'Venezuela',flag:'🇻🇪',code:'+58'},{name:'Ecuador',flag:'🇪🇨',code:'+593'},
-  {name:'Romania',flag:'🇷🇴',code:'+40'},{name:'Czech Republic',flag:'🇨🇿',code:'+420'},
-  {name:'Hungary',flag:'🇭🇺',code:'+36'},{name:'Bulgaria',flag:'🇧🇬',code:'+359'},
-  {name:'Serbia',flag:'🇷🇸',code:'+381'},{name:'Croatia',flag:'🇭🇷',code:'+385'},
-  {name:'Slovakia',flag:'🇸🇰',code:'+421'},{name:'Slovenia',flag:'🇸🇮',code:'+386'},
-  {name:'Israel',flag:'🇮🇱',code:'+972'},{name:'Cyprus',flag:'🇨🇾',code:'+357'},
-  {name:'Malta',flag:'🇲🇹',code:'+356'},{name:'Iceland',flag:'🇮🇸',code:'+354'},
-  {name:'Ireland',flag:'🇮🇪',code:'+353'},{name:'Luxembourg',flag:'🇱🇺',code:'+352'},
-  {name:'Ghana',flag:'🇬🇭',code:'+233'},{name:'Tanzania',flag:'🇹🇿',code:'+255'},
-  {name:'Uganda',flag:'🇺🇬',code:'+256'},{name:'Rwanda',flag:'🇷🇼',code:'+250'},
-  {name:'Cameroon',flag:'🇨🇲',code:'+237'},{name:'Senegal',flag:'🇸🇳',code:'+221'},
-  {name:'Ivory Coast',flag:'🇨🇮',code:'+225'},{name:'Zambia',flag:'🇿🇲',code:'+260'},
-  {name:'Zimbabwe',flag:'🇿🇼',code:'+263'},{name:'Mozambique',flag:'🇲🇿',code:'+258'},
-  {name:'Kazakhstan',flag:'🇰🇿',code:'+7'},{name:'Uzbekistan',flag:'🇺🇿',code:'+998'},
-  {name:'Azerbaijan',flag:'🇦🇿',code:'+994'},{name:'Armenia',flag:'🇦🇲',code:'+374'},
-  {name:'Georgia',flag:'🇬🇪',code:'+995'},{name:'Belarus',flag:'🇧🇾',code:'+375'},
-  {name:'Lithuania',flag:'🇱🇹',code:'+370'},{name:'Latvia',flag:'🇱🇻',code:'+371'},
-  {name:'Estonia',flag:'🇪🇪',code:'+372'},
-];
-
-let ccOpen = false;
-let selectedCC = COUNTRIES[0];
-
-function buildCCList(filter='') {
-  const list = document.getElementById('cc-list');
-  if (!list) return;
-  const q = filter.toLowerCase().trim();
-  const filtered = q ? COUNTRIES.filter(c => c.name.toLowerCase().includes(q) || c.code.includes(q)) : COUNTRIES;
-  if (!filtered.length) {
-    list.innerHTML = '<div class="cc-empty">No country found</div>';
-    return;
-  }
-  list.innerHTML = filtered.map(c =>
-    `<div class="cc-option${c.code === selectedCC.code && c.name === selectedCC.name ? ' active' : ''}"
-      onclick="selectCC('${c.name}','${c.flag}','${c.code}')" title="${c.name}">
-      <span class="cc-option-flag">${c.flag}</span>
-      <span class="cc-option-name">${c.name}</span>
-      <span class="cc-option-code">${c.code}</span>
-    </div>`
-  ).join('');
-}
-
-function selectCC(name, flag, code) {
-  selectedCC = {name, flag, code};
-  document.getElementById('cc-flag').textContent = flag;
-  document.getElementById('cc-code').textContent = code;
-  document.getElementById('country-code').value = code;
-  closeCCDropdown();
-}
-
-function toggleCCDropdown(e) {
-  e.stopPropagation();
-  const dropdown = document.getElementById('cc-dropdown');
-  const trigger  = document.getElementById('cc-trigger');
-  if (!dropdown) return;
-  ccOpen = !ccOpen;
-  dropdown.classList.toggle('open', ccOpen);
-  trigger.classList.toggle('open', ccOpen);
-  if (ccOpen) {
-    buildCCList('');
-    setTimeout(() => {
-      const s = document.getElementById('cc-search');
-      if (s) { s.value = ''; s.focus(); }
-    }, 60);
-  }
-}
-
-function closeCCDropdown() {
-  ccOpen = false;
-  const dropdown = document.getElementById('cc-dropdown');
-  const trigger  = document.getElementById('cc-trigger');
-  if (dropdown) dropdown.classList.remove('open');
-  if (trigger)  trigger.classList.remove('open');
-}
-
-function filterCCList(val) { buildCCList(val); }
-
-document.addEventListener('click', function(e) {
-  const wrap = document.getElementById('cc-picker-wrap');
-  if (wrap && !wrap.contains(e.target)) closeCCDropdown();
-});
 </script>
 </body>
 </html>
