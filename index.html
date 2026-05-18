@@ -2395,7 +2395,7 @@ function showPanel(pid) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
   const navMap = { 'staff-analytics':'nav-analytics','staff-guests':'nav-guests','staff-add':'nav-add','staff-scanner':'nav-scanner','staff-admin':'nav-admin' };
   if (navMap[pid]) { const btn = document.getElementById(navMap[pid]); if (btn) btn.classList.add('active'); }
-  if (pid === 'guest-profile') loadGuestProfile();
+  if (pid === 'guest-profile') loadGuestProfileWithCard();
   if (pid === 'staff-guests') renderTable();
   if (pid === 'staff-admin') { renderStaffUsers(); updateAdminStats(); }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
@@ -2472,7 +2472,10 @@ function saveCardRequests(reqs) {
   try { localStorage.setItem('pgc_card_requests', JSON.stringify(reqs)); } catch(e) {}
 }
 function getGuestCardRequest(guestId) {
-  return getCardRequests().find(r => r.guestId === guestId) || null;
+  const reqs = getCardRequests().filter(r => r.guestId === guestId);
+  if (!reqs.length) return null;
+  // Prefer an active (non-rejected) request; fall back to the latest overall
+  return reqs.find(r => r.status !== 'rejected') || reqs[reqs.length - 1];
 }
 
 // ═══════════════════════════════════════════════════
@@ -2757,21 +2760,24 @@ function closePrintCard() {
 // ═══════════════════════════════════════════════════
 // HOOK INTO showPanel for card requests
 // ═══════════════════════════════════════════════════
-const _origShowPanel = showPanel;
-function showPanel(pid) {
-  _origShowPanel(pid);
-  const navMap2 = { 'staff-cardrequests': 'nav-cardrequests' };
-  if (navMap2[pid]) {
-    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById(navMap2[pid]);
-    if (btn) btn.classList.add('active');
-  }
-  if (pid === 'staff-cardrequests') loadCardRequests();
-  if (pid === 'guest-profile') {
-    loadGuestProfileWithCard();
-    return; // already handled profile loading
-  }
-}
+// Patch showPanel via assignment (not re-declaration) to avoid hoisting bug
+(function() {
+  const _orig = showPanel;
+  showPanel = function(pid) {
+    _orig(pid);
+    // Activate card requests nav button
+    if (pid === 'staff-cardrequests') {
+      document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('nav-cardrequests');
+      if (btn) btn.classList.add('active');
+      loadCardRequests();
+    }
+    // Load physical card section when guest opens profile
+    if (pid === 'guest-profile') {
+      loadGuestProfileWithCard();
+    }
+  };
+})();
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
