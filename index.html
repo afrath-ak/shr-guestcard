@@ -1078,75 +1078,132 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 
 /* ── Phone input group (fused design) ── */
 /* ── Professional Phone Field ── */
+/* ── Professional Phone Picker ── */
 .phone-field-row {
   display: flex;
-  gap: 8px;
+  gap: 0;
   align-items: stretch;
-}
-.phone-code-box {
-  flex-shrink: 0;
-  width: 110px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--cream);
+  overflow: visible;
+  transition: border-color 0.2s, box-shadow 0.2s;
   position: relative;
 }
-.phone-code-box::after {
-  content: '';
-  position: absolute;
-  right: 10px; top: 50%;
-  transform: translateY(-50%);
-  width: 0; height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid var(--muted);
-  pointer-events: none;
-}
-.country-code-select {
-  width: 100%;
-  height: 100%;
-  min-height: 44px;
-  background: var(--cream2);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 0 28px 0 10px;
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 600;
-  color: var(--dark);
-  cursor: pointer;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.15s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.country-code-select:hover  { background: #eee8de; }
-.country-code-select:focus  { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); background: #fff; }
-.country-code-select option { background: #fff; font-weight: 400; font-size: 13px; }
-.phone-number-box {
-  flex: 1;
-  min-width: 0;
-}
-.phone-number-box input[type="tel"] {
-  width: 100%;
-  height: 100%;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--dark);
-  background: var(--cream);
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-}
-.phone-number-box input[type="tel"]:focus {
+.phone-field-row:focus-within {
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
   background: #fff;
 }
-.phone-number-box input[type="tel"]::placeholder { color: #bbb; }
+.cc-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px 0 12px;
+  border: none;
+  border-right: 1.5px solid var(--border);
+  border-radius: 8px 0 0 8px;
+  background: var(--cream2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  white-space: nowrap;
+  min-width: 86px;
+  height: 44px;
+  transition: background 0.18s;
+  flex-shrink: 0;
+  position: relative;
+}
+.cc-trigger:hover { background: #e8e0d4; }
+.cc-trigger .cc-flag  { font-size: 19px; line-height: 1; }
+.cc-trigger .cc-dial  { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.01em; }
+.cc-trigger .cc-arrow { font-size: 8px; color: var(--muted); margin-left: 1px; transition: transform 0.2s; }
+.cc-trigger.open .cc-arrow { transform: rotate(180deg); }
+.phone-number-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--dark);
+  outline: none;
+  height: 44px;
+  border-radius: 0 8px 8px 0;
+}
+.phone-number-input::placeholder { color: #bbb; }
+.cc-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1200;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  width: 290px;
+  max-height: 320px;
+  overflow: hidden;
+  flex-direction: column;
+  animation: ccDrop 0.18s cubic-bezier(.34,1.2,.64,1) both;
+}
+.cc-dropdown.open { display: flex; }
+@keyframes ccDrop { from { opacity:0; transform:translateY(-6px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+.cc-search-wrap {
+  padding: 10px 10px 6px;
+  border-bottom: 1px solid var(--cream3);
+  flex-shrink: 0;
+  position: relative;
+}
+.cc-search-icon {
+  position: absolute;
+  left: 20px; top: 50%; transform: translateY(-52%);
+  font-size: 12px; pointer-events: none; color: var(--muted);
+}
+.cc-search {
+  width: 100%;
+  padding: 8px 10px 8px 32px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--cream2);
+  outline: none;
+  transition: border-color 0.2s;
+  color: var(--dark);
+}
+.cc-search:focus { border-color: var(--gold); background: #fff; }
+.cc-search::placeholder { color: #bbb; }
+.cc-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 0;
+}
+.cc-list::-webkit-scrollbar { width: 4px; }
+.cc-list::-webkit-scrollbar-track { background: transparent; }
+.cc-list::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 4px; }
+.cc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.13s;
+  font-size: 13px;
+  color: var(--dark);
+  user-select: none;
+}
+.cc-item:hover { background: var(--cream2); }
+.cc-item.cc-selected { background: var(--gold-pale); font-weight: 700; }
+.cc-item .ci-flag { font-size: 19px; flex-shrink: 0; line-height: 1; }
+.cc-item .ci-name { flex: 1; color: var(--dark); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-item .ci-code { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; background: var(--cream2); padding: 2px 7px; border-radius: 6px; }
+.cc-no-results { padding: 20px; text-align: center; font-size: 13px; color: var(--muted); }
+#country-code { display: none; }
 </style>
 </head>
 <body>
@@ -1524,83 +1581,25 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="form-grid">
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
               <div class="field"><label>Phone</label>
-                <div class="phone-field-row">
-                  <div class="phone-code-box">
-                    <select id="country-code" class="country-code-select" title="Country code">
-                      <option value="+974">🇶🇦 +974</option>
-                      <option value="+971">🇦🇪 +971</option>
-                      <option value="+966">🇸🇦 +966</option>
-                      <option value="+965">🇰🇼 +965</option>
-                      <option value="+973">🇧🇭 +973</option>
-                      <option value="+968">🇴🇲 +968</option>
-                      <option value="+967">🇾🇪 +967</option>
-                      <option value="+962">🇯🇴 +962</option>
-                      <option value="+961">🇱🇧 +961</option>
-                      <option value="+963">🇸🇾 +963</option>
-                      <option value="+964">🇮🇶 +964</option>
-                      <option value="+20">🇪🇬 +20</option>
-                      <option value="+212">🇲🇦 +212</option>
-                      <option value="+216">🇹🇳 +216</option>
-                      <option value="+213">🇩🇿 +213</option>
-                      <option value="+218">🇱🇾 +218</option>
-                      <option value="+249">🇸🇩 +249</option>
-                      <option value="+252">🇸🇴 +252</option>
-                      <option value="+251">🇪🇹 +251</option>
-                      <option value="+254">🇰🇪 +254</option>
-                      <option value="+255">🇹🇿 +255</option>
-                      <option value="+256">🇺🇬 +256</option>
-                      <option value="+234">🇳🇬 +234</option>
-                      <option value="+233">🇬🇭 +233</option>
-                      <option value="+27">🇿🇦 +27</option>
-                      <option value="+91">🇮🇳 +91</option>
-                      <option value="+92">🇵🇰 +92</option>
-                      <option value="+94">🇱🇰 +94</option>
-                      <option value="+880">🇧🇩 +880</option>
-                      <option value="+977">🇳🇵 +977</option>
-                      <option value="+63">🇵🇭 +63</option>
-                      <option value="+62">🇮🇩 +62</option>
-                      <option value="+60">🇲🇾 +60</option>
-                      <option value="+65">🇸🇬 +65</option>
-                      <option value="+66">🇹🇭 +66</option>
-                      <option value="+84">🇻🇳 +84</option>
-                      <option value="+86">🇨🇳 +86</option>
-                      <option value="+81">🇯🇵 +81</option>
-                      <option value="+82">🇰🇷 +82</option>
-                      <option value="+7">🇷🇺 +7</option>
-                      <option value="+90">🇹🇷 +90</option>
-                      <option value="+98">🇮🇷 +98</option>
-                      <option value="+1">🇺🇸 +1</option>
-                      <option value="+1-CA">🇨🇦 +1</option>
-                      <option value="+52">🇲🇽 +52</option>
-                      <option value="+55">🇧🇷 +55</option>
-                      <option value="+54">🇦🇷 +54</option>
-                      <option value="+44">🇬🇧 +44</option>
-                      <option value="+33">🇫🇷 +33</option>
-                      <option value="+49">🇩🇪 +49</option>
-                      <option value="+39">🇮🇹 +39</option>
-                      <option value="+34">🇪🇸 +34</option>
-                      <option value="+351">🇵🇹 +351</option>
-                      <option value="+31">🇳🇱 +31</option>
-                      <option value="+32">🇧🇪 +32</option>
-                      <option value="+41">🇨🇭 +41</option>
-                      <option value="+43">🇦🇹 +43</option>
-                      <option value="+46">🇸🇪 +46</option>
-                      <option value="+47">🇳🇴 +47</option>
-                      <option value="+45">🇩🇰 +45</option>
-                      <option value="+358">🇫🇮 +358</option>
-                      <option value="+48">🇵🇱 +48</option>
-                      <option value="+30">🇬🇷 +30</option>
-                      <option value="+36">🇭🇺 +36</option>
-                      <option value="+420">🇨🇿 +420</option>
-                      <option value="+40">🇷🇴 +40</option>
-                      <option value="+380">🇺🇦 +380</option>
-                      <option value="+61">🇦🇺 +61</option>
-                      <option value="+64">🇳🇿 +64</option>
-                    </select>
+                <!-- Hidden value carrier read by addGuest() -->
+                <select id="country-code"></select>
+                <div class="phone-field-row" id="phone-field-row">
+                  <!-- Country code trigger -->
+                  <button type="button" class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="cc-flag" id="cc-flag">🇶🇦</span>
+                    <span class="cc-dial" id="cc-dial">+974</span>
+                    <span class="cc-arrow">▼</span>
+                  </button>
+                  <!-- Custom dropdown -->
+                  <div class="cc-dropdown" id="cc-dropdown" role="listbox">
+                    <div class="cc-search-wrap">
+                      <span class="cc-search-icon">🔍</span>
+                      <input type="text" class="cc-search" id="cc-search" placeholder="Search country or code…" oninput="filterCC(this.value)" autocomplete="off" spellcheck="false">
+                    </div>
+                    <div class="cc-list" id="cc-list"></div>
                   </div>
-                  <div class="phone-number-box">
-                    <input id="f-phone" type="tel" placeholder="Phone number">
-                  </div>
+                  <!-- Phone number input -->
+                  <input id="f-phone" type="tel" class="phone-number-input" placeholder="Phone number" inputmode="numeric">
                 </div>
               </div>
             </div>
@@ -2955,6 +2954,184 @@ async function init() {
   }
 }
 document.addEventListener('DOMContentLoaded', init);
+
+// ═══════════════════════════════════════════════════
+// COUNTRY CODE PICKER
+// ═══════════════════════════════════════════════════
+const CC_DATA = [
+  { f:'🇶🇦', n:'Qatar',               d:'+974' },
+  { f:'🇦🇪', n:'UAE',                 d:'+971' },
+  { f:'🇸🇦', n:'Saudi Arabia',        d:'+966' },
+  { f:'🇰🇼', n:'Kuwait',              d:'+965' },
+  { f:'🇧🇭', n:'Bahrain',             d:'+973' },
+  { f:'🇴🇲', n:'Oman',                d:'+968' },
+  { f:'🇾🇪', n:'Yemen',               d:'+967' },
+  { f:'🇯🇴', n:'Jordan',              d:'+962' },
+  { f:'🇱🇧', n:'Lebanon',             d:'+961' },
+  { f:'🇸🇾', n:'Syria',               d:'+963' },
+  { f:'🇮🇶', n:'Iraq',                d:'+964' },
+  { f:'🇪🇬', n:'Egypt',               d:'+20'  },
+  { f:'🇲🇦', n:'Morocco',             d:'+212' },
+  { f:'🇹🇳', n:'Tunisia',             d:'+216' },
+  { f:'🇩🇿', n:'Algeria',             d:'+213' },
+  { f:'🇱🇾', n:'Libya',               d:'+218' },
+  { f:'🇸🇩', n:'Sudan',               d:'+249' },
+  { f:'🇸🇴', n:'Somalia',             d:'+252' },
+  { f:'🇪🇹', n:'Ethiopia',            d:'+251' },
+  { f:'🇰🇪', n:'Kenya',               d:'+254' },
+  { f:'🇹🇿', n:'Tanzania',            d:'+255' },
+  { f:'🇺🇬', n:'Uganda',              d:'+256' },
+  { f:'🇳🇬', n:'Nigeria',             d:'+234' },
+  { f:'🇬🇭', n:'Ghana',               d:'+233' },
+  { f:'🇿🇦', n:'South Africa',        d:'+27'  },
+  { f:'🇸🇳', n:'Senegal',             d:'+221' },
+  { f:'🇨🇮', n:"Cote d'Ivoire",       d:'+225' },
+  { f:'🇨🇲', n:'Cameroon',            d:'+237' },
+  { f:'🇲🇿', n:'Mozambique',          d:'+258' },
+  { f:'🇲🇬', n:'Madagascar',          d:'+261' },
+  { f:'🇮🇳', n:'India',               d:'+91'  },
+  { f:'🇵🇰', n:'Pakistan',            d:'+92'  },
+  { f:'🇱🇰', n:'Sri Lanka',           d:'+94'  },
+  { f:'🇧🇩', n:'Bangladesh',          d:'+880' },
+  { f:'🇳🇵', n:'Nepal',               d:'+977' },
+  { f:'🇵🇭', n:'Philippines',         d:'+63'  },
+  { f:'🇮🇩', n:'Indonesia',           d:'+62'  },
+  { f:'🇲🇾', n:'Malaysia',            d:'+60'  },
+  { f:'🇸🇬', n:'Singapore',           d:'+65'  },
+  { f:'🇹🇭', n:'Thailand',            d:'+66'  },
+  { f:'🇻🇳', n:'Vietnam',             d:'+84'  },
+  { f:'🇲🇲', n:'Myanmar',             d:'+95'  },
+  { f:'🇰🇭', n:'Cambodia',            d:'+855' },
+  { f:'🇨🇳', n:'China',               d:'+86'  },
+  { f:'🇯🇵', n:'Japan',               d:'+81'  },
+  { f:'🇰🇷', n:'South Korea',         d:'+82'  },
+  { f:'🇹🇼', n:'Taiwan',              d:'+886' },
+  { f:'🇭🇰', n:'Hong Kong',           d:'+852' },
+  { f:'🇷🇺', n:'Russia',              d:'+7'   },
+  { f:'🇹🇷', n:'Turkey',              d:'+90'  },
+  { f:'🇮🇷', n:'Iran',                d:'+98'  },
+  { f:'🇦🇫', n:'Afghanistan',         d:'+93'  },
+  { f:'🇺🇿', n:'Uzbekistan',          d:'+998' },
+  { f:'🇰🇿', n:'Kazakhstan',          d:'+7'   },
+  { f:'🇦🇿', n:'Azerbaijan',          d:'+994' },
+  { f:'🇬🇪', n:'Georgia',             d:'+995' },
+  { f:'🇦🇲', n:'Armenia',             d:'+374' },
+  { f:'🇺🇸', n:'United States',       d:'+1'   },
+  { f:'🇨🇦', n:'Canada',              d:'+1'   },
+  { f:'🇲🇽', n:'Mexico',              d:'+52'  },
+  { f:'🇧🇷', n:'Brazil',              d:'+55'  },
+  { f:'🇦🇷', n:'Argentina',           d:'+54'  },
+  { f:'🇨🇴', n:'Colombia',            d:'+57'  },
+  { f:'🇨🇱', n:'Chile',               d:'+56'  },
+  { f:'🇵🇪', n:'Peru',                d:'+51'  },
+  { f:'🇻🇪', n:'Venezuela',           d:'+58'  },
+  { f:'🇪🇨', n:'Ecuador',             d:'+593' },
+  { f:'🇬🇧', n:'United Kingdom',      d:'+44'  },
+  { f:'🇫🇷', n:'France',              d:'+33'  },
+  { f:'🇩🇪', n:'Germany',             d:'+49'  },
+  { f:'🇮🇹', n:'Italy',               d:'+39'  },
+  { f:'🇪🇸', n:'Spain',               d:'+34'  },
+  { f:'🇵🇹', n:'Portugal',            d:'+351' },
+  { f:'🇳🇱', n:'Netherlands',         d:'+31'  },
+  { f:'🇧🇪', n:'Belgium',             d:'+32'  },
+  { f:'🇨🇭', n:'Switzerland',         d:'+41'  },
+  { f:'🇦🇹', n:'Austria',             d:'+43'  },
+  { f:'🇸🇪', n:'Sweden',              d:'+46'  },
+  { f:'🇳🇴', n:'Norway',              d:'+47'  },
+  { f:'🇩🇰', n:'Denmark',             d:'+45'  },
+  { f:'🇫🇮', n:'Finland',             d:'+358' },
+  { f:'🇵🇱', n:'Poland',              d:'+48'  },
+  { f:'🇬🇷', n:'Greece',              d:'+30'  },
+  { f:'🇭🇺', n:'Hungary',             d:'+36'  },
+  { f:'🇨🇿', n:'Czech Republic',      d:'+420' },
+  { f:'🇷🇴', n:'Romania',             d:'+40'  },
+  { f:'🇺🇦', n:'Ukraine',             d:'+380' },
+  { f:'🇸🇰', n:'Slovakia',            d:'+421' },
+  { f:'🇧🇬', n:'Bulgaria',            d:'+359' },
+  { f:'🇷🇸', n:'Serbia',              d:'+381' },
+  { f:'🇭🇷', n:'Croatia',             d:'+385' },
+  { f:'🇸🇮', n:'Slovenia',            d:'+386' },
+  { f:'🇮🇪', n:'Ireland',             d:'+353' },
+  { f:'🇦🇺', n:'Australia',           d:'+61'  },
+  { f:'🇳🇿', n:'New Zealand',         d:'+64'  },
+];
+
+let _ccSelected = CC_DATA[0];
+
+function buildCCList(filter) {
+  const list = document.getElementById('cc-list');
+  if (!list) return;
+  const q = (filter || '').toLowerCase().trim();
+  const items = q ? CC_DATA.filter(c => c.n.toLowerCase().includes(q) || c.d.includes(q)) : CC_DATA;
+  if (!items.length) {
+    list.innerHTML = '<div class="cc-no-results">No results found</div>';
+    return;
+  }
+  list.innerHTML = items.map(c => {
+    const idx = CC_DATA.indexOf(c);
+    const sel = c === _ccSelected ? ' cc-selected' : '';
+    return '<div class="cc-item' + sel + '" onclick="selectCC(' + idx + ')">' +
+      '<span class="ci-flag">' + c.f + '</span>' +
+      '<span class="ci-name">' + c.n + '</span>' +
+      '<span class="ci-code">' + c.d + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function selectCC(idx) {
+  _ccSelected = CC_DATA[idx];
+  var flagEl = document.getElementById('cc-flag');
+  var dialEl = document.getElementById('cc-dial');
+  if (flagEl) flagEl.textContent = _ccSelected.f;
+  if (dialEl) dialEl.textContent = _ccSelected.d;
+  var sel = document.getElementById('country-code');
+  if (sel) sel.value = _ccSelected.d;
+  closeCCDropdown();
+}
+
+function toggleCCDropdown(e) {
+  e.stopPropagation();
+  var drop = document.getElementById('cc-dropdown');
+  var trigger = document.getElementById('cc-trigger');
+  if (!drop) return;
+  var isOpen = drop.classList.contains('open');
+  if (isOpen) {
+    closeCCDropdown();
+  } else {
+    drop.classList.add('open');
+    trigger.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+    buildCCList('');
+    setTimeout(function() {
+      var s = document.getElementById('cc-search');
+      if (s) { s.value = ''; s.focus(); }
+    }, 60);
+  }
+}
+
+function closeCCDropdown() {
+  var drop = document.getElementById('cc-dropdown');
+  var trigger = document.getElementById('cc-trigger');
+  if (drop) drop.classList.remove('open');
+  if (trigger) { trigger.classList.remove('open'); trigger.setAttribute('aria-expanded','false'); }
+}
+
+function filterCC(val) { buildCCList(val); }
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#phone-field-row')) closeCCDropdown();
+});
+
+function initCCPicker() {
+  var sel = document.getElementById('country-code');
+  if (!sel) return;
+  sel.innerHTML = CC_DATA.map(function(c) {
+    return '<option value="' + c.d + '">' + c.f + ' ' + c.n + ' ' + c.d + '</option>';
+  }).join('');
+  sel.value = '+974';
+  buildCCList('');
+}
+document.addEventListener('DOMContentLoaded', initCCPicker);
 </script>
 </body>
 </html>
