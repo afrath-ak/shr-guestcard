@@ -1828,7 +1828,7 @@ async function guestPasswordLogin() {
       currentUser = { type: 'guest', data: res.user };
       currentGuest = res.user;
       saveSession();
-      window.applyUserSession(); startSessionTimer(); setupActivityListeners();
+      applyUserSession(); startSessionTimer(); setupActivityListeners();
       showToast(`Welcome, ${sanitize(res.user.first || 'Guest')}!`, 'ok');
       loadGuests().catch(()=>{});
     } else { showLoginError(res.error || 'Login failed'); }
@@ -1848,7 +1848,7 @@ async function staffLogin() {
     if (res.success) {
       currentUser = { type: 'staff', data: res.user };
       saveSession();
-      window.applyUserSession(); startSessionTimer(); setupActivityListeners();
+      applyUserSession(); startSessionTimer(); setupActivityListeners();
       hideSpinner();
       showToast(`Welcome, ${sanitize(res.user.fullname || username)}!`, 'ok');
       Promise.all([loadStaff(), loadGuests()]).catch(()=>{});
@@ -1975,7 +1975,7 @@ async function signupFinalize() {
       if (loginRes.success) {
         currentUser = { type: 'guest', data: loginRes.user };
         currentGuest = loginRes.user;
-        saveSession(); window.applyUserSession(); startSessionTimer(); setupActivityListeners();
+        saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
         await loadGuests().catch(()=>{});
       } else {
         showLoginError('Account created! Please sign in using "Returning Guest".');
@@ -2410,7 +2410,7 @@ function copyShareDetails() { const text = document.getElementById('share-creden
 // ═══════════════════════════════════════════════════
 // GUEST PROFILE
 // ═══════════════════════════════════════════════════
-function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; }
+function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; loadGuestCardSection(); }
 async function updateGuestProfile() { const email = document.getElementById('profile-email').value.trim(); const phone = document.getElementById('profile-phone').value.trim(); if (!email && !phone) { showToast('Enter email or phone', 'err'); return; } showSpinner(); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { email, phone } }); hideSpinner(); if (res.success) { currentGuest.email = email; currentGuest.phone = phone; await loadGuests(); showToast('Profile updated', 'ok'); } else { showToast('Failed', 'err'); } }
 async function changeGuestPassword() { const currentPw = document.getElementById('profile-current-password').value; const newPw = document.getElementById('profile-new-password').value; const confirmPw = document.getElementById('profile-confirm-password').value; if (!currentPw) { showToast('Enter current password', 'err'); return; } const err = validatePassword(newPw); if (err) { showToast(err, 'err'); return; } if (newPw !== confirmPw) { showToast('Passwords do not match', 'err'); return; } showSpinner(); const verify = await callAppsScript('guestLogin', { guestId: currentGuest.id, password: currentPw }); if (!verify.success) { hideSpinner(); showToast('Current password incorrect', 'err'); return; } const salt = generateSalt(); const hash = await hashPasswordFrontend(newPw, salt); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { password_hash: hash, salt } }); hideSpinner(); if (res.success) { showToast('Password updated', 'ok'); addLog(`${currentGuest.first} changed password`); document.getElementById('profile-current-password').value = ''; document.getElementById('profile-new-password').value = ''; document.getElementById('profile-confirm-password').value = ''; } else { showToast('Failed', 'err'); } }
 
@@ -2440,11 +2440,16 @@ function showPanel(pid) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
   const navMap = { 'staff-analytics':'nav-analytics','staff-guests':'nav-guests','staff-add':'nav-add','staff-scanner':'nav-scanner','staff-admin':'nav-admin' };
   if (navMap[pid]) { const btn = document.getElementById(navMap[pid]); if (btn) btn.classList.add('active'); }
-  if (pid === 'guest-profile') loadGuestProfile();
+  if (pid === 'guest-profile') { loadGuestProfile(); loadGuestCardSection(); }
   if (pid === 'staff-guests') renderTable();
   if (pid === 'staff-admin') { renderStaffUsers(); updateAdminStats(); }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
   if (pid === 'staff-add') { setTimeout(() => suggestGuestId(), 200); }
+  if (pid === 'staff-cardrequests') {
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('nav-cardrequests')?.classList.add('active');
+    loadCardRequests();
+  }
 }
 function showPanelMobile(pid, evt) { showPanel(pid); document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active')); if (evt?.target) evt.target.classList.add('active'); }
 function highlightMobileNav(btn) { document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
@@ -2485,6 +2490,7 @@ function applyUserSession() {
     document.getElementById('sidebar-toggle-btn').style.display = 'flex';
     if (isAdmin) { showPanel('staff-analytics'); document.getElementById('nav-analytics')?.classList.add('active'); }
     else { showPanel('staff-guests'); document.getElementById('nav-guests')?.classList.add('active'); }
+    updateCardRequestBadge();
   }
 }
 function logout() { if (sessionTimer) clearInterval(sessionTimer); stopScanner(); currentUser = null; currentGuest = null; sessionStorage.removeItem('sg_session'); document.getElementById('login-page').style.display = ''; document.getElementById('main-app').classList.remove('active'); switchTab('guest'); showToast('Signed out', ''); clearLoginError(); }
@@ -2724,37 +2730,6 @@ function openPrintCard(id) {
 
 function closePrintCard() { document.getElementById('print-card-template').classList.remove('show'); }
 
-// ── Hook into existing showPanel & loadGuestProfile ───────────
-// NOTE: Use const arrow functions (not function declarations) to avoid hoisting,
-// which would cause the wrapper to capture itself and recurse infinitely.
-const _origShowPanel = typeof showPanel === 'function' ? showPanel : null;
-const _showPanelWrapper = (pid) => {
-  if (_origShowPanel) _origShowPanel(pid);
-  if (pid === 'staff-cardrequests') {
-    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('nav-cardrequests')?.classList.add('active');
-    loadCardRequests();
-  }
-  if (pid === 'guest-profile') loadGuestCardSection();
-};
-// Override showPanel globally
-window.showPanel = _showPanelWrapper;
-
-const _origLoadGuestProfile = typeof loadGuestProfile === 'function' ? loadGuestProfile : null;
-const _loadGuestProfileWrapper = () => {
-  if (_origLoadGuestProfile) _origLoadGuestProfile();
-  loadGuestCardSection();
-};
-window.loadGuestProfile = _loadGuestProfileWrapper;
-
-// Update badge on staff login
-const _origApply = typeof applyUserSession === 'function' ? applyUserSession : null;
-const _applyUserSessionWrapper = () => {
-  if (_origApply) _origApply();
-  if (currentUser?.type === 'staff') updateCardRequestBadge();
-};
-window.applyUserSession = _applyUserSessionWrapper;
-
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
 // ═══════════════════════════════════════════════════
@@ -2770,14 +2745,14 @@ async function restoreSession() {
         const guest = guests.find(g => g.id === session.data?.id);
         if (guest && guest.status === 'Active') {
           currentUser = { type: 'guest', data: guest }; currentGuest = guest; sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES * 60000;
-          window.applyUserSession(); startSessionTimer(); setupActivityListeners(); return true;
+          applyUserSession(); startSessionTimer(); setupActivityListeners(); return true;
         }
       } else if (session.type === 'staff') {
         await loadStaff();
         const staff = staffUsers.find(s => s.id === session.data?.id);
         if (staff && staff.accountStatus !== 'suspended') {
           currentUser = { type: 'staff', data: staff }; sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES * 60000;
-          window.applyUserSession(); startSessionTimer(); setupActivityListeners(); await loadGuests(); return true;
+          applyUserSession(); startSessionTimer(); setupActivityListeners(); await loadGuests(); return true;
         }
       }
     }
