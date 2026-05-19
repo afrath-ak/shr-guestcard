@@ -1076,134 +1076,23 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 }
 .share-credentials-box strong { color: var(--gold); }
 
-/* ── Phone input group (fused design) ── */
-/* ── Professional Phone Field ── */
-/* ── Professional Phone Picker ── */
-.phone-field-row {
+/* Country code phone row */
+.phone-flex {
   display: flex;
-  gap: 0;
-  align-items: stretch;
+  align-items: center;
+  gap: 8px;
+}
+.country-code-select {
+  width: 100px;
+  flex-shrink: 0;
+  background: var(--cream);
   border: 1.5px solid var(--border);
   border-radius: 10px;
-  background: var(--cream);
-  overflow: visible;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  position: relative;
-}
-.phone-field-row:focus-within {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
-  background: #fff;
-}
-.cc-trigger {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 10px 0 12px;
-  border: none;
-  border-right: 1.5px solid var(--border);
-  border-radius: 8px 0 0 8px;
-  background: var(--cream2);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--dark);
-  white-space: nowrap;
-  min-width: 86px;
-  height: 44px;
-  transition: background 0.18s;
-  flex-shrink: 0;
-  position: relative;
-}
-.cc-trigger:hover { background: #e8e0d4; }
-.cc-trigger .cc-flag  { font-size: 19px; line-height: 1; }
-.cc-trigger .cc-dial  { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.01em; }
-.cc-trigger .cc-arrow { font-size: 8px; color: var(--muted); margin-left: 1px; transition: transform 0.2s; }
-.cc-trigger.open .cc-arrow { transform: rotate(180deg); }
-.phone-number-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: transparent;
-  padding: 0 14px;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--dark);
-  outline: none;
-  height: 44px;
-  border-radius: 0 8px 8px 0;
-}
-.phone-number-input::placeholder { color: #bbb; }
-.cc-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 1200;
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-  width: 290px;
-  max-height: 320px;
-  overflow: hidden;
-  flex-direction: column;
-  animation: ccDrop 0.18s cubic-bezier(.34,1.2,.64,1) both;
-}
-.cc-dropdown.open { display: flex; }
-@keyframes ccDrop { from { opacity:0; transform:translateY(-6px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
-.cc-search-wrap {
-  padding: 10px 10px 6px;
-  border-bottom: 1px solid var(--cream3);
-  flex-shrink: 0;
-  position: relative;
-}
-.cc-search-icon {
-  position: absolute;
-  left: 20px; top: 50%; transform: translateY(-52%);
-  font-size: 12px; pointer-events: none; color: var(--muted);
-}
-.cc-search {
-  width: 100%;
-  padding: 8px 10px 8px 32px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
+  padding: 12px 8px;
   font-size: 13px;
   font-family: inherit;
-  background: var(--cream2);
-  outline: none;
-  transition: border-color 0.2s;
   color: var(--dark);
 }
-.cc-search:focus { border-color: var(--gold); background: #fff; }
-.cc-search::placeholder { color: #bbb; }
-.cc-list {
-  overflow-y: auto;
-  flex: 1;
-  padding: 4px 0;
-}
-.cc-list::-webkit-scrollbar { width: 4px; }
-.cc-list::-webkit-scrollbar-track { background: transparent; }
-.cc-list::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 4px; }
-.cc-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: background 0.13s;
-  font-size: 13px;
-  color: var(--dark);
-  user-select: none;
-}
-.cc-item:hover { background: var(--cream2); }
-.cc-item.cc-selected { background: var(--gold-pale); font-weight: 700; }
-.cc-item .ci-flag { font-size: 19px; flex-shrink: 0; line-height: 1; }
-.cc-item .ci-name { flex: 1; color: var(--dark); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cc-item .ci-code { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; background: var(--cream2); padding: 2px 7px; border-radius: 6px; }
-.cc-no-results { padding: 20px; text-align: center; font-size: 13px; color: var(--muted); }
-#country-code { display: none; }
 </style>
 </head>
 <body>
@@ -1580,28 +1469,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="form-section-title">Contact</div>
             <div class="form-grid">
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
-              <div class="field"><label>Phone</label>
-                <!-- Hidden value carrier read by addGuest() -->
-                <select id="country-code"></select>
-                <div class="phone-field-row" id="phone-field-row">
-                  <!-- Country code trigger -->
-                  <button type="button" class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="cc-flag" id="cc-flag">🇶🇦</span>
-                    <span class="cc-dial" id="cc-dial">+974</span>
-                    <span class="cc-arrow">▼</span>
-                  </button>
-                  <!-- Custom dropdown -->
-                  <div class="cc-dropdown" id="cc-dropdown" role="listbox">
-                    <div class="cc-search-wrap">
-                      <span class="cc-search-icon">🔍</span>
-                      <input type="text" class="cc-search" id="cc-search" placeholder="Search country or code…" oninput="filterCC(this.value)" autocomplete="off" spellcheck="false">
-                    </div>
-                    <div class="cc-list" id="cc-list"></div>
-                  </div>
-                  <!-- Phone number input -->
-                  <input id="f-phone" type="tel" class="phone-number-input" placeholder="Phone number" inputmode="numeric">
-                </div>
-              </div>
+              <div class="field"><label>Phone</label><div class="phone-flex"><select id="country-code" class="country-code-select"><option value="+974">🇶🇦 +974</option><option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+971">🇦🇪 +971</option><option value="+966">🇸🇦 +966</option><option value="+91">🇮🇳 +91</option><option value="+33">🇫🇷 +33</option><option value="+49">🇩🇪 +49</option></select><input id="f-phone" type="tel" placeholder="XXXX XXXX"></div></div>
             </div>
             <div class="form-section-title">Room & Tier</div>
             <div class="form-grid">
@@ -1740,7 +1608,8 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     </div>
     <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Send via</div>
     <a class="share-modal-option whatsapp" id="share-whatsapp-link" href="#" target="_blank" rel="noopener"><span>📱</span><div><div style="font-weight:700;">WhatsApp</div><div style="font-size:12px;color:var(--muted);">Opens WhatsApp with full credentials</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
-    <a class="share-modal-option email" id="share-email-link" href="#"><span>✉️</span><div><div style="font-weight:700;">Email</div><div style="font-size:12px;color:var(--muted);">Opens email client with pre-filled message</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
+    <button class="share-modal-option email" id="share-hotel-email-btn" onclick="sendWelcomeEmailViaHotel()" style="width:100%;text-align:left;cursor:pointer;background:none;border:1.5px solid rgba(59,130,246,0.25);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;font-family:inherit;transition:all 0.18s;"><span>✉️</span><div><div style="font-weight:700;">Send Welcome Email</div><div style="font-size:12px;color:var(--muted);">Sends via hotel system directly to guest's inbox</div></div><span style="margin-left:auto;font-size:18px;" id="share-hotel-email-icon">→</span></button>
+    <a class="share-modal-option" id="share-email-link" href="#" style="opacity:0.5;"><span>📧</span><div><div style="font-weight:700;">Open Email Client</div><div style="font-size:12px;color:var(--muted);">Opens your local mail app (backup option)</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
     <button class="btn-ghost" style="width:100%;margin-top:10px;" onclick="copyShareDetails()">📋 Copy to Clipboard</button>
     <button class="btn-ghost" style="width:100%;margin-top:6px;opacity:.6;" onclick="closeShareModal()">Close</button>
   </div>
@@ -1800,7 +1669,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 // ═══════════════════════════════════════════════════
 // CONFIGURATION (same Apps Script URL)
 // ═══════════════════════════════════════════════════
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzj4rpC5G7QqUote7jEGbizCDgVnBVj3cVk0Tvv8UO1cUIR_J7AweYceGiUGBdV36ek1g/exec';
+const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz57ZISWGTRop5ebLKc05q8vVtR2dcc9SAwWXsjJROKs-J7S9vSUtLVNfkRWCTsBir3dQ/exec';
 const SESSION_TIMEOUT_MINUTES = 30;
 
 function callAppsScript(action, data = {}, timeoutMs = 25000) {
@@ -2085,13 +1954,470 @@ function selectResetMethod(m) { resetMethod=m; document.getElementById('reset-by
 async function sendPasswordReset() { showToast('Contact IT support for password reset', 'err'); }
 async function confirmPasswordReset() { showToast('Please contact admin', 'err'); }
 
-// Signup (keep as original but no verification flags)
-async function signupNextStep() { showToast('Signup disabled temporarily. Please contact front desk.', 'err'); }
-async function signupSendOTP() {}
-async function signupVerifyAndCreate() {}
-async function signupFinalize() {}
-function signupBack(step) {}
-async function signupResend() {}
+// ═══════════════════════════════════════════════════
+// GUEST SIGNUP — Full 4-step implementation
+// Step 1: Enter Guest ID  →  Step 2: Confirm email
+// Step 3: Verify OTP      →  Step 4: Set password
+// ═══════════════════════════════════════════════════
+
+let _signupGuestData   = null;  // guest record found in sheet
+let _signupOTPToken    = null;  // token returned by sendOTP
+let _signupEmail       = null;  // email used for OTP
+
+// ── Step 1 → validate Guest ID exists in sheet ───────────────
+async function signupNextStep() {
+  const guestId = document.getElementById('s-guest-id')?.value.trim().toUpperCase();
+  if (!guestId) { showLoginError('Please enter your Guest ID'); return; }
+
+  const btn = document.querySelector('#signup-step-1 .login-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  showSpinner('Verifying Guest ID…');
+
+  try {
+    const res = await callAppsScript('getGuests', {});
+    hideSpinner();
+    const allGuests = (res.success && res.guests) ? res.guests : guests;
+    const found = allGuests.find(g => String(g.id).toUpperCase() === guestId);
+
+    if (!found) {
+      showLoginError('Guest ID not found. Please check with front desk.');
+      return;
+    }
+    if (found.status !== 'Active') {
+      showLoginError('This guest card is not active. Please contact front desk.');
+      return;
+    }
+    if (found.passwordSet === true || String(found.passwordSet).toLowerCase() === 'true') {
+      showLoginError('An account already exists for this ID. Use "Returning Guest" to sign in.');
+      return;
+    }
+    if (!found.email) {
+      showLoginError('No email on file for this Guest ID. Please visit front desk to add your email first.');
+      return;
+    }
+
+    _signupGuestData = found;
+    clearLoginError();
+
+    // Pre-fill step 2: show guest name and mask the email on file
+    const parts   = found.email.split('@');
+    const masked  = parts[0].slice(0, 2) + '***@' + parts[1];
+    const emailField = document.getElementById('s-phone');
+    if (emailField) {
+      emailField.value       = found.email;     // pre-fill hidden
+      emailField.readOnly    = true;
+      emailField.placeholder = masked;
+      emailField.style.color = 'rgba(255,255,255,0.4)';
+      emailField.value       = masked;           // show masked
+    }
+
+    // Update step 2 label to clarify
+    const step2Label = document.querySelector('#signup-step-2 label');
+    if (step2Label) step2Label.textContent = 'Email on File (verified by front desk)';
+
+    document.getElementById('signup-step-1').style.display = 'none';
+    document.getElementById('signup-step-2').style.display = 'block';
+
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; }
+  }
+}
+
+// ── Step 2 → send OTP to the guest's email on file ───────────
+async function signupSendOTP() {
+  if (!_signupGuestData) { showLoginError('Session lost, please start again.'); signupBack(1); return; }
+
+  const email = _signupGuestData.email;
+  if (!email) { showLoginError('No email address on file. Contact front desk.'); return; }
+
+  const btn = document.querySelector('#signup-step-2 .login-btn:not(.secondary)');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  showSpinner('Sending verification code…');
+
+  try {
+    const res = await callAppsScript('sendOTP', {
+      email: email,
+      name:  `${_signupGuestData.first} ${_signupGuestData.last}`
+    });
+    hideSpinner();
+
+    if (res.success) {
+      _signupOTPToken = res.token;
+      _signupEmail    = email;
+
+      // Show which email the code was sent to (masked) in step 3
+      const timerEl = document.getElementById('signup-otp-timer');
+      if (timerEl) {
+        const parts  = email.split('@');
+        const masked = parts[0].slice(0, 2) + '***@' + parts[1];
+        timerEl.textContent = `Code sent to ${masked}`;
+      }
+      document.getElementById('s-otp').value = '';
+
+      document.getElementById('signup-step-2').style.display = 'none';
+      document.getElementById('signup-step-3').style.display = 'block';
+      document.getElementById('s-otp')?.focus();
+      clearLoginError();
+    } else {
+      showLoginError(res.error || 'Failed to send code. Try again.');
+    }
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Email Code →'; }
+  }
+}
+
+// ── Step 3 → verify OTP ──────────────────────────────────────
+async function signupVerifyAndCreate() {
+  const code = document.getElementById('s-otp')?.value.trim();
+  if (!code || code.length !== 6) { showLoginError('Enter the 6-digit code from your email.'); return; }
+  if (!_signupOTPToken || !_signupEmail) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
+
+  const btn = document.querySelector('#signup-step-3 .login-btn.teal');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+  showSpinner('Verifying code…');
+
+  try {
+    const res = await callAppsScript('verifyOTP', {
+      email: _signupEmail,
+      code:  code,
+      token: _signupOTPToken
+    });
+    hideSpinner();
+
+    if (res.success) {
+      // Mark email as verified on the sheet
+      await callAppsScript('updateGuest', {
+        guestId: _signupGuestData.id,
+        updates: { verifiedEmail: _signupEmail, Mail: _signupEmail }
+      }).catch(() => {});
+
+      document.getElementById('signup-step-3').style.display = 'none';
+      document.getElementById('signup-step-4').style.display = 'block';
+      document.getElementById('s-password')?.focus();
+      clearLoginError();
+    } else {
+      showLoginError(res.error || 'Incorrect or expired code. Try again.');
+    }
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify Code →'; }
+  }
+}
+
+// ── Step 4 → set password and complete account ───────────────
+async function signupFinalize() {
+  const pw1 = document.getElementById('s-password')?.value || '';
+  const pw2 = document.getElementById('s-password-confirm')?.value || '';
+
+  const pwErr = validatePassword(pw1);
+  if (pwErr) { showLoginError(pwErr); return; }
+  if (pw1 !== pw2) { showLoginError('Passwords do not match.'); return; }
+  if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
+
+  const btn = document.querySelector('#signup-step-4 .login-btn.teal');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
+  showSpinner('Setting up your account…');
+
+  try {
+    const salt = generateSalt();
+    const hash = await hashPasswordFrontend(pw1, salt);
+
+    const res = await callAppsScript('updateGuest', {
+      guestId: _signupGuestData.id,
+      updates: {
+        password_hash: hash,
+        salt:          salt,
+        passwordSet:   true,
+        verified:      true,
+        verifiedAt:    new Date().toISOString()
+      }
+    });
+    hideSpinner();
+
+    if (res.success) {
+      showToast(`✅ Account created! Welcome, ${sanitize(_signupGuestData.first)}!`, 'ok');
+      // Auto login
+      const loginRes = await callAppsScript('guestLogin', {
+        guestId:  _signupGuestData.id,
+        password: pw1
+      });
+      if (loginRes.success) {
+        currentUser  = { type: 'guest', data: loginRes.user };
+        currentGuest = loginRes.user;
+        saveSession();
+        applyUserSession();
+        startSessionTimer();
+        setupActivityListeners();
+        await loadGuests().catch(() => {});
+        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+        switchGuestMode('returning');
+      } else {
+        showLoginError('Account created! Please sign in using "Returning Guest".');
+        switchGuestMode('returning');
+        document.getElementById('guest-id').value = _signupGuestData?.id || '';
+        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+      }
+    } else {
+      showLoginError(res.error || 'Failed to save password. Please try again.');
+    }
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Complete Registration ✓'; }
+  }
+}
+
+// ── Navigation helpers ────────────────────────────────────────
+function signupBack(toStep) {
+  [1, 2, 3, 4].forEach(n => {
+    const el = document.getElementById(`signup-step-${n}`);
+    if (el) el.style.display = n === toStep ? 'block' : 'none';
+  });
+  clearLoginError();
+  if (toStep === 1) {
+    _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+    // Reset email field
+    const emailField = document.getElementById('s-phone');
+    if (emailField) { emailField.readOnly = false; emailField.value = ''; emailField.style.color = ''; }
+  }
+}
+
+async function signupResend() {
+  if (!_signupGuestData) return;
+  document.getElementById('s-otp').value = '';
+  // Go back to step 2 to re-send
+  document.getElementById('signup-step-3').style.display = 'none';
+  document.getElementById('signup-step-2').style.display = 'block';
+  showToast('Click "Send Email Code" to resend.', '');
+}
+  if (!guestId) { showLoginError('Please enter your Guest ID'); return; }
+
+  const btn = document.getElementById('signup-next-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  showSpinner('Verifying Guest ID…');
+
+  try {
+    // Load guest list (may already be cached)
+    const res = await callAppsScript('getGuests', {});
+    hideSpinner();
+    const allGuests = res.success ? res.guests : guests;
+    const found = allGuests.find(g => String(g.id).toUpperCase() === guestId);
+
+    if (!found) {
+      showLoginError('Guest ID not found. Please check with front desk.');
+      return;
+    }
+    if (found.status !== 'Active') {
+      showLoginError('This guest card is not active. Please contact front desk.');
+      return;
+    }
+    if (found.passwordSet === true || String(found.passwordSet).toLowerCase() === 'true') {
+      showLoginError('An account already exists for this ID. Use "Returning Guest" to sign in.');
+      return;
+    }
+    if (!found.email) {
+      showLoginError('No email on file for this Guest ID. Please visit front desk to add your email first.');
+      return;
+    }
+
+    _signupGuestData = found;
+    clearLoginError();
+
+    // Pre-fill step 2 display
+    const nameEl  = document.getElementById('signup-display-name');
+    const emailEl = document.getElementById('signup-display-email');
+    const roomEl  = document.getElementById('signup-display-room');
+    if (nameEl)  nameEl.textContent  = `${found.title || ''} ${found.first} ${found.last}`.trim();
+    if (emailEl) emailEl.textContent = found.email;
+    if (roomEl)  roomEl.textContent  = `Room ${found.room || 'TBA'}`;
+
+    document.getElementById('signup-step-1').style.display = 'none';
+    document.getElementById('signup-step-2').style.display = 'block';
+
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; }
+  }
+}
+
+// ── Step 2 → confirm details, send OTP ───────────────────────
+async function signupSendOTP() {
+  if (!_signupGuestData) { showLoginError('Session lost, please start again.'); signupBack(1); return; }
+
+  const email = _signupGuestData.email;
+  if (!email) { showLoginError('No email address on file. Contact front desk.'); return; }
+
+  const btn = document.getElementById('signup-sendotp-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  showSpinner('Sending verification code…');
+
+  try {
+    const res = await callAppsScript('sendOTP', {
+      email: email,
+      name:  `${_signupGuestData.first} ${_signupGuestData.last}`
+    });
+    hideSpinner();
+
+    if (res.success) {
+      _signupOTPToken = res.token;
+      _signupEmail    = email;
+
+      // Show masked email in step 3
+      const maskedEl = document.getElementById('signup-otp-email-hint');
+      if (maskedEl) {
+        const parts = email.split('@');
+        const masked = parts[0].slice(0,2) + '***@' + parts[1];
+        maskedEl.textContent = masked;
+      }
+
+      document.getElementById('signup-step-2').style.display = 'none';
+      document.getElementById('signup-step-3').style.display = 'block';
+      document.getElementById('signup-otp-input')?.focus();
+      clearLoginError();
+    } else {
+      showLoginError(res.error || 'Failed to send code. Try again.');
+    }
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Code →'; }
+  }
+}
+
+// ── Step 3 → verify OTP ──────────────────────────────────────
+async function signupVerifyAndCreate() {
+  const code = document.getElementById('signup-otp-input')?.value.trim();
+  if (!code || code.length !== 6) { showLoginError('Enter the 6-digit code from your email.'); return; }
+  if (!_signupOTPToken || !_signupEmail) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
+
+  const btn = document.getElementById('signup-verify-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+  showSpinner('Verifying code…');
+
+  try {
+    const res = await callAppsScript('verifyOTP', {
+      email: _signupEmail,
+      code:  code,
+      token: _signupOTPToken
+    });
+    hideSpinner();
+
+    if (res.success) {
+      // Mark email as verified on the sheet
+      await callAppsScript('updateGuest', {
+        guestId: _signupGuestData.id,
+        updates: { verifiedEmail: _signupEmail, Mail: _signupEmail }
+      }).catch(() => {});
+
+      document.getElementById('signup-step-3').style.display = 'none';
+      document.getElementById('signup-step-4').style.display = 'block';
+      document.getElementById('signup-new-password')?.focus();
+      clearLoginError();
+    } else {
+      showLoginError(res.error || 'Incorrect or expired code. Try again.');
+    }
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify →'; }
+  }
+}
+
+// ── Step 4 → set password and complete account ───────────────
+async function signupFinalize() {
+  const pw1 = document.getElementById('signup-new-password')?.value || '';
+  const pw2 = document.getElementById('signup-confirm-password')?.value || '';
+
+  const pwErr = validatePassword(pw1);
+  if (pwErr) { showLoginError(pwErr); return; }
+  if (pw1 !== pw2) { showLoginError('Passwords do not match.'); return; }
+  if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
+
+  const btn = document.getElementById('signup-finalize-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
+  showSpinner('Setting up your account…');
+
+  try {
+    const salt = generateSalt();
+    const hash = await hashPasswordFrontend(pw1, salt);
+
+    const res = await callAppsScript('updateGuest', {
+      guestId: _signupGuestData.id,
+      updates: {
+        password_hash: hash,
+        salt:          salt,
+        passwordSet:   true,
+        verified:      true,
+        verifiedAt:    new Date().toISOString()
+      }
+    });
+    hideSpinner();
+
+    if (res.success) {
+      showToast(`✅ Account created! Welcome, ${sanitize(_signupGuestData.first)}!`, 'ok');
+      // Auto login
+      const loginRes = await callAppsScript('guestLogin', {
+        guestId:  _signupGuestData.id,
+        password: pw1
+      });
+      if (loginRes.success) {
+        currentUser  = { type: 'guest', data: loginRes.user };
+        currentGuest = loginRes.user;
+        saveSession();
+        applyUserSession();
+        startSessionTimer();
+        setupActivityListeners();
+        await loadGuests().catch(() => {});
+        // Reset signup state
+        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+        switchGuestMode('returning');
+      } else {
+        showLoginError('Account created. Please sign in with "Returning Guest".');
+        switchGuestMode('returning');
+        document.getElementById('guest-id').value = _signupGuestData?.id || '';
+        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+      }
+    } else {
+      showLoginError(res.error || 'Failed to save password. Try again.');
+    }
+  } catch(e) {
+    hideSpinner();
+    showLoginError('Connection error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
+  }
+}
+
+// ── Navigation helpers ────────────────────────────────────────
+function signupBack(toStep) {
+  [1,2,3,4].forEach(n => {
+    const el = document.getElementById(`signup-step-${n}`);
+    if (el) el.style.display = n === toStep ? 'block' : 'none';
+  });
+  clearLoginError();
+  if (toStep === 1) { _signupGuestData = null; _signupOTPToken = null; _signupEmail = null; }
+}
+
+async function signupResend() {
+  if (!_signupGuestData) return;
+  document.getElementById('signup-otp-input').value = '';
+  document.getElementById('signup-step-3').style.display = 'none';
+  document.getElementById('signup-step-2').style.display = 'block';
+  showToast('You can resend the code now.', '');
+}
 
 // ═══════════════════════════════════════════════════
 // SESSION TIMER
@@ -2203,7 +2529,7 @@ async function addGuest() {
   const last = document.getElementById('f-last').value.trim();
   const guestId = document.getElementById('f-mandatory-guest-id').value.trim().toUpperCase();
   const email = document.getElementById('f-email').value.trim();
-  const countryCode = document.getElementById('country-code').value.replace(/-[A-Z]+$/, '');
+  const countryCode = document.getElementById('country-code').value;
   const phoneRaw = document.getElementById('f-phone').value.trim();
   const fullPhone = phoneRaw ? `${countryCode} ${phoneRaw}` : '';
   
@@ -2494,6 +2820,51 @@ function showShareDialog(guestId, guestFallback) {
 function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); _shareGuestData = null; }
 function copyShareDetails() { const text = document.getElementById('share-credentials-preview')?.innerText; if(text) { navigator.clipboard.writeText(text).then(() => showToast('✅ Copied', 'ok')).catch(() => showToast('Copy failed', 'err')); } }
 
+// ── Send welcome email via hotel Apps Script (not local client) ──
+async function sendWelcomeEmailViaHotel() {
+  const guest = _shareGuestData;
+  if (!guest) { showToast('No guest data', 'err'); return; }
+  if (!guest.email) {
+    showToast('No email address on file for this guest', 'err');
+    return;
+  }
+
+  const icon = document.getElementById('share-hotel-email-icon');
+  const btn  = document.getElementById('share-hotel-email-btn');
+  if (btn)  { btn.disabled = true; }
+  if (icon) { icon.textContent = '⏳'; }
+  showSpinner('Sending welcome email…');
+
+  try {
+    const loginUrl = window.location.href.split('?')[0];
+    const res = await callAppsScript('sendGuestWelcomeEmail', {
+      to:        guest.email,
+      guestName: `${guest.title || ''} ${guest.first} ${guest.last}`.trim(),
+      guestId:   guest.id,
+      room:      guest.room || 'TBA',
+      type:      guest.type || 'Standard',
+      loginUrl:  loginUrl
+    });
+    hideSpinner();
+    if (res.success) {
+      if (icon) icon.textContent = '✅';
+      showToast(`✅ Welcome email sent to ${guest.email}`, 'ok');
+      addLog(`Welcome email sent to ${guest.first} ${guest.last} (${guest.email})`);
+      // Re-enable after 3s
+      setTimeout(() => { if (btn) btn.disabled = false; if (icon) icon.textContent = '→'; }, 3000);
+    } else {
+      if (icon) icon.textContent = '❌';
+      showToast('Email failed: ' + (res.error || 'Unknown error'), 'err');
+      if (btn)  btn.disabled = false;
+    }
+  } catch(e) {
+    hideSpinner();
+    showToast('Network error: ' + e.message, 'err');
+    if (icon) icon.textContent = '❌';
+    if (btn)  btn.disabled = false;
+  }
+}
+
 // ═══════════════════════════════════════════════════
 // GUEST PROFILE
 // ═══════════════════════════════════════════════════
@@ -2527,7 +2898,7 @@ function showPanel(pid) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
   const navMap = { 'staff-analytics':'nav-analytics','staff-guests':'nav-guests','staff-add':'nav-add','staff-scanner':'nav-scanner','staff-admin':'nav-admin' };
   if (navMap[pid]) { const btn = document.getElementById(navMap[pid]); if (btn) btn.classList.add('active'); }
-  if (pid === 'guest-profile') loadGuestProfileWithCard();
+  if (pid === 'guest-profile') loadGuestProfile();
   if (pid === 'staff-guests') renderTable();
   if (pid === 'staff-admin') { renderStaffUsers(); updateAdminStats(); }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
@@ -2604,10 +2975,7 @@ function saveCardRequests(reqs) {
   try { localStorage.setItem('pgc_card_requests', JSON.stringify(reqs)); } catch(e) {}
 }
 function getGuestCardRequest(guestId) {
-  const reqs = getCardRequests().filter(r => r.guestId === guestId);
-  if (!reqs.length) return null;
-  // Prefer an active (non-rejected) request; fall back to the latest overall
-  return reqs.find(r => r.status !== 'rejected') || reqs[reqs.length - 1];
+  return getCardRequests().find(r => r.guestId === guestId) || null;
 }
 
 // ═══════════════════════════════════════════════════
@@ -2892,24 +3260,21 @@ function closePrintCard() {
 // ═══════════════════════════════════════════════════
 // HOOK INTO showPanel for card requests
 // ═══════════════════════════════════════════════════
-// Patch showPanel via assignment (not re-declaration) to avoid hoisting bug
-(function() {
-  const _orig = showPanel;
-  showPanel = function(pid) {
-    _orig(pid);
-    // Activate card requests nav button
-    if (pid === 'staff-cardrequests') {
-      document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-      const btn = document.getElementById('nav-cardrequests');
-      if (btn) btn.classList.add('active');
-      loadCardRequests();
-    }
-    // Load physical card section when guest opens profile
-    if (pid === 'guest-profile') {
-      loadGuestProfileWithCard();
-    }
-  };
-})();
+const _origShowPanel = showPanel;
+function showPanel(pid) {
+  _origShowPanel(pid);
+  const navMap2 = { 'staff-cardrequests': 'nav-cardrequests' };
+  if (navMap2[pid]) {
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(navMap2[pid]);
+    if (btn) btn.classList.add('active');
+  }
+  if (pid === 'staff-cardrequests') loadCardRequests();
+  if (pid === 'guest-profile') {
+    loadGuestProfileWithCard();
+    return; // already handled profile loading
+  }
+}
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
@@ -2954,184 +3319,6 @@ async function init() {
   }
 }
 document.addEventListener('DOMContentLoaded', init);
-
-// ═══════════════════════════════════════════════════
-// COUNTRY CODE PICKER
-// ═══════════════════════════════════════════════════
-const CC_DATA = [
-  { f:'🇶🇦', n:'Qatar',               d:'+974' },
-  { f:'🇦🇪', n:'UAE',                 d:'+971' },
-  { f:'🇸🇦', n:'Saudi Arabia',        d:'+966' },
-  { f:'🇰🇼', n:'Kuwait',              d:'+965' },
-  { f:'🇧🇭', n:'Bahrain',             d:'+973' },
-  { f:'🇴🇲', n:'Oman',                d:'+968' },
-  { f:'🇾🇪', n:'Yemen',               d:'+967' },
-  { f:'🇯🇴', n:'Jordan',              d:'+962' },
-  { f:'🇱🇧', n:'Lebanon',             d:'+961' },
-  { f:'🇸🇾', n:'Syria',               d:'+963' },
-  { f:'🇮🇶', n:'Iraq',                d:'+964' },
-  { f:'🇪🇬', n:'Egypt',               d:'+20'  },
-  { f:'🇲🇦', n:'Morocco',             d:'+212' },
-  { f:'🇹🇳', n:'Tunisia',             d:'+216' },
-  { f:'🇩🇿', n:'Algeria',             d:'+213' },
-  { f:'🇱🇾', n:'Libya',               d:'+218' },
-  { f:'🇸🇩', n:'Sudan',               d:'+249' },
-  { f:'🇸🇴', n:'Somalia',             d:'+252' },
-  { f:'🇪🇹', n:'Ethiopia',            d:'+251' },
-  { f:'🇰🇪', n:'Kenya',               d:'+254' },
-  { f:'🇹🇿', n:'Tanzania',            d:'+255' },
-  { f:'🇺🇬', n:'Uganda',              d:'+256' },
-  { f:'🇳🇬', n:'Nigeria',             d:'+234' },
-  { f:'🇬🇭', n:'Ghana',               d:'+233' },
-  { f:'🇿🇦', n:'South Africa',        d:'+27'  },
-  { f:'🇸🇳', n:'Senegal',             d:'+221' },
-  { f:'🇨🇮', n:"Cote d'Ivoire",       d:'+225' },
-  { f:'🇨🇲', n:'Cameroon',            d:'+237' },
-  { f:'🇲🇿', n:'Mozambique',          d:'+258' },
-  { f:'🇲🇬', n:'Madagascar',          d:'+261' },
-  { f:'🇮🇳', n:'India',               d:'+91'  },
-  { f:'🇵🇰', n:'Pakistan',            d:'+92'  },
-  { f:'🇱🇰', n:'Sri Lanka',           d:'+94'  },
-  { f:'🇧🇩', n:'Bangladesh',          d:'+880' },
-  { f:'🇳🇵', n:'Nepal',               d:'+977' },
-  { f:'🇵🇭', n:'Philippines',         d:'+63'  },
-  { f:'🇮🇩', n:'Indonesia',           d:'+62'  },
-  { f:'🇲🇾', n:'Malaysia',            d:'+60'  },
-  { f:'🇸🇬', n:'Singapore',           d:'+65'  },
-  { f:'🇹🇭', n:'Thailand',            d:'+66'  },
-  { f:'🇻🇳', n:'Vietnam',             d:'+84'  },
-  { f:'🇲🇲', n:'Myanmar',             d:'+95'  },
-  { f:'🇰🇭', n:'Cambodia',            d:'+855' },
-  { f:'🇨🇳', n:'China',               d:'+86'  },
-  { f:'🇯🇵', n:'Japan',               d:'+81'  },
-  { f:'🇰🇷', n:'South Korea',         d:'+82'  },
-  { f:'🇹🇼', n:'Taiwan',              d:'+886' },
-  { f:'🇭🇰', n:'Hong Kong',           d:'+852' },
-  { f:'🇷🇺', n:'Russia',              d:'+7'   },
-  { f:'🇹🇷', n:'Turkey',              d:'+90'  },
-  { f:'🇮🇷', n:'Iran',                d:'+98'  },
-  { f:'🇦🇫', n:'Afghanistan',         d:'+93'  },
-  { f:'🇺🇿', n:'Uzbekistan',          d:'+998' },
-  { f:'🇰🇿', n:'Kazakhstan',          d:'+7'   },
-  { f:'🇦🇿', n:'Azerbaijan',          d:'+994' },
-  { f:'🇬🇪', n:'Georgia',             d:'+995' },
-  { f:'🇦🇲', n:'Armenia',             d:'+374' },
-  { f:'🇺🇸', n:'United States',       d:'+1'   },
-  { f:'🇨🇦', n:'Canada',              d:'+1'   },
-  { f:'🇲🇽', n:'Mexico',              d:'+52'  },
-  { f:'🇧🇷', n:'Brazil',              d:'+55'  },
-  { f:'🇦🇷', n:'Argentina',           d:'+54'  },
-  { f:'🇨🇴', n:'Colombia',            d:'+57'  },
-  { f:'🇨🇱', n:'Chile',               d:'+56'  },
-  { f:'🇵🇪', n:'Peru',                d:'+51'  },
-  { f:'🇻🇪', n:'Venezuela',           d:'+58'  },
-  { f:'🇪🇨', n:'Ecuador',             d:'+593' },
-  { f:'🇬🇧', n:'United Kingdom',      d:'+44'  },
-  { f:'🇫🇷', n:'France',              d:'+33'  },
-  { f:'🇩🇪', n:'Germany',             d:'+49'  },
-  { f:'🇮🇹', n:'Italy',               d:'+39'  },
-  { f:'🇪🇸', n:'Spain',               d:'+34'  },
-  { f:'🇵🇹', n:'Portugal',            d:'+351' },
-  { f:'🇳🇱', n:'Netherlands',         d:'+31'  },
-  { f:'🇧🇪', n:'Belgium',             d:'+32'  },
-  { f:'🇨🇭', n:'Switzerland',         d:'+41'  },
-  { f:'🇦🇹', n:'Austria',             d:'+43'  },
-  { f:'🇸🇪', n:'Sweden',              d:'+46'  },
-  { f:'🇳🇴', n:'Norway',              d:'+47'  },
-  { f:'🇩🇰', n:'Denmark',             d:'+45'  },
-  { f:'🇫🇮', n:'Finland',             d:'+358' },
-  { f:'🇵🇱', n:'Poland',              d:'+48'  },
-  { f:'🇬🇷', n:'Greece',              d:'+30'  },
-  { f:'🇭🇺', n:'Hungary',             d:'+36'  },
-  { f:'🇨🇿', n:'Czech Republic',      d:'+420' },
-  { f:'🇷🇴', n:'Romania',             d:'+40'  },
-  { f:'🇺🇦', n:'Ukraine',             d:'+380' },
-  { f:'🇸🇰', n:'Slovakia',            d:'+421' },
-  { f:'🇧🇬', n:'Bulgaria',            d:'+359' },
-  { f:'🇷🇸', n:'Serbia',              d:'+381' },
-  { f:'🇭🇷', n:'Croatia',             d:'+385' },
-  { f:'🇸🇮', n:'Slovenia',            d:'+386' },
-  { f:'🇮🇪', n:'Ireland',             d:'+353' },
-  { f:'🇦🇺', n:'Australia',           d:'+61'  },
-  { f:'🇳🇿', n:'New Zealand',         d:'+64'  },
-];
-
-let _ccSelected = CC_DATA[0];
-
-function buildCCList(filter) {
-  const list = document.getElementById('cc-list');
-  if (!list) return;
-  const q = (filter || '').toLowerCase().trim();
-  const items = q ? CC_DATA.filter(c => c.n.toLowerCase().includes(q) || c.d.includes(q)) : CC_DATA;
-  if (!items.length) {
-    list.innerHTML = '<div class="cc-no-results">No results found</div>';
-    return;
-  }
-  list.innerHTML = items.map(c => {
-    const idx = CC_DATA.indexOf(c);
-    const sel = c === _ccSelected ? ' cc-selected' : '';
-    return '<div class="cc-item' + sel + '" onclick="selectCC(' + idx + ')">' +
-      '<span class="ci-flag">' + c.f + '</span>' +
-      '<span class="ci-name">' + c.n + '</span>' +
-      '<span class="ci-code">' + c.d + '</span>' +
-      '</div>';
-  }).join('');
-}
-
-function selectCC(idx) {
-  _ccSelected = CC_DATA[idx];
-  var flagEl = document.getElementById('cc-flag');
-  var dialEl = document.getElementById('cc-dial');
-  if (flagEl) flagEl.textContent = _ccSelected.f;
-  if (dialEl) dialEl.textContent = _ccSelected.d;
-  var sel = document.getElementById('country-code');
-  if (sel) sel.value = _ccSelected.d;
-  closeCCDropdown();
-}
-
-function toggleCCDropdown(e) {
-  e.stopPropagation();
-  var drop = document.getElementById('cc-dropdown');
-  var trigger = document.getElementById('cc-trigger');
-  if (!drop) return;
-  var isOpen = drop.classList.contains('open');
-  if (isOpen) {
-    closeCCDropdown();
-  } else {
-    drop.classList.add('open');
-    trigger.classList.add('open');
-    trigger.setAttribute('aria-expanded', 'true');
-    buildCCList('');
-    setTimeout(function() {
-      var s = document.getElementById('cc-search');
-      if (s) { s.value = ''; s.focus(); }
-    }, 60);
-  }
-}
-
-function closeCCDropdown() {
-  var drop = document.getElementById('cc-dropdown');
-  var trigger = document.getElementById('cc-trigger');
-  if (drop) drop.classList.remove('open');
-  if (trigger) { trigger.classList.remove('open'); trigger.setAttribute('aria-expanded','false'); }
-}
-
-function filterCC(val) { buildCCList(val); }
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#phone-field-row')) closeCCDropdown();
-});
-
-function initCCPicker() {
-  var sel = document.getElementById('country-code');
-  if (!sel) return;
-  sel.innerHTML = CC_DATA.map(function(c) {
-    return '<option value="' + c.d + '">' + c.f + ' ' + c.n + ' ' + c.d + '</option>';
-  }).join('');
-  sel.value = '+974';
-  buildCCList('');
-}
-document.addEventListener('DOMContentLoaded', initCCPicker);
 </script>
 </body>
 </html>
