@@ -1828,7 +1828,7 @@ async function guestPasswordLogin() {
       currentUser = { type: 'guest', data: res.user };
       currentGuest = res.user;
       saveSession();
-      applyUserSession(); startSessionTimer(); setupActivityListeners();
+      window.applyUserSession(); startSessionTimer(); setupActivityListeners();
       showToast(`Welcome, ${sanitize(res.user.first || 'Guest')}!`, 'ok');
       loadGuests().catch(()=>{});
     } else { showLoginError(res.error || 'Login failed'); }
@@ -1848,7 +1848,7 @@ async function staffLogin() {
     if (res.success) {
       currentUser = { type: 'staff', data: res.user };
       saveSession();
-      applyUserSession(); startSessionTimer(); setupActivityListeners();
+      window.applyUserSession(); startSessionTimer(); setupActivityListeners();
       hideSpinner();
       showToast(`Welcome, ${sanitize(res.user.fullname || username)}!`, 'ok');
       Promise.all([loadStaff(), loadGuests()]).catch(()=>{});
@@ -1975,7 +1975,7 @@ async function signupFinalize() {
       if (loginRes.success) {
         currentUser = { type: 'guest', data: loginRes.user };
         currentGuest = loginRes.user;
-        saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
+        saveSession(); window.applyUserSession(); startSessionTimer(); setupActivityListeners();
         await loadGuests().catch(()=>{});
       } else {
         showLoginError('Account created! Please sign in using "Returning Guest".');
@@ -2725,8 +2725,10 @@ function openPrintCard(id) {
 function closePrintCard() { document.getElementById('print-card-template').classList.remove('show'); }
 
 // ── Hook into existing showPanel & loadGuestProfile ───────────
+// NOTE: Use const arrow functions (not function declarations) to avoid hoisting,
+// which would cause the wrapper to capture itself and recurse infinitely.
 const _origShowPanel = typeof showPanel === 'function' ? showPanel : null;
-function showPanel(pid) {
+const _showPanelWrapper = (pid) => {
   if (_origShowPanel) _origShowPanel(pid);
   if (pid === 'staff-cardrequests') {
     document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -2734,20 +2736,24 @@ function showPanel(pid) {
     loadCardRequests();
   }
   if (pid === 'guest-profile') loadGuestCardSection();
-}
+};
+// Override showPanel globally
+window.showPanel = _showPanelWrapper;
 
 const _origLoadGuestProfile = typeof loadGuestProfile === 'function' ? loadGuestProfile : null;
-function loadGuestProfile() {
+const _loadGuestProfileWrapper = () => {
   if (_origLoadGuestProfile) _origLoadGuestProfile();
   loadGuestCardSection();
-}
+};
+window.loadGuestProfile = _loadGuestProfileWrapper;
 
 // Update badge on staff login
 const _origApply = typeof applyUserSession === 'function' ? applyUserSession : null;
-function applyUserSession() {
+const _applyUserSessionWrapper = () => {
   if (_origApply) _origApply();
   if (currentUser?.type === 'staff') updateCardRequestBadge();
-}
+};
+window.applyUserSession = _applyUserSessionWrapper;
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
@@ -2764,14 +2770,14 @@ async function restoreSession() {
         const guest = guests.find(g => g.id === session.data?.id);
         if (guest && guest.status === 'Active') {
           currentUser = { type: 'guest', data: guest }; currentGuest = guest; sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES * 60000;
-          applyUserSession(); startSessionTimer(); setupActivityListeners(); return true;
+          window.applyUserSession(); startSessionTimer(); setupActivityListeners(); return true;
         }
       } else if (session.type === 'staff') {
         await loadStaff();
         const staff = staffUsers.find(s => s.id === session.data?.id);
         if (staff && staff.accountStatus !== 'suspended') {
           currentUser = { type: 'staff', data: staff }; sessionEndTime = session.end || Date.now() + SESSION_TIMEOUT_MINUTES * 60000;
-          applyUserSession(); startSessionTimer(); setupActivityListeners(); await loadGuests(); return true;
+          window.applyUserSession(); startSessionTimer(); setupActivityListeners(); await loadGuests(); return true;
         }
       }
     }
