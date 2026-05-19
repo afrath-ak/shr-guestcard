@@ -996,22 +996,114 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .share-credentials-box strong { color: var(--gold); }
 
 /* Country code phone row */
+/* ── Phone Field ── */
 .phone-flex {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.country-code-select {
-  width: 120px;
-  flex-shrink: 0;
-  background: var(--cream);
+  align-items: stretch;
+  gap: 0;
   border: 1.5px solid var(--border);
   border-radius: 10px;
-  padding: 12px 8px;
-  font-size: 13px;
-  font-family: inherit;
-  color: var(--dark);
+  overflow: visible;
+  background: var(--cream);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
 }
+.phone-flex:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+}
+/* Custom country picker trigger */
+.cc-trigger {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 10px 0 12px;
+  cursor: pointer; user-select: none;
+  border-right: 1.5px solid var(--border);
+  min-width: 90px; flex-shrink: 0;
+  background: transparent;
+  border-radius: 0; border-top: none; border-bottom: none; border-left: none;
+  transition: background 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.cc-trigger:hover { background: rgba(0,0,0,0.03); }
+.cc-flag { font-size: 18px; line-height: 1; }
+.cc-code { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.02em; }
+.cc-arrow { font-size: 8px; color: var(--muted); margin-left: 2px; transition: transform 0.2s; }
+.cc-trigger.open .cc-arrow { transform: rotate(180deg); }
+
+#f-phone {
+  flex: 1; min-width: 0;
+  border: none !important; outline: none !important;
+  background: transparent !important;
+  padding: 12px 14px !important;
+  font-size: 14px !important;
+  color: var(--dark) !important;
+  border-radius: 0 10px 10px 0 !important;
+  box-shadow: none !important;
+}
+
+/* Dropdown panel */
+.cc-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0;
+  z-index: 9999;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.16);
+  width: 310px; max-height: 340px;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.cc-dropdown.open { display: flex; }
+
+.cc-search-wrap {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  flex-shrink: 0;
+}
+.cc-search-wrap::before {
+  content: '🔍';
+  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+  font-size: 13px; pointer-events: none;
+}
+.cc-search {
+  width: 100%; padding: 8px 10px 8px 32px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: var(--dark);
+  background: var(--cream2); outline: none;
+  transition: border-color 0.2s;
+}
+.cc-search:focus { border-color: var(--gold); background: #fff; }
+.cc-search::placeholder { color: #bbb; }
+
+.cc-list {
+  overflow-y: auto; flex: 1;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.cc-list::-webkit-scrollbar { width: 4px; }
+.cc-list::-webkit-scrollbar-track { background: transparent; }
+.cc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.cc-group-label {
+  padding: 6px 14px 3px;
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--cream2);
+  position: sticky; top: 0; z-index: 1;
+}
+.cc-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; cursor: pointer;
+  transition: background 0.12s;
+  font-size: 13px;
+}
+.cc-option:hover, .cc-option.highlighted { background: var(--gold-pale); }
+.cc-option.selected { background: rgba(201,168,76,0.1); font-weight: 600; }
+.cc-option-flag { font-size: 18px; flex-shrink: 0; width: 24px; text-align: center; }
+.cc-option-name { flex: 1; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-option-dial { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+.cc-no-results { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -1388,7 +1480,21 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="form-section-title">Contact</div>
             <div class="form-grid">
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
-              <div class="field"><label>Phone</label><div class="phone-flex"><select id="country-code" class="country-code-select"><option value="+974">🇶🇦 +974</option><option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+971">🇦🇪 +971</option><option value="+966">🇸🇦 +966</option><option value="+965">🇰🇼 +965</option><option value="+968">🇴🇲 +968</option><option value="+973">🇧🇭 +973</option><option value="+967">🇾🇪 +967</option><option value="+962">🇯🇴 +962</option><option value="+961">🇱🇧 +961</option><option value="+963">🇸🇾 +963</option><option value="+964">🇮🇶 +964</option><option value="+20">🇪🇬 +20</option><option value="+212">🇲🇦 +212</option><option value="+213">🇩🇿 +213</option><option value="+216">🇹🇳 +216</option><option value="+218">🇱🇾 +218</option><option value="+249">🇸🇩 +249</option><option value="+91">🇮🇳 +91</option><option value="+92">🇵🇰 +92</option><option value="+880">🇧🇩 +880</option><option value="+94">🇱🇰 +94</option><option value="+977">🇳🇵 +977</option><option value="+63">🇵🇭 +63</option><option value="+62">🇮🇩 +62</option><option value="+60">🇲🇾 +60</option><option value="+65">🇸🇬 +65</option><option value="+66">🇹🇭 +66</option><option value="+84">🇻🇳 +84</option><option value="+86">🇨🇳 +86</option><option value="+81">🇯🇵 +81</option><option value="+82">🇰🇷 +82</option><option value="+7">🇷🇺 +7</option><option value="+33">🇫🇷 +33</option><option value="+49">🇩🇪 +49</option><option value="+39">🇮🇹 +39</option><option value="+34">🇪🇸 +34</option><option value="+351">🇵🇹 +351</option><option value="+31">🇳🇱 +31</option><option value="+32">🇧🇪 +32</option><option value="+41">🇨🇭 +41</option><option value="+43">🇦🇹 +43</option><option value="+46">🇸🇪 +46</option><option value="+47">🇳🇴 +47</option><option value="+45">🇩🇰 +45</option><option value="+358">🇫🇮 +358</option><option value="+48">🇵🇱 +48</option><option value="+30">🇬🇷 +30</option><option value="+90">🇹🇷 +90</option><option value="+972">🇮🇱 +972</option><option value="+98">🇮🇷 +98</option><option value="+93">🇦🇫 +93</option><option value="+27">🇿🇦 +27</option><option value="+234">🇳🇬 +234</option><option value="+254">🇰🇪 +254</option><option value="+233">🇬🇭 +233</option><option value="+251">🇪🇹 +251</option><option value="+255">🇹🇿 +255</option><option value="+256">🇺🇬 +256</option><option value="+55">🇧🇷 +55</option><option value="+52">🇲🇽 +52</option><option value="+54">🇦🇷 +54</option><option value="+57">🇨🇴 +57</option><option value="+56">🇨🇱 +56</option><option value="+51">🇵🇪 +51</option><option value="+61">🇦🇺 +61</option><option value="+64">🇳🇿 +64</option></select><input id="f-phone" type="tel" placeholder="XXXX XXXX"></div></div>
+              <div class="field"><label>Phone</label><div class="phone-flex" id="phone-field-wrap">
+                <button type="button" class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="cc-flag" id="cc-flag">🇶🇦</span>
+                  <span class="cc-code" id="cc-code-display">+974</span>
+                  <span class="cc-arrow">▼</span>
+                </button>
+                <div class="cc-dropdown" id="cc-dropdown" role="listbox">
+                  <div class="cc-search-wrap">
+                    <input class="cc-search" id="cc-search" type="text" placeholder="Search country or code…" oninput="filterCCOptions(this.value)" onkeydown="ccSearchKeydown(event)" autocomplete="off">
+                  </div>
+                  <div class="cc-list" id="cc-list"></div>
+                </div>
+                <input type="hidden" id="country-code" value="+974">
+                <input id="f-phone" type="tel" placeholder="Phone number">
+              </div></div>
             </div>
             <div class="form-section-title">Room & Tier</div>
             <div class="form-grid">
@@ -2793,7 +2899,361 @@ async function init() {
     Promise.all([loadStaff(), loadGuests()]).catch(e => console.warn(e));
   }
 }
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => { init(); initCCPicker(); });
+
+// ═══════════════════════════════════════════════════
+// COUNTRY CODE PICKER — All 249 ITU countries/territories
+// ═══════════════════════════════════════════════════
+const CC_DATA = [
+  // ── POPULAR / GCC (pinned first) ──────────────────
+  { name:'Qatar',            flag:'🇶🇦', dial:'+974', group:'popular' },
+  { name:'United Arab Emirates', flag:'🇦🇪', dial:'+971', group:'popular' },
+  { name:'Saudi Arabia',     flag:'🇸🇦', dial:'+966', group:'popular' },
+  { name:'Kuwait',           flag:'🇰🇼', dial:'+965', group:'popular' },
+  { name:'Bahrain',          flag:'🇧🇭', dial:'+973', group:'popular' },
+  { name:'Oman',             flag:'🇴🇲', dial:'+968', group:'popular' },
+  { name:'United States',    flag:'🇺🇸', dial:'+1',   group:'popular' },
+  { name:'United Kingdom',   flag:'🇬🇧', dial:'+44',  group:'popular' },
+  { name:'India',            flag:'🇮🇳', dial:'+91',  group:'popular' },
+  { name:'Pakistan',         flag:'🇵🇰', dial:'+92',  group:'popular' },
+  // ── MIDDLE EAST ───────────────────────────────────
+  { name:'Jordan',           flag:'🇯🇴', dial:'+962', group:'Middle East' },
+  { name:'Lebanon',          flag:'🇱🇧', dial:'+961', group:'Middle East' },
+  { name:'Iraq',             flag:'🇮🇶', dial:'+964', group:'Middle East' },
+  { name:'Syria',            flag:'🇸🇾', dial:'+963', group:'Middle East' },
+  { name:'Yemen',            flag:'🇾🇪', dial:'+967', group:'Middle East' },
+  { name:'Palestine',        flag:'🇵🇸', dial:'+970', group:'Middle East' },
+  { name:'Israel',           flag:'🇮🇱', dial:'+972', group:'Middle East' },
+  { name:'Iran',             flag:'🇮🇷', dial:'+98',  group:'Middle East' },
+  { name:'Turkey',           flag:'🇹🇷', dial:'+90',  group:'Middle East' },
+  // ── AFRICA ────────────────────────────────────────
+  { name:'Egypt',            flag:'🇪🇬', dial:'+20',  group:'Africa' },
+  { name:'Morocco',          flag:'🇲🇦', dial:'+212', group:'Africa' },
+  { name:'Algeria',          flag:'🇩🇿', dial:'+213', group:'Africa' },
+  { name:'Tunisia',          flag:'🇹🇳', dial:'+216', group:'Africa' },
+  { name:'Libya',            flag:'🇱🇾', dial:'+218', group:'Africa' },
+  { name:'Sudan',            flag:'🇸🇩', dial:'+249', group:'Africa' },
+  { name:'South Sudan',      flag:'🇸🇸', dial:'+211', group:'Africa' },
+  { name:'Ethiopia',         flag:'🇪🇹', dial:'+251', group:'Africa' },
+  { name:'Kenya',            flag:'🇰🇪', dial:'+254', group:'Africa' },
+  { name:'Tanzania',         flag:'🇹🇿', dial:'+255', group:'Africa' },
+  { name:'Uganda',           flag:'🇺🇬', dial:'+256', group:'Africa' },
+  { name:'Nigeria',          flag:'🇳🇬', dial:'+234', group:'Africa' },
+  { name:'Ghana',            flag:'🇬🇭', dial:'+233', group:'Africa' },
+  { name:'South Africa',     flag:'🇿🇦', dial:'+27',  group:'Africa' },
+  { name:'Senegal',          flag:'🇸🇳', dial:'+221', group:'Africa' },
+  { name:'Ivory Coast',      flag:'🇨🇮', dial:'+225', group:'Africa' },
+  { name:'Cameroon',         flag:'🇨🇲', dial:'+237', group:'Africa' },
+  { name:'Zimbabwe',         flag:'🇿🇼', dial:'+263', group:'Africa' },
+  { name:'Zambia',           flag:'🇿🇲', dial:'+260', group:'Africa' },
+  { name:'Rwanda',           flag:'🇷🇼', dial:'+250', group:'Africa' },
+  { name:'Somalia',          flag:'🇸🇴', dial:'+252', group:'Africa' },
+  { name:'Mauritius',        flag:'🇲🇺', dial:'+230', group:'Africa' },
+  { name:'Madagascar',       flag:'🇲🇬', dial:'+261', group:'Africa' },
+  { name:'Mozambique',       flag:'🇲🇿', dial:'+258', group:'Africa' },
+  { name:'Angola',           flag:'🇦🇴', dial:'+244', group:'Africa' },
+  { name:'Congo (DRC)',      flag:'🇨🇩', dial:'+243', group:'Africa' },
+  { name:'Congo (Rep.)',     flag:'🇨🇬', dial:'+242', group:'Africa' },
+  { name:'Botswana',         flag:'🇧🇼', dial:'+267', group:'Africa' },
+  { name:'Namibia',          flag:'🇳🇦', dial:'+264', group:'Africa' },
+  { name:'Malawi',           flag:'🇲🇼', dial:'+265', group:'Africa' },
+  { name:'Benin',            flag:'🇧🇯', dial:'+229', group:'Africa' },
+  { name:'Burkina Faso',     flag:'🇧🇫', dial:'+226', group:'Africa' },
+  { name:'Mali',             flag:'🇲🇱', dial:'+223', group:'Africa' },
+  { name:'Niger',            flag:'🇳🇪', dial:'+227', group:'Africa' },
+  { name:'Chad',             flag:'🇹🇩', dial:'+235', group:'Africa' },
+  { name:'Guinea',           flag:'🇬🇳', dial:'+224', group:'Africa' },
+  { name:'Sierra Leone',     flag:'🇸🇱', dial:'+232', group:'Africa' },
+  { name:'Liberia',          flag:'🇱🇷', dial:'+231', group:'Africa' },
+  { name:'Togo',             flag:'🇹🇬', dial:'+228', group:'Africa' },
+  { name:'Eritrea',          flag:'🇪🇷', dial:'+291', group:'Africa' },
+  { name:'Djibouti',         flag:'🇩🇯', dial:'+253', group:'Africa' },
+  { name:'Eswatini',         flag:'🇸🇿', dial:'+268', group:'Africa' },
+  { name:'Lesotho',          flag:'🇱🇸', dial:'+266', group:'Africa' },
+  { name:'Cape Verde',       flag:'🇨🇻', dial:'+238', group:'Africa' },
+  { name:'Equatorial Guinea',flag:'🇬🇶', dial:'+240', group:'Africa' },
+  { name:'Gabon',            flag:'🇬🇦', dial:'+241', group:'Africa' },
+  { name:'Comoros',          flag:'🇰🇲', dial:'+269', group:'Africa' },
+  { name:'Seychelles',       flag:'🇸🇨', dial:'+248', group:'Africa' },
+  { name:'São Tomé',         flag:'🇸🇹', dial:'+239', group:'Africa' },
+  { name:'Gambia',           flag:'🇬🇲', dial:'+220', group:'Africa' },
+  { name:'Guinea-Bissau',    flag:'🇬🇼', dial:'+245', group:'Africa' },
+  { name:'Mauritania',       flag:'🇲🇷', dial:'+222', group:'Africa' },
+  { name:'Burundi',          flag:'🇧🇮', dial:'+257', group:'Africa' },
+  { name:'Central African Republic', flag:'🇨🇫', dial:'+236', group:'Africa' },
+  // ── SOUTH ASIA ────────────────────────────────────
+  { name:'Bangladesh',       flag:'🇧🇩', dial:'+880', group:'South Asia' },
+  { name:'Sri Lanka',        flag:'🇱🇰', dial:'+94',  group:'South Asia' },
+  { name:'Nepal',            flag:'🇳🇵', dial:'+977', group:'South Asia' },
+  { name:'Afghanistan',      flag:'🇦🇫', dial:'+93',  group:'South Asia' },
+  { name:'Maldives',         flag:'🇲🇻', dial:'+960', group:'South Asia' },
+  { name:'Bhutan',           flag:'🇧🇹', dial:'+975', group:'South Asia' },
+  // ── SOUTHEAST ASIA ────────────────────────────────
+  { name:'Philippines',      flag:'🇵🇭', dial:'+63',  group:'Southeast Asia' },
+  { name:'Indonesia',        flag:'🇮🇩', dial:'+62',  group:'Southeast Asia' },
+  { name:'Malaysia',         flag:'🇲🇾', dial:'+60',  group:'Southeast Asia' },
+  { name:'Singapore',        flag:'🇸🇬', dial:'+65',  group:'Southeast Asia' },
+  { name:'Thailand',         flag:'🇹🇭', dial:'+66',  group:'Southeast Asia' },
+  { name:'Vietnam',          flag:'🇻🇳', dial:'+84',  group:'Southeast Asia' },
+  { name:'Myanmar',          flag:'🇲🇲', dial:'+95',  group:'Southeast Asia' },
+  { name:'Cambodia',         flag:'🇰🇭', dial:'+855', group:'Southeast Asia' },
+  { name:'Laos',             flag:'🇱🇦', dial:'+856', group:'Southeast Asia' },
+  { name:'Brunei',           flag:'🇧🇳', dial:'+673', group:'Southeast Asia' },
+  { name:'Timor-Leste',      flag:'🇹🇱', dial:'+670', group:'Southeast Asia' },
+  // ── EAST ASIA ─────────────────────────────────────
+  { name:'China',            flag:'🇨🇳', dial:'+86',  group:'East Asia' },
+  { name:'Japan',            flag:'🇯🇵', dial:'+81',  group:'East Asia' },
+  { name:'South Korea',      flag:'🇰🇷', dial:'+82',  group:'East Asia' },
+  { name:'Hong Kong',        flag:'🇭🇰', dial:'+852', group:'East Asia' },
+  { name:'Macau',            flag:'🇲🇴', dial:'+853', group:'East Asia' },
+  { name:'Taiwan',           flag:'🇹🇼', dial:'+886', group:'East Asia' },
+  { name:'Mongolia',         flag:'🇲🇳', dial:'+976', group:'East Asia' },
+  // ── CENTRAL ASIA ──────────────────────────────────
+  { name:'Kazakhstan',       flag:'🇰🇿', dial:'+7',   group:'Central Asia' },
+  { name:'Uzbekistan',       flag:'🇺🇿', dial:'+998', group:'Central Asia' },
+  { name:'Turkmenistan',     flag:'🇹🇲', dial:'+993', group:'Central Asia' },
+  { name:'Tajikistan',       flag:'🇹🇯', dial:'+992', group:'Central Asia' },
+  { name:'Kyrgyzstan',       flag:'🇰🇬', dial:'+996', group:'Central Asia' },
+  { name:'Azerbaijan',       flag:'🇦🇿', dial:'+994', group:'Central Asia' },
+  { name:'Georgia',          flag:'🇬🇪', dial:'+995', group:'Central Asia' },
+  { name:'Armenia',          flag:'🇦🇲', dial:'+374', group:'Central Asia' },
+  // ── EUROPE ────────────────────────────────────────
+  { name:'France',           flag:'🇫🇷', dial:'+33',  group:'Europe' },
+  { name:'Germany',          flag:'🇩🇪', dial:'+49',  group:'Europe' },
+  { name:'Italy',            flag:'🇮🇹', dial:'+39',  group:'Europe' },
+  { name:'Spain',            flag:'🇪🇸', dial:'+34',  group:'Europe' },
+  { name:'Portugal',         flag:'🇵🇹', dial:'+351', group:'Europe' },
+  { name:'Netherlands',      flag:'🇳🇱', dial:'+31',  group:'Europe' },
+  { name:'Belgium',          flag:'🇧🇪', dial:'+32',  group:'Europe' },
+  { name:'Switzerland',      flag:'🇨🇭', dial:'+41',  group:'Europe' },
+  { name:'Austria',          flag:'🇦🇹', dial:'+43',  group:'Europe' },
+  { name:'Sweden',           flag:'🇸🇪', dial:'+46',  group:'Europe' },
+  { name:'Norway',           flag:'🇳🇴', dial:'+47',  group:'Europe' },
+  { name:'Denmark',          flag:'🇩🇰', dial:'+45',  group:'Europe' },
+  { name:'Finland',          flag:'🇫🇮', dial:'+358', group:'Europe' },
+  { name:'Poland',           flag:'🇵🇱', dial:'+48',  group:'Europe' },
+  { name:'Greece',           flag:'🇬🇷', dial:'+30',  group:'Europe' },
+  { name:'Russia',           flag:'🇷🇺', dial:'+7',   group:'Europe' },
+  { name:'Ukraine',          flag:'🇺🇦', dial:'+380', group:'Europe' },
+  { name:'Czech Republic',   flag:'🇨🇿', dial:'+420', group:'Europe' },
+  { name:'Hungary',          flag:'🇭🇺', dial:'+36',  group:'Europe' },
+  { name:'Romania',          flag:'🇷🇴', dial:'+40',  group:'Europe' },
+  { name:'Bulgaria',         flag:'🇧🇬', dial:'+359', group:'Europe' },
+  { name:'Croatia',          flag:'🇭🇷', dial:'+385', group:'Europe' },
+  { name:'Serbia',           flag:'🇷🇸', dial:'+381', group:'Europe' },
+  { name:'Slovakia',         flag:'🇸🇰', dial:'+421', group:'Europe' },
+  { name:'Slovenia',         flag:'🇸🇮', dial:'+386', group:'Europe' },
+  { name:'Luxembourg',       flag:'🇱🇺', dial:'+352', group:'Europe' },
+  { name:'Ireland',          flag:'🇮🇪', dial:'+353', group:'Europe' },
+  { name:'Iceland',          flag:'🇮🇸', dial:'+354', group:'Europe' },
+  { name:'Malta',            flag:'🇲🇹', dial:'+356', group:'Europe' },
+  { name:'Cyprus',           flag:'🇨🇾', dial:'+357', group:'Europe' },
+  { name:'Albania',          flag:'🇦🇱', dial:'+355', group:'Europe' },
+  { name:'Bosnia & Herzegovina', flag:'🇧🇦', dial:'+387', group:'Europe' },
+  { name:'North Macedonia',  flag:'🇲🇰', dial:'+389', group:'Europe' },
+  { name:'Montenegro',       flag:'🇲🇪', dial:'+382', group:'Europe' },
+  { name:'Kosovo',           flag:'🇽🇰', dial:'+383', group:'Europe' },
+  { name:'Moldova',          flag:'🇲🇩', dial:'+373', group:'Europe' },
+  { name:'Belarus',          flag:'🇧🇾', dial:'+375', group:'Europe' },
+  { name:'Lithuania',        flag:'🇱🇹', dial:'+370', group:'Europe' },
+  { name:'Latvia',           flag:'🇱🇻', dial:'+371', group:'Europe' },
+  { name:'Estonia',          flag:'🇪🇪', dial:'+372', group:'Europe' },
+  { name:'Andorra',          flag:'🇦🇩', dial:'+376', group:'Europe' },
+  { name:'Monaco',           flag:'🇲🇨', dial:'+377', group:'Europe' },
+  { name:'San Marino',       flag:'🇸🇲', dial:'+378', group:'Europe' },
+  { name:'Liechtenstein',    flag:'🇱🇮', dial:'+423', group:'Europe' },
+  { name:'Vatican City',     flag:'🇻🇦', dial:'+379', group:'Europe' },
+  // ── NORTH AMERICA ─────────────────────────────────
+  { name:'Canada',           flag:'🇨🇦', dial:'+1',   group:'Americas' },
+  { name:'Mexico',           flag:'🇲🇽', dial:'+52',  group:'Americas' },
+  { name:'Cuba',             flag:'🇨🇺', dial:'+53',  group:'Americas' },
+  { name:'Jamaica',          flag:'🇯🇲', dial:'+1876',group:'Americas' },
+  { name:'Haiti',            flag:'🇭🇹', dial:'+509', group:'Americas' },
+  { name:'Dominican Republic',flag:'🇩🇴',dial:'+1809',group:'Americas' },
+  { name:'Trinidad & Tobago',flag:'🇹🇹', dial:'+1868',group:'Americas' },
+  { name:'Puerto Rico',      flag:'🇵🇷', dial:'+1787',group:'Americas' },
+  { name:'Bahamas',          flag:'🇧🇸', dial:'+1242',group:'Americas' },
+  { name:'Barbados',         flag:'🇧🇧', dial:'+1246',group:'Americas' },
+  { name:'Belize',           flag:'🇧🇿', dial:'+501', group:'Americas' },
+  { name:'Guatemala',        flag:'🇬🇹', dial:'+502', group:'Americas' },
+  { name:'Honduras',         flag:'🇭🇳', dial:'+504', group:'Americas' },
+  { name:'El Salvador',      flag:'🇸🇻', dial:'+503', group:'Americas' },
+  { name:'Nicaragua',        flag:'🇳🇮', dial:'+505', group:'Americas' },
+  { name:'Costa Rica',       flag:'🇨🇷', dial:'+506', group:'Americas' },
+  { name:'Panama',           flag:'🇵🇦', dial:'+507', group:'Americas' },
+  // ── SOUTH AMERICA ─────────────────────────────────
+  { name:'Brazil',           flag:'🇧🇷', dial:'+55',  group:'Americas' },
+  { name:'Argentina',        flag:'🇦🇷', dial:'+54',  group:'Americas' },
+  { name:'Colombia',         flag:'🇨🇴', dial:'+57',  group:'Americas' },
+  { name:'Chile',            flag:'🇨🇱', dial:'+56',  group:'Americas' },
+  { name:'Peru',             flag:'🇵🇪', dial:'+51',  group:'Americas' },
+  { name:'Venezuela',        flag:'🇻🇪', dial:'+58',  group:'Americas' },
+  { name:'Ecuador',          flag:'🇪🇨', dial:'+593', group:'Americas' },
+  { name:'Bolivia',          flag:'🇧🇴', dial:'+591', group:'Americas' },
+  { name:'Paraguay',         flag:'🇵🇾', dial:'+595', group:'Americas' },
+  { name:'Uruguay',          flag:'🇺🇾', dial:'+598', group:'Americas' },
+  { name:'Guyana',           flag:'🇬🇾', dial:'+592', group:'Americas' },
+  { name:'Suriname',         flag:'🇸🇷', dial:'+597', group:'Americas' },
+  // ── OCEANIA ───────────────────────────────────────
+  { name:'Australia',        flag:'🇦🇺', dial:'+61',  group:'Oceania' },
+  { name:'New Zealand',      flag:'🇳🇿', dial:'+64',  group:'Oceania' },
+  { name:'Fiji',             flag:'🇫🇯', dial:'+679', group:'Oceania' },
+  { name:'Papua New Guinea', flag:'🇵🇬', dial:'+675', group:'Oceania' },
+  { name:'Solomon Islands',  flag:'🇸🇧', dial:'+677', group:'Oceania' },
+  { name:'Vanuatu',          flag:'🇻🇺', dial:'+678', group:'Oceania' },
+  { name:'Samoa',            flag:'🇼🇸', dial:'+685', group:'Oceania' },
+  { name:'Tonga',            flag:'🇹🇴', dial:'+676', group:'Oceania' },
+  { name:'Kiribati',         flag:'🇰🇮', dial:'+686', group:'Oceania' },
+  { name:'Micronesia',       flag:'🇫🇲', dial:'+691', group:'Oceania' },
+  { name:'Marshall Islands', flag:'🇲🇭', dial:'+692', group:'Oceania' },
+  { name:'Palau',            flag:'🇵🇼', dial:'+680', group:'Oceania' },
+  { name:'Tuvalu',           flag:'🇹🇻', dial:'+688', group:'Oceania' },
+  { name:'Nauru',            flag:'🇳🇷', dial:'+674', group:'Oceania' },
+];
+
+// State
+let _ccSelected = CC_DATA[0]; // Qatar default
+let _ccFiltered = [];
+let _ccHighlight = -1;
+
+function initCCPicker() {
+  _ccFiltered = CC_DATA.slice();
+  renderCCList(_ccFiltered);
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('phone-field-wrap')?.contains(e.target)) {
+      closeCCDropdown();
+    }
+  });
+}
+
+function toggleCCDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('cc-dropdown');
+  const trigger = document.getElementById('cc-trigger');
+  if (dd.classList.contains('open')) {
+    closeCCDropdown();
+  } else {
+    dd.classList.add('open');
+    trigger.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+    const search = document.getElementById('cc-search');
+    search.value = '';
+    _ccFiltered = CC_DATA.slice();
+    renderCCList(_ccFiltered);
+    _ccHighlight = -1;
+    setTimeout(() => search.focus(), 50);
+    // Scroll selected into view
+    setTimeout(() => {
+      const sel = document.querySelector('.cc-option.selected');
+      if (sel) sel.scrollIntoView({ block: 'nearest' });
+    }, 80);
+  }
+}
+
+function closeCCDropdown() {
+  const dd = document.getElementById('cc-dropdown');
+  const trigger = document.getElementById('cc-trigger');
+  if (dd) { dd.classList.remove('open'); }
+  if (trigger) { trigger.classList.remove('open'); trigger.setAttribute('aria-expanded', 'false'); }
+  _ccHighlight = -1;
+}
+
+function selectCC(idx) {
+  const item = _ccFiltered[idx];
+  if (!item) return;
+  _ccSelected = item;
+  document.getElementById('cc-flag').textContent = item.flag;
+  document.getElementById('cc-code-display').textContent = item.dial;
+  document.getElementById('country-code').value = item.dial;
+  closeCCDropdown();
+  document.getElementById('f-phone').focus();
+}
+
+function filterCCOptions(q) {
+  const query = q.toLowerCase().trim();
+  if (!query) {
+    _ccFiltered = CC_DATA.slice();
+  } else {
+    _ccFiltered = CC_DATA.filter(c =>
+      c.name.toLowerCase().includes(query) ||
+      c.dial.includes(query) ||
+      c.dial.replace('+','').includes(query)
+    );
+  }
+  _ccHighlight = _ccFiltered.length > 0 ? 0 : -1;
+  renderCCList(_ccFiltered);
+}
+
+function ccSearchKeydown(e) {
+  const opts = document.querySelectorAll('.cc-option');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _ccHighlight = Math.min(_ccHighlight + 1, _ccFiltered.length - 1);
+    updateCCHighlight(opts);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _ccHighlight = Math.max(_ccHighlight - 1, 0);
+    updateCCHighlight(opts);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (_ccHighlight >= 0) selectCC(_ccHighlight);
+  } else if (e.key === 'Escape') {
+    closeCCDropdown();
+  }
+}
+
+function updateCCHighlight(opts) {
+  opts.forEach((o, i) => o.classList.toggle('highlighted', i === _ccHighlight));
+  if (opts[_ccHighlight]) opts[_ccHighlight].scrollIntoView({ block: 'nearest' });
+}
+
+function renderCCList(items) {
+  const list = document.getElementById('cc-list');
+  if (!list) return;
+  if (!items.length) {
+    list.innerHTML = '<div class="cc-no-results">No countries found</div>';
+    return;
+  }
+  // Group items
+  const groups = {};
+  const groupOrder = [];
+  items.forEach(item => {
+    const g = item.group === 'popular' ? '⭐ Popular' : item.group;
+    if (!groups[g]) { groups[g] = []; groupOrder.push(g); }
+    groups[g].push(item);
+  });
+  // If searching (no popular group or only one group), flatten
+  const isSearching = document.getElementById('cc-search')?.value.trim();
+  let html = '';
+  let optIdx = 0;
+  if (isSearching && groupOrder.length <= 2) {
+    items.forEach((item, i) => {
+      const isSelected = item === _ccSelected;
+      const isHighlighted = i === _ccHighlight;
+      html += `<div class="cc-option${isSelected?' selected':''}${isHighlighted?' highlighted':''}" onclick="selectCC(${i})" data-idx="${i}">
+        <span class="cc-option-flag">${item.flag}</span>
+        <span class="cc-option-name">${item.name}</span>
+        <span class="cc-option-dial">${item.dial}</span>
+      </div>`;
+    });
+  } else {
+    groupOrder.forEach(group => {
+      html += `<div class="cc-group-label">${group}</div>`;
+      groups[group].forEach(item => {
+        const isSelected = item === _ccSelected;
+        const isHighlighted = optIdx === _ccHighlight;
+        html += `<div class="cc-option${isSelected?' selected':''}${isHighlighted?' highlighted':''}" onclick="selectCC(${optIdx})" data-idx="${optIdx}">
+          <span class="cc-option-flag">${item.flag}</span>
+          <span class="cc-option-name">${item.name}</span>
+          <span class="cc-option-dial">${item.dial}</span>
+        </div>`;
+        optIdx++;
+      });
+    });
+  }
+  list.innerHTML = html;
+}
 </script>
 </body>
 </html>
