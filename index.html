@@ -887,137 +887,56 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 @media (max-width: 400px) { .field-row-2 { grid-template-columns: 1fr; } }
 
 /* ══ PHYSICAL CARD REQUEST ══ */
-.pgc-request-box {
-  background: linear-gradient(135deg, #1a1a22 0%, #12120f 100%);
-  border-radius: var(--radius-lg); padding: 26px 22px;
-  color: #fff; position: relative; overflow: hidden;
-  border: 1px solid rgba(201,168,76,0.18);
-}
-.pgc-request-box::before {
-  content: '';
-  position: absolute; top: -40px; right: -40px;
-  width: 180px; height: 180px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-.pgc-card-visual {
-  background: linear-gradient(135deg, #1a1a22 0%, #0c0c0f 100%);
-  border: 1px solid rgba(201,168,76,0.3);
-  border-radius: 14px; padding: 18px 20px;
-  font-family: 'Playfair Display', serif;
-  position: relative; overflow: hidden; margin-bottom: 20px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(201,168,76,0.15);
-  width: 100%; max-width: 340px;
-}
-.pgc-card-visual::after {
-  content: '';
-  position: absolute; bottom: -30px; right: -30px;
-  width: 120px; height: 120px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
-}
-.pgc-card-chip {
-  width: 34px; height: 26px; border-radius: 5px;
-  background: linear-gradient(135deg, #e8d08a, #c9a84c);
-  margin-bottom: 16px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-}
-.pgc-card-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.06em; margin-bottom: 4px; }
-.pgc-card-id { font-size: 11px; color: rgba(201,168,76,0.8); letter-spacing: 0.1em; font-family: 'Outfit', sans-serif; }
-.pgc-card-tier { position: absolute; top: 18px; right: 18px; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; background: rgba(201,168,76,0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(201,168,76,0.2); font-family: 'Outfit', sans-serif; }
-.pgc-card-hotel { position: absolute; bottom: 14px; right: 16px; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 0.12em; font-family: 'Outfit', sans-serif; text-align: right; }
-
-.pgc-status-badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 700;
-  letter-spacing: 0.05em;
-}
-.pgc-status-badge.none     { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
-.pgc-status-badge.pending  { background: rgba(180,83,9,0.18); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-.pgc-status-badge.approved { background: rgba(21,128,61,0.18); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-.pgc-status-badge.rejected { background: rgba(185,28,28,0.18); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
-.pgc-status-badge.printed  { background: rgba(13,125,124,0.18); color: #2dd4bf; border: 1px solid rgba(45,212,191,0.3); }
-
-.pgc-request-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-.pgc-request-btn {
-  padding: 11px 22px; border-radius: 10px; cursor: pointer; font-size: 13px;
-  font-family: inherit; font-weight: 700; border: none; letter-spacing: 0.04em;
-  transition: all 0.2s;
-}
-.pgc-request-btn.gold  { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); }
-.pgc-request-btn.gold:hover  { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
-.pgc-request-btn.ghost { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.12); }
-.pgc-request-btn.ghost:hover { background: rgba(255,255,255,0.1); }
-.pgc-request-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.pgc-info-note { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 12px; line-height: 1.7; }
-
-/* Staff card requests table */
-.card-req-row {
-  display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px; align-items: center;
-  padding: 14px 16px; border-radius: 12px; margin-bottom: 8px;
-  background: #fff; border: 1px solid var(--border);
-  transition: box-shadow var(--trans);
-}
-.card-req-row:hover { box-shadow: var(--shadow-md); }
-@media (max-width: 600px) { .card-req-row { grid-template-columns: 1fr; } }
-.card-req-name { font-weight: 700; font-size: 14px; color: var(--dark); }
-.card-req-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.card-req-actions { display: flex; gap: 6px; }
-.card-req-btn {
-  padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px;
-  font-family: inherit; font-weight: 600; border: none; transition: all 0.18s;
-}
-.card-req-btn.approve { background: rgba(21,128,61,0.12); color: #15803d; border: 1px solid rgba(21,128,61,0.25); }
-.card-req-btn.approve:hover { background: rgba(21,128,61,0.22); }
-.card-req-btn.reject  { background: rgba(185,28,28,0.08); color: var(--danger); border: 1px solid rgba(185,28,28,0.2); }
-.card-req-btn.reject:hover  { background: rgba(185,28,28,0.15); }
-.card-req-btn.print   { background: rgba(13,125,124,0.12); color: var(--teal); border: 1px solid rgba(13,125,124,0.25); }
-.card-req-btn.print:hover   { background: rgba(13,125,124,0.22); }
-
-/* ══ PRINT CARD ══ */
-@media print {
-  body > *:not(#print-card-template) { display: none !important; }
-  #print-card-template { display: block !important; }
-  @page { size: 85.6mm 54mm; margin: 0; }
-}
-#print-card-template {
-  display: none;
-  position: fixed; inset: 0; z-index: 99999;
-  background: #f3ede3;
-  align-items: center; justify-content: center;
-}
-#print-card-template.show { display: flex; }
-.print-card-wrap {
-  width: 85.6mm; height: 54mm;
-  background: linear-gradient(135deg, #1a1a22 0%, #0c0c0f 100%);
-  border-radius: 8px; overflow: hidden; position: relative;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
-  font-family: 'Outfit', sans-serif;
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: 10px 14px;
-  border: 1px solid rgba(201,168,76,0.3);
-}
-.print-card-top { display: flex; align-items: flex-start; justify-content: space-between; }
-.print-card-chip { width: 22px; height: 17px; border-radius: 3px; background: linear-gradient(135deg, #e8d08a, #c9a84c); }
-.print-card-hotel { font-size: 7px; color: rgba(255,255,255,0.35); letter-spacing: 0.12em; text-align: right; }
-.print-card-hotel strong { display: block; font-size: 8px; color: var(--gold); font-family: 'Playfair Display', serif; letter-spacing: 0.06em; }
-.print-card-mid { flex: 1; display: flex; align-items: flex-end; padding-bottom: 4px; }
-.print-card-name { font-size: 12px; font-weight: 700; color: #fff; letter-spacing: 0.04em; font-family: 'Playfair Display', serif; }
-.print-card-bottom { display: flex; align-items: flex-end; justify-content: space-between; }
-.print-card-id { font-size: 8px; color: rgba(201,168,76,0.8); letter-spacing: 0.12em; }
-.print-card-tier { font-size: 7px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; text-align: right; }
-.print-card-qr { position: absolute; bottom: 8px; right: 44px; }
-.print-close-btn {
-  position: fixed; top: 20px; right: 20px; z-index: 100000;
-  background: var(--dark); color: var(--gold); border: 1px solid rgba(201,168,76,0.3);
-  padding: 8px 18px; border-radius: 8px; cursor: pointer; font-family: inherit;
-  font-size: 13px; font-weight: 600;
-}
-@media print { .print-close-btn { display: none !important; } }
-.print-actions-bar {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 12px; z-index: 100000;
-}
-@media print { .print-actions-bar { display: none !important; } }
+.pgc-request-box{background:linear-gradient(135deg,#1a1a22 0%,#12120f 100%);border-radius:var(--radius-lg);padding:26px 22px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(201,168,76,0.18);}
+.pgc-request-box::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%);pointer-events:none;}
+.pgc-card-visual{background:linear-gradient(135deg,#1a1a22 0%,#0c0c0f 100%);border:1px solid rgba(201,168,76,0.3);border-radius:14px;padding:18px 20px;font-family:'Playfair Display',serif;position:relative;overflow:hidden;margin-bottom:20px;box-shadow:0 12px 40px rgba(0,0,0,0.35),inset 0 1px 0 rgba(201,168,76,0.15);width:100%;max-width:340px;}
+.pgc-card-chip{width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#e8d08a,#c9a84c);margin-bottom:16px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);}
+.pgc-card-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:0.06em;margin-bottom:4px;}
+.pgc-card-id{font-size:11px;color:rgba(201,168,76,0.8);letter-spacing:0.1em;font-family:'Outfit',sans-serif;}
+.pgc-card-tier{position:absolute;top:18px;right:18px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:0.1em;background:rgba(201,168,76,0.12);padding:3px 10px;border-radius:20px;border:1px solid rgba(201,168,76,0.2);font-family:'Outfit',sans-serif;}
+.pgc-card-hotel{position:absolute;bottom:14px;right:16px;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.12em;font-family:'Outfit',sans-serif;text-align:right;}
+.pgc-status-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:40px;font-size:12px;font-weight:700;letter-spacing:0.05em;}
+.pgc-status-badge.none{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);}
+.pgc-status-badge.pending{background:rgba(180,83,9,0.18);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
+.pgc-status-badge.approved{background:rgba(21,128,61,0.18);color:#4ade80;border:1px solid rgba(74,222,128,0.3);}
+.pgc-status-badge.rejected{background:rgba(185,28,28,0.18);color:#f87171;border:1px solid rgba(248,113,113,0.3);}
+.pgc-status-badge.printed{background:rgba(13,125,124,0.18);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);}
+.pgc-request-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.pgc-request-btn{padding:11px 22px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:700;border:none;letter-spacing:0.04em;transition:all 0.2s;}
+.pgc-request-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--dark);}
+.pgc-request-btn.gold:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.3);}
+.pgc-request-btn.ghost{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.12);}
+.pgc-request-btn.ghost:hover{background:rgba(255,255,255,0.1);}
+.pgc-request-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.pgc-info-note{font-size:12px;color:rgba(255,255,255,0.35);margin-top:12px;line-height:1.7;}
+.card-req-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:14px 16px;border-radius:12px;margin-bottom:8px;background:#fff;border:1px solid var(--border);transition:box-shadow var(--trans);}
+.card-req-row:hover{box-shadow:var(--shadow-md);}
+.card-req-name{font-weight:700;font-size:14px;color:var(--dark);}
+.card-req-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.card-req-actions{display:flex;gap:6px;}
+.card-req-btn{padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;border:none;transition:all 0.18s;}
+.card-req-btn.approve{background:rgba(21,128,61,0.12);color:#15803d;border:1px solid rgba(21,128,61,0.25);}
+.card-req-btn.approve:hover{background:rgba(21,128,61,0.22);}
+.card-req-btn.reject{background:rgba(185,28,28,0.08);color:var(--danger);border:1px solid rgba(185,28,28,0.2);}
+.card-req-btn.reject:hover{background:rgba(185,28,28,0.15);}
+.card-req-btn.print{background:rgba(13,125,124,0.12);color:var(--teal);border:1px solid rgba(13,125,124,0.25);}
+.card-req-btn.print:hover{background:rgba(13,125,124,0.22);}
+@media print{body>*:not(#print-card-template){display:none !important;}#print-card-template{display:block !important;}@page{size:85.6mm 54mm;margin:0;}}
+#print-card-template{display:none;position:fixed;inset:0;z-index:99999;background:#f3ede3;align-items:center;justify-content:center;}
+#print-card-template.show{display:flex;}
+.print-card-wrap{width:85.6mm;height:54mm;background:linear-gradient(135deg,#1a1a22 0%,#0c0c0f 100%);border-radius:8px;overflow:hidden;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.4);font-family:'Outfit',sans-serif;display:flex;flex-direction:column;justify-content:space-between;padding:10px 14px;border:1px solid rgba(201,168,76,0.3);}
+.print-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.print-card-chip{width:22px;height:17px;border-radius:3px;background:linear-gradient(135deg,#e8d08a,#c9a84c);}
+.print-card-hotel{font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-align:right;}
+.print-card-hotel strong{display:block;font-size:8px;color:var(--gold);font-family:'Playfair Display',serif;letter-spacing:0.06em;}
+.print-card-mid{flex:1;display:flex;align-items:flex-end;padding-bottom:4px;}
+.print-card-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:0.04em;font-family:'Playfair Display',serif;}
+.print-card-bottom{display:flex;align-items:flex-end;justify-content:space-between;}
+.print-card-id{font-size:8px;color:rgba(201,168,76,0.8);letter-spacing:0.12em;}
+.print-card-tier{font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-align:right;}
+.print-close-btn{position:fixed;top:20px;right:20px;z-index:100000;background:var(--dark);color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:8px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;}
+@media print{.print-close-btn{display:none !important;}.print-actions-bar{display:none !important;}}
+.print-actions-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:100000;}
 
 .hosp-strip { display:flex; height:3px; border-radius:40px; overflow:hidden; margin: 0 0 20px; }
 .hosp-strip span { flex:1; }
@@ -1376,7 +1295,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
                   <div class="pgc-card-hotel">STEIGENBERGER<br>Hotel Doha</div>
                 </div>
                 <div style="flex:1;min-width:180px;">
-                  <p style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:14px;">Request a personalised physical card for exclusive access and a premium stay experience at Steigenberger Hotel Doha.</p>
+                  <p style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:14px;">Request a personalised physical card for exclusive access and a premium stay experience.</p>
                   <div style="margin-bottom:12px;">
                     <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Request Status</div>
                     <span class="pgc-status-badge none" id="pgc-guest-status-badge">⬜ No request yet</span>
@@ -1549,11 +1468,11 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
           <div class="card" style="margin-bottom:16px;">
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
-              <button class="filter-btn active" id="cr-filter-all" onclick="setCRFilter('all',this)">All</button>
-              <button class="filter-btn" id="cr-filter-pending" onclick="setCRFilter('pending',this)">⏳ Pending</button>
-              <button class="filter-btn" id="cr-filter-approved" onclick="setCRFilter('approved',this)">✅ Approved</button>
-              <button class="filter-btn" id="cr-filter-printed" onclick="setCRFilter('printed',this)">🖨️ Printed</button>
-              <button class="filter-btn" id="cr-filter-rejected" onclick="setCRFilter('rejected',this)">✕ Rejected</button>
+              <button class="filter-btn active" onclick="setCRFilter('all',this)">All</button>
+              <button class="filter-btn" onclick="setCRFilter('pending',this)">⏳ Pending</button>
+              <button class="filter-btn" onclick="setCRFilter('approved',this)">✅ Approved</button>
+              <button class="filter-btn" onclick="setCRFilter('printed',this)">🖨️ Printed</button>
+              <button class="filter-btn" onclick="setCRFilter('rejected',this)">✕ Rejected</button>
               <button class="btn-primary btn-sm" style="margin-left:auto;" onclick="loadCardRequests()">🔄 Refresh</button>
             </div>
             <div id="card-requests-list"><div class="empty-state"><div class="empty-icon">🪪</div>Loading card requests…</div></div>
@@ -1574,11 +1493,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         <div class="print-card-chip"></div>
         <div class="print-card-hotel"><strong>STEIGENBERGER</strong>HOTEL DOHA</div>
       </div>
-      <div class="print-card-mid">
-        <div>
-          <div class="print-card-name" id="print-card-name">—</div>
-        </div>
-      </div>
+      <div class="print-card-mid"><div><div class="print-card-name" id="print-card-name">—</div></div></div>
       <div class="print-card-bottom">
         <div>
           <div class="print-card-id" id="print-card-id">—</div>
@@ -1586,7 +1501,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         </div>
         <div class="print-card-tier" id="print-card-tier">—</div>
       </div>
-      <div class="print-card-qr" id="print-card-qr-wrap"></div>
     </div>
     <div class="print-actions-bar">
       <button class="pgc-request-btn gold" onclick="window.print()">🖨️ Print Card</button>
@@ -1608,8 +1522,8 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     </div>
     <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Send via</div>
     <a class="share-modal-option whatsapp" id="share-whatsapp-link" href="#" target="_blank" rel="noopener"><span>📱</span><div><div style="font-weight:700;">WhatsApp</div><div style="font-size:12px;color:var(--muted);">Opens WhatsApp with full credentials</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
-    <button class="share-modal-option email" id="share-hotel-email-btn" onclick="sendWelcomeEmailViaHotel()" style="width:100%;text-align:left;cursor:pointer;background:none;border:1.5px solid rgba(59,130,246,0.25);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;font-family:inherit;transition:all 0.18s;"><span>✉️</span><div><div style="font-weight:700;">Send Welcome Email</div><div style="font-size:12px;color:var(--muted);">Sends via hotel system directly to guest's inbox</div></div><span style="margin-left:auto;font-size:18px;" id="share-hotel-email-icon">→</span></button>
-    <a class="share-modal-option" id="share-email-link" href="#" style="opacity:0.5;"><span>📧</span><div><div style="font-weight:700;">Open Email Client</div><div style="font-size:12px;color:var(--muted);">Opens your local mail app (backup option)</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
+    <button class="share-modal-option" id="share-hotel-email-btn" onclick="sendWelcomeEmailViaHotel()" style="width:100%;text-align:left;cursor:pointer;background:var(--cream);border:1.5px solid rgba(59,130,246,0.25);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;font-family:inherit;transition:all 0.2s;"><span>✉️</span><div><div style="font-weight:700;">Send Welcome Email</div><div style="font-size:12px;color:var(--muted);">Sends via hotel system directly to guest's inbox</div></div><span style="margin-left:auto;font-size:18px;" id="share-hotel-email-icon">→</span></button>
+    <a class="share-modal-option" id="share-email-link" href="#" style="opacity:0.55;"><span>📧</span><div><div style="font-weight:700;">Open Email Client</div><div style="font-size:12px;color:var(--muted);">Backup: opens your local mail app</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
     <button class="btn-ghost" style="width:100%;margin-top:10px;" onclick="copyShareDetails()">📋 Copy to Clipboard</button>
     <button class="btn-ghost" style="width:100%;margin-top:6px;opacity:.6;" onclick="closeShareModal()">Close</button>
   </div>
@@ -1956,467 +1870,140 @@ async function confirmPasswordReset() { showToast('Please contact admin', 'err')
 
 // ═══════════════════════════════════════════════════
 // GUEST SIGNUP — Full 4-step implementation
-// Step 1: Enter Guest ID  →  Step 2: Confirm email
-// Step 3: Verify OTP      →  Step 4: Set password
 // ═══════════════════════════════════════════════════
+let _signupGuestData = null;
+let _signupOTPToken  = null;
+let _signupEmail     = null;
 
-let _signupGuestData   = null;  // guest record found in sheet
-let _signupOTPToken    = null;  // token returned by sendOTP
-let _signupEmail       = null;  // email used for OTP
-
-// ── Step 1 → validate Guest ID exists in sheet ───────────────
 async function signupNextStep() {
-  const guestId = document.getElementById('s-guest-id')?.value.trim().toUpperCase();
+  const guestId = (document.getElementById('s-guest-id')?.value || '').trim().toUpperCase();
   if (!guestId) { showLoginError('Please enter your Guest ID'); return; }
-
   const btn = document.querySelector('#signup-step-1 .login-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
   showSpinner('Verifying Guest ID…');
-
   try {
     const res = await callAppsScript('getGuests', {});
     hideSpinner();
-    const allGuests = (res.success && res.guests) ? res.guests : guests;
+    const allGuests = (res.success && res.guests) ? res.guests : (guests || []);
     const found = allGuests.find(g => String(g.id).toUpperCase() === guestId);
-
-    if (!found) {
-      showLoginError('Guest ID not found. Please check with front desk.');
-      return;
-    }
-    if (found.status !== 'Active') {
-      showLoginError('This guest card is not active. Please contact front desk.');
-      return;
-    }
-    if (found.passwordSet === true || String(found.passwordSet).toLowerCase() === 'true') {
-      showLoginError('An account already exists for this ID. Use "Returning Guest" to sign in.');
-      return;
-    }
-    if (!found.email) {
-      showLoginError('No email on file for this Guest ID. Please visit front desk to add your email first.');
-      return;
-    }
-
+    if (!found) { showLoginError('Guest ID not found. Please check with front desk.'); return; }
+    if (found.status !== 'Active') { showLoginError('This guest card is not active. Please contact front desk.'); return; }
+    if (found.passwordSet === true || String(found.passwordSet).toLowerCase() === 'true') { showLoginError('An account already exists for this ID. Use "Returning Guest" to sign in.'); return; }
+    if (!found.email) { showLoginError('No email on file for this Guest ID. Please visit front desk to add your email first.'); return; }
     _signupGuestData = found;
     clearLoginError();
-
-    // Pre-fill step 2: show guest name and mask the email on file
-    const parts   = found.email.split('@');
-    const masked  = parts[0].slice(0, 2) + '***@' + parts[1];
     const emailField = document.getElementById('s-phone');
     if (emailField) {
-      emailField.value       = found.email;     // pre-fill hidden
-      emailField.readOnly    = true;
-      emailField.placeholder = masked;
-      emailField.style.color = 'rgba(255,255,255,0.4)';
-      emailField.value       = masked;           // show masked
+      const parts = found.email.split('@');
+      const masked = parts[0].slice(0,2) + '***@' + parts[1];
+      emailField.value = masked;
+      emailField.readOnly = true;
+      emailField.style.color = 'rgba(255,255,255,0.45)';
     }
-
-    // Update step 2 label to clarify
-    const step2Label = document.querySelector('#signup-step-2 label');
-    if (step2Label) step2Label.textContent = 'Email on File (verified by front desk)';
-
+    const lbl = document.querySelector('#signup-step-2 label');
+    if (lbl) lbl.textContent = 'Email on File (from front desk)';
     document.getElementById('signup-step-1').style.display = 'none';
     document.getElementById('signup-step-2').style.display = 'block';
-
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; }
-  }
+  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; } }
 }
 
-// ── Step 2 → send OTP to the guest's email on file ───────────
 async function signupSendOTP() {
-  if (!_signupGuestData) { showLoginError('Session lost, please start again.'); signupBack(1); return; }
-
+  if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
   const email = _signupGuestData.email;
-  if (!email) { showLoginError('No email address on file. Contact front desk.'); return; }
-
+  if (!email) { showLoginError('No email on file. Contact front desk.'); return; }
   const btn = document.querySelector('#signup-step-2 .login-btn:not(.secondary)');
   if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
   showSpinner('Sending verification code…');
-
   try {
-    const res = await callAppsScript('sendOTP', {
-      email: email,
-      name:  `${_signupGuestData.first} ${_signupGuestData.last}`
-    });
+    const res = await callAppsScript('sendOTP', { email, name: _signupGuestData.first + ' ' + _signupGuestData.last });
     hideSpinner();
-
     if (res.success) {
       _signupOTPToken = res.token;
-      _signupEmail    = email;
-
-      // Show which email the code was sent to (masked) in step 3
+      _signupEmail = email;
       const timerEl = document.getElementById('signup-otp-timer');
-      if (timerEl) {
-        const parts  = email.split('@');
-        const masked = parts[0].slice(0, 2) + '***@' + parts[1];
-        timerEl.textContent = `Code sent to ${masked}`;
-      }
+      if (timerEl) { const p = email.split('@'); timerEl.textContent = 'Code sent to ' + p[0].slice(0,2) + '***@' + p[1]; }
       document.getElementById('s-otp').value = '';
-
       document.getElementById('signup-step-2').style.display = 'none';
       document.getElementById('signup-step-3').style.display = 'block';
       document.getElementById('s-otp')?.focus();
       clearLoginError();
-    } else {
-      showLoginError(res.error || 'Failed to send code. Try again.');
-    }
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Send Email Code →'; }
-  }
+    } else { showLoginError(res.error || 'Failed to send code. Try again.'); }
+  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Send Email Code →'; } }
 }
 
-// ── Step 3 → verify OTP ──────────────────────────────────────
 async function signupVerifyAndCreate() {
-  const code = document.getElementById('s-otp')?.value.trim();
+  const code = (document.getElementById('s-otp')?.value || '').trim();
   if (!code || code.length !== 6) { showLoginError('Enter the 6-digit code from your email.'); return; }
   if (!_signupOTPToken || !_signupEmail) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-
   const btn = document.querySelector('#signup-step-3 .login-btn.teal');
   if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
   showSpinner('Verifying code…');
-
   try {
-    const res = await callAppsScript('verifyOTP', {
-      email: _signupEmail,
-      code:  code,
-      token: _signupOTPToken
-    });
+    const res = await callAppsScript('verifyOTP', { email: _signupEmail, code, token: _signupOTPToken });
     hideSpinner();
-
     if (res.success) {
-      // Mark email as verified on the sheet
-      await callAppsScript('updateGuest', {
-        guestId: _signupGuestData.id,
-        updates: { verifiedEmail: _signupEmail, Mail: _signupEmail }
-      }).catch(() => {});
-
+      await callAppsScript('updateGuest', { guestId: _signupGuestData.id, updates: { verifiedEmail: _signupEmail, Mail: _signupEmail } }).catch(()=>{});
       document.getElementById('signup-step-3').style.display = 'none';
       document.getElementById('signup-step-4').style.display = 'block';
       document.getElementById('s-password')?.focus();
       clearLoginError();
-    } else {
-      showLoginError(res.error || 'Incorrect or expired code. Try again.');
-    }
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Verify Code →'; }
-  }
+    } else { showLoginError(res.error || 'Incorrect or expired code. Try again.'); }
+  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Verify Code →'; } }
 }
 
-// ── Step 4 → set password and complete account ───────────────
 async function signupFinalize() {
   const pw1 = document.getElementById('s-password')?.value || '';
   const pw2 = document.getElementById('s-password-confirm')?.value || '';
-
   const pwErr = validatePassword(pw1);
   if (pwErr) { showLoginError(pwErr); return; }
   if (pw1 !== pw2) { showLoginError('Passwords do not match.'); return; }
   if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-
   const btn = document.querySelector('#signup-step-4 .login-btn.teal');
   if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
   showSpinner('Setting up your account…');
-
   try {
     const salt = generateSalt();
     const hash = await hashPasswordFrontend(pw1, salt);
-
-    const res = await callAppsScript('updateGuest', {
-      guestId: _signupGuestData.id,
-      updates: {
-        password_hash: hash,
-        salt:          salt,
-        passwordSet:   true,
-        verified:      true,
-        verifiedAt:    new Date().toISOString()
-      }
-    });
+    const res = await callAppsScript('updateGuest', { guestId: _signupGuestData.id, updates: { password_hash: hash, salt, passwordSet: true, verified: true, verifiedAt: new Date().toISOString() } });
     hideSpinner();
-
     if (res.success) {
-      showToast(`✅ Account created! Welcome, ${sanitize(_signupGuestData.first)}!`, 'ok');
-      // Auto login
-      const loginRes = await callAppsScript('guestLogin', {
-        guestId:  _signupGuestData.id,
-        password: pw1
-      });
+      showToast('✅ Account created! Welcome, ' + sanitize(_signupGuestData.first) + '!', 'ok');
+      const loginRes = await callAppsScript('guestLogin', { guestId: _signupGuestData.id, password: pw1 });
       if (loginRes.success) {
-        currentUser  = { type: 'guest', data: loginRes.user };
+        currentUser = { type: 'guest', data: loginRes.user };
         currentGuest = loginRes.user;
-        saveSession();
-        applyUserSession();
-        startSessionTimer();
-        setupActivityListeners();
-        await loadGuests().catch(() => {});
-        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
-        switchGuestMode('returning');
+        saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
+        await loadGuests().catch(()=>{});
       } else {
         showLoginError('Account created! Please sign in using "Returning Guest".');
-        switchGuestMode('returning');
-        document.getElementById('guest-id').value = _signupGuestData?.id || '';
-        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+        document.getElementById('guest-id').value = _signupGuestData.id;
       }
-    } else {
-      showLoginError(res.error || 'Failed to save password. Please try again.');
-    }
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Complete Registration ✓'; }
-  }
+      _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
+      switchGuestMode('returning');
+    } else { showLoginError(res.error || 'Failed to save password. Please try again.'); }
+  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Complete Registration ✓'; } }
 }
 
-// ── Navigation helpers ────────────────────────────────────────
 function signupBack(toStep) {
-  [1, 2, 3, 4].forEach(n => {
-    const el = document.getElementById(`signup-step-${n}`);
-    if (el) el.style.display = n === toStep ? 'block' : 'none';
-  });
+  [1,2,3,4].forEach(n => { const el = document.getElementById('signup-step-'+n); if (el) el.style.display = n === toStep ? 'block' : 'none'; });
   clearLoginError();
   if (toStep === 1) {
     _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
-    // Reset email field
-    const emailField = document.getElementById('s-phone');
-    if (emailField) { emailField.readOnly = false; emailField.value = ''; emailField.style.color = ''; }
+    const ef = document.getElementById('s-phone');
+    if (ef) { ef.readOnly = false; ef.value = ''; ef.style.color = ''; }
   }
 }
 
 async function signupResend() {
   if (!_signupGuestData) return;
   document.getElementById('s-otp').value = '';
-  // Go back to step 2 to re-send
   document.getElementById('signup-step-3').style.display = 'none';
   document.getElementById('signup-step-2').style.display = 'block';
   showToast('Click "Send Email Code" to resend.', '');
-}
-  if (!guestId) { showLoginError('Please enter your Guest ID'); return; }
-
-  const btn = document.getElementById('signup-next-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
-  showSpinner('Verifying Guest ID…');
-
-  try {
-    // Load guest list (may already be cached)
-    const res = await callAppsScript('getGuests', {});
-    hideSpinner();
-    const allGuests = res.success ? res.guests : guests;
-    const found = allGuests.find(g => String(g.id).toUpperCase() === guestId);
-
-    if (!found) {
-      showLoginError('Guest ID not found. Please check with front desk.');
-      return;
-    }
-    if (found.status !== 'Active') {
-      showLoginError('This guest card is not active. Please contact front desk.');
-      return;
-    }
-    if (found.passwordSet === true || String(found.passwordSet).toLowerCase() === 'true') {
-      showLoginError('An account already exists for this ID. Use "Returning Guest" to sign in.');
-      return;
-    }
-    if (!found.email) {
-      showLoginError('No email on file for this Guest ID. Please visit front desk to add your email first.');
-      return;
-    }
-
-    _signupGuestData = found;
-    clearLoginError();
-
-    // Pre-fill step 2 display
-    const nameEl  = document.getElementById('signup-display-name');
-    const emailEl = document.getElementById('signup-display-email');
-    const roomEl  = document.getElementById('signup-display-room');
-    if (nameEl)  nameEl.textContent  = `${found.title || ''} ${found.first} ${found.last}`.trim();
-    if (emailEl) emailEl.textContent = found.email;
-    if (roomEl)  roomEl.textContent  = `Room ${found.room || 'TBA'}`;
-
-    document.getElementById('signup-step-1').style.display = 'none';
-    document.getElementById('signup-step-2').style.display = 'block';
-
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; }
-  }
-}
-
-// ── Step 2 → confirm details, send OTP ───────────────────────
-async function signupSendOTP() {
-  if (!_signupGuestData) { showLoginError('Session lost, please start again.'); signupBack(1); return; }
-
-  const email = _signupGuestData.email;
-  if (!email) { showLoginError('No email address on file. Contact front desk.'); return; }
-
-  const btn = document.getElementById('signup-sendotp-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
-  showSpinner('Sending verification code…');
-
-  try {
-    const res = await callAppsScript('sendOTP', {
-      email: email,
-      name:  `${_signupGuestData.first} ${_signupGuestData.last}`
-    });
-    hideSpinner();
-
-    if (res.success) {
-      _signupOTPToken = res.token;
-      _signupEmail    = email;
-
-      // Show masked email in step 3
-      const maskedEl = document.getElementById('signup-otp-email-hint');
-      if (maskedEl) {
-        const parts = email.split('@');
-        const masked = parts[0].slice(0,2) + '***@' + parts[1];
-        maskedEl.textContent = masked;
-      }
-
-      document.getElementById('signup-step-2').style.display = 'none';
-      document.getElementById('signup-step-3').style.display = 'block';
-      document.getElementById('signup-otp-input')?.focus();
-      clearLoginError();
-    } else {
-      showLoginError(res.error || 'Failed to send code. Try again.');
-    }
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Send Code →'; }
-  }
-}
-
-// ── Step 3 → verify OTP ──────────────────────────────────────
-async function signupVerifyAndCreate() {
-  const code = document.getElementById('signup-otp-input')?.value.trim();
-  if (!code || code.length !== 6) { showLoginError('Enter the 6-digit code from your email.'); return; }
-  if (!_signupOTPToken || !_signupEmail) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-
-  const btn = document.getElementById('signup-verify-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
-  showSpinner('Verifying code…');
-
-  try {
-    const res = await callAppsScript('verifyOTP', {
-      email: _signupEmail,
-      code:  code,
-      token: _signupOTPToken
-    });
-    hideSpinner();
-
-    if (res.success) {
-      // Mark email as verified on the sheet
-      await callAppsScript('updateGuest', {
-        guestId: _signupGuestData.id,
-        updates: { verifiedEmail: _signupEmail, Mail: _signupEmail }
-      }).catch(() => {});
-
-      document.getElementById('signup-step-3').style.display = 'none';
-      document.getElementById('signup-step-4').style.display = 'block';
-      document.getElementById('signup-new-password')?.focus();
-      clearLoginError();
-    } else {
-      showLoginError(res.error || 'Incorrect or expired code. Try again.');
-    }
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Verify →'; }
-  }
-}
-
-// ── Step 4 → set password and complete account ───────────────
-async function signupFinalize() {
-  const pw1 = document.getElementById('signup-new-password')?.value || '';
-  const pw2 = document.getElementById('signup-confirm-password')?.value || '';
-
-  const pwErr = validatePassword(pw1);
-  if (pwErr) { showLoginError(pwErr); return; }
-  if (pw1 !== pw2) { showLoginError('Passwords do not match.'); return; }
-  if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-
-  const btn = document.getElementById('signup-finalize-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
-  showSpinner('Setting up your account…');
-
-  try {
-    const salt = generateSalt();
-    const hash = await hashPasswordFrontend(pw1, salt);
-
-    const res = await callAppsScript('updateGuest', {
-      guestId: _signupGuestData.id,
-      updates: {
-        password_hash: hash,
-        salt:          salt,
-        passwordSet:   true,
-        verified:      true,
-        verifiedAt:    new Date().toISOString()
-      }
-    });
-    hideSpinner();
-
-    if (res.success) {
-      showToast(`✅ Account created! Welcome, ${sanitize(_signupGuestData.first)}!`, 'ok');
-      // Auto login
-      const loginRes = await callAppsScript('guestLogin', {
-        guestId:  _signupGuestData.id,
-        password: pw1
-      });
-      if (loginRes.success) {
-        currentUser  = { type: 'guest', data: loginRes.user };
-        currentGuest = loginRes.user;
-        saveSession();
-        applyUserSession();
-        startSessionTimer();
-        setupActivityListeners();
-        await loadGuests().catch(() => {});
-        // Reset signup state
-        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
-        switchGuestMode('returning');
-      } else {
-        showLoginError('Account created. Please sign in with "Returning Guest".');
-        switchGuestMode('returning');
-        document.getElementById('guest-id').value = _signupGuestData?.id || '';
-        _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
-      }
-    } else {
-      showLoginError(res.error || 'Failed to save password. Try again.');
-    }
-  } catch(e) {
-    hideSpinner();
-    showLoginError('Connection error. Please try again.');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
-  }
-}
-
-// ── Navigation helpers ────────────────────────────────────────
-function signupBack(toStep) {
-  [1,2,3,4].forEach(n => {
-    const el = document.getElementById(`signup-step-${n}`);
-    if (el) el.style.display = n === toStep ? 'block' : 'none';
-  });
-  clearLoginError();
-  if (toStep === 1) { _signupGuestData = null; _signupOTPToken = null; _signupEmail = null; }
-}
-
-async function signupResend() {
-  if (!_signupGuestData) return;
-  document.getElementById('signup-otp-input').value = '';
-  document.getElementById('signup-step-3').style.display = 'none';
-  document.getElementById('signup-step-2').style.display = 'block';
-  showToast('You can resend the code now.', '');
 }
 
 // ═══════════════════════════════════════════════════
@@ -2820,55 +2407,10 @@ function showShareDialog(guestId, guestFallback) {
 function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); _shareGuestData = null; }
 function copyShareDetails() { const text = document.getElementById('share-credentials-preview')?.innerText; if(text) { navigator.clipboard.writeText(text).then(() => showToast('✅ Copied', 'ok')).catch(() => showToast('Copy failed', 'err')); } }
 
-// ── Send welcome email via hotel Apps Script (not local client) ──
-async function sendWelcomeEmailViaHotel() {
-  const guest = _shareGuestData;
-  if (!guest) { showToast('No guest data', 'err'); return; }
-  if (!guest.email) {
-    showToast('No email address on file for this guest', 'err');
-    return;
-  }
-
-  const icon = document.getElementById('share-hotel-email-icon');
-  const btn  = document.getElementById('share-hotel-email-btn');
-  if (btn)  { btn.disabled = true; }
-  if (icon) { icon.textContent = '⏳'; }
-  showSpinner('Sending welcome email…');
-
-  try {
-    const loginUrl = window.location.href.split('?')[0];
-    const res = await callAppsScript('sendGuestWelcomeEmail', {
-      to:        guest.email,
-      guestName: `${guest.title || ''} ${guest.first} ${guest.last}`.trim(),
-      guestId:   guest.id,
-      room:      guest.room || 'TBA',
-      type:      guest.type || 'Standard',
-      loginUrl:  loginUrl
-    });
-    hideSpinner();
-    if (res.success) {
-      if (icon) icon.textContent = '✅';
-      showToast(`✅ Welcome email sent to ${guest.email}`, 'ok');
-      addLog(`Welcome email sent to ${guest.first} ${guest.last} (${guest.email})`);
-      // Re-enable after 3s
-      setTimeout(() => { if (btn) btn.disabled = false; if (icon) icon.textContent = '→'; }, 3000);
-    } else {
-      if (icon) icon.textContent = '❌';
-      showToast('Email failed: ' + (res.error || 'Unknown error'), 'err');
-      if (btn)  btn.disabled = false;
-    }
-  } catch(e) {
-    hideSpinner();
-    showToast('Network error: ' + e.message, 'err');
-    if (icon) icon.textContent = '❌';
-    if (btn)  btn.disabled = false;
-  }
-}
-
 // ═══════════════════════════════════════════════════
 // GUEST PROFILE
 // ═══════════════════════════════════════════════════
-function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; loadGuestProfileWithCard(); }
+function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; }
 async function updateGuestProfile() { const email = document.getElementById('profile-email').value.trim(); const phone = document.getElementById('profile-phone').value.trim(); if (!email && !phone) { showToast('Enter email or phone', 'err'); return; } showSpinner(); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { email, phone } }); hideSpinner(); if (res.success) { currentGuest.email = email; currentGuest.phone = phone; await loadGuests(); showToast('Profile updated', 'ok'); } else { showToast('Failed', 'err'); } }
 async function changeGuestPassword() { const currentPw = document.getElementById('profile-current-password').value; const newPw = document.getElementById('profile-new-password').value; const confirmPw = document.getElementById('profile-confirm-password').value; if (!currentPw) { showToast('Enter current password', 'err'); return; } const err = validatePassword(newPw); if (err) { showToast(err, 'err'); return; } if (newPw !== confirmPw) { showToast('Passwords do not match', 'err'); return; } showSpinner(); const verify = await callAppsScript('guestLogin', { guestId: currentGuest.id, password: currentPw }); if (!verify.success) { hideSpinner(); showToast('Current password incorrect', 'err'); return; } const salt = generateSalt(); const hash = await hashPasswordFrontend(newPw, salt); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { password_hash: hash, salt } }); hideSpinner(); if (res.success) { showToast('Password updated', 'ok'); addLog(`${currentGuest.first} changed password`); document.getElementById('profile-current-password').value = ''; document.getElementById('profile-new-password').value = ''; document.getElementById('profile-confirm-password').value = ''; } else { showToast('Failed', 'err'); } }
 
@@ -2943,7 +2485,6 @@ function applyUserSession() {
     document.getElementById('sidebar-toggle-btn').style.display = 'flex';
     if (isAdmin) { showPanel('staff-analytics'); document.getElementById('nav-analytics')?.classList.add('active'); }
     else { showPanel('staff-guests'); document.getElementById('nav-guests')?.classList.add('active'); }
-    updateCardRequestBadge();
   }
 }
 function logout() { if (sessionTimer) clearInterval(sessionTimer); stopScanner(); currentUser = null; currentGuest = null; sessionStorage.removeItem('sg_session'); document.getElementById('login-page').style.display = ''; document.getElementById('main-app').classList.remove('active'); switchTab('guest'); showToast('Signed out', ''); clearLoginError(); }
@@ -2964,60 +2505,74 @@ function loadGuestDashboard() {
 function downloadQR() { const canvas = document.querySelector('#qr-inner canvas'); if (!canvas) { showToast('QR code not ready', 'err'); return; } const a = document.createElement('a'); a.download = `steigenberger-${currentGuest?.id || 'card'}.png`; a.href = canvas.toDataURL(); a.click(); }
 
 // ═══════════════════════════════════════════════════
-// PHYSICAL CARD REQUEST — LOCAL STORAGE LAYER
-// (Replace with Apps Script backend calls in production)
+// SEND WELCOME EMAIL VIA HOTEL SYSTEM
 // ═══════════════════════════════════════════════════
-
-function getCardRequests() {
-  try { return JSON.parse(localStorage.getItem('pgc_card_requests') || '[]'); } catch(e) { return []; }
-}
-function saveCardRequests(reqs) {
-  try { localStorage.setItem('pgc_card_requests', JSON.stringify(reqs)); } catch(e) {}
-}
-function getGuestCardRequest(guestId) {
-  return getCardRequests().find(r => r.guestId === guestId) || null;
+async function sendWelcomeEmailViaHotel() {
+  const guest = _shareGuestData;
+  if (!guest) { showToast('No guest data', 'err'); return; }
+  if (!guest.email) { showToast('No email address on file for this guest', 'err'); return; }
+  const icon = document.getElementById('share-hotel-email-icon');
+  const btn  = document.getElementById('share-hotel-email-btn');
+  if (btn)  btn.disabled = true;
+  if (icon) icon.textContent = '⏳';
+  showSpinner('Sending welcome email…');
+  try {
+    const loginUrl = window.location.href.split('?')[0];
+    const res = await callAppsScript('sendGuestWelcomeEmail', {
+      to:        guest.email,
+      guestName: ((guest.title||'') + ' ' + guest.first + ' ' + guest.last).trim(),
+      guestId:   guest.id,
+      room:      guest.room || 'TBA',
+      type:      guest.type || 'Standard',
+      loginUrl
+    });
+    hideSpinner();
+    if (res.success) {
+      if (icon) icon.textContent = '✅';
+      showToast('✅ Welcome email sent to ' + guest.email, 'ok');
+      addLog('Welcome email sent to ' + guest.first + ' ' + guest.last + ' (' + guest.email + ')');
+      setTimeout(() => { if (btn) btn.disabled = false; if (icon) icon.textContent = '→'; }, 3000);
+    } else {
+      if (icon) icon.textContent = '❌';
+      showToast('Email failed: ' + (res.error || 'Unknown error'), 'err');
+      if (btn) btn.disabled = false;
+    }
+  } catch(e) {
+    hideSpinner();
+    showToast('Network error: ' + e.message, 'err');
+    if (icon) icon.textContent = '❌';
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ═══════════════════════════════════════════════════
-// GUEST SIDE — REQUEST PHYSICAL CARD
+// PHYSICAL CARD REQUESTS — LOCAL STORAGE
 // ═══════════════════════════════════════════════════
+function getCardRequests() { try { return JSON.parse(localStorage.getItem('pgc_card_requests') || '[]'); } catch(e) { return []; } }
+function saveCardRequests(r) { try { localStorage.setItem('pgc_card_requests', JSON.stringify(r)); } catch(e) {} }
+function getGuestCardRequest(guestId) { return getCardRequests().find(r => r.guestId === guestId) || null; }
 
-function loadGuestProfileWithCard() {
+function loadGuestCardSection() {
   if (!currentGuest) return;
   const g = currentGuest;
-  // Populate profile fields
-  const emailEl = document.getElementById('profile-email');
-  const phoneEl = document.getElementById('profile-phone');
-  if (emailEl) emailEl.value = g.email || '';
-  if (phoneEl) phoneEl.value = g.phone || '';
-  // Show password card if passwordSet
-  const pwCard = document.getElementById('change-password-card');
-  if (pwCard) pwCard.style.display = g.passwordSet ? 'block' : 'none';
-  // Fill card preview
-  const previewName = document.getElementById('pgc-preview-name');
-  const previewId   = document.getElementById('pgc-preview-id');
-  const previewTier = document.getElementById('pgc-preview-tier');
-  if (previewName) previewName.textContent = `${g.title || ''} ${g.first} ${g.last}`.trim();
-  if (previewId)   previewId.textContent   = g.id;
-  if (previewTier) previewTier.textContent  = g.type || 'Standard';
-  // Render request status
-  renderGuestCardRequestStatus();
+  const n = document.getElementById('pgc-preview-name'); if (n) n.textContent = ((g.title||'') + ' ' + g.first + ' ' + g.last).trim();
+  const i = document.getElementById('pgc-preview-id');   if (i) i.textContent = g.id;
+  const t = document.getElementById('pgc-preview-tier'); if (t) t.textContent = g.type || 'Standard';
+  renderGuestCardStatus();
 }
 
-function renderGuestCardRequestStatus() {
+function renderGuestCardStatus() {
   if (!currentGuest) return;
   const req = getGuestCardRequest(currentGuest.id);
-  const badge      = document.getElementById('pgc-guest-status-badge');
-  const detail     = document.getElementById('pgc-status-detail');
-  const formArea   = document.getElementById('pgc-request-form-area');
-  const submitBtn  = document.getElementById('pgc-submit-btn');
-  const cancelBtn  = document.getElementById('pgc-cancel-btn');
-  const infoNote   = document.getElementById('pgc-info-note');
+  const badge    = document.getElementById('pgc-guest-status-badge');
+  const detail   = document.getElementById('pgc-status-detail');
+  const formArea = document.getElementById('pgc-request-form-area');
+  const submitBtn= document.getElementById('pgc-submit-btn');
+  const cancelBtn= document.getElementById('pgc-cancel-btn');
+  const infoNote = document.getElementById('pgc-info-note');
   if (!badge) return;
-
   if (!req) {
-    badge.className = 'pgc-status-badge none';
-    badge.textContent = '⬜ No request yet';
+    badge.className = 'pgc-status-badge none'; badge.textContent = '⬜ No request yet';
     if (detail) detail.style.display = 'none';
     if (formArea) formArea.style.display = 'block';
     if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🪪 Request Physical Card'; }
@@ -3025,88 +2580,56 @@ function renderGuestCardRequestStatus() {
     if (infoNote) infoNote.textContent = 'Your card will be prepared by our front desk team and ready within 15–30 minutes after approval.';
     return;
   }
-
-  // Has a request
   if (formArea) formArea.style.display = 'none';
-  const ts = req.requestedAt ? new Date(req.requestedAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
-
-  switch (req.status) {
-    case 'pending':
-      badge.className = 'pgc-status-badge pending';
-      badge.textContent = '⏳ Pending Review';
-      if (detail) { detail.innerHTML = `Submitted: <strong>${ts}</strong><br>Preference: <strong>${req.deliveryPref || '—'}</strong>${req.notes ? '<br>Notes: ' + sanitize(req.notes) : ''}`; detail.style.display = 'block'; }
-      if (submitBtn) submitBtn.style.display = 'none';
-      if (cancelBtn) { cancelBtn.style.display = 'inline-flex'; }
-      if (infoNote) infoNote.textContent = 'Your request is under review by our front desk team. We will prepare your card shortly.';
-      break;
-    case 'approved':
-      badge.className = 'pgc-status-badge approved';
-      badge.textContent = '✅ Approved';
-      if (detail) { detail.innerHTML = `Approved by: <strong>${sanitize(req.reviewedBy || 'Staff')}</strong><br>Preference: <strong>${req.deliveryPref || '—'}</strong>`; detail.style.display = 'block'; }
-      if (submitBtn) submitBtn.style.display = 'none';
-      if (cancelBtn) cancelBtn.style.display = 'none';
-      if (infoNote) infoNote.textContent = '🎉 Your physical card has been approved and is being prepared. Please collect it at the agreed location.';
-      break;
-    case 'printed':
-      badge.className = 'pgc-status-badge printed';
-      badge.textContent = '🖨️ Card Printed & Ready';
-      if (detail) { detail.innerHTML = `Ready for: <strong>${req.deliveryPref || '—'}</strong><br>Printed: <strong>${req.printedAt ? new Date(req.printedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</strong>`; detail.style.display = 'block'; }
-      if (submitBtn) submitBtn.style.display = 'none';
-      if (cancelBtn) cancelBtn.style.display = 'none';
-      if (infoNote) infoNote.textContent = '✅ Your physical card is ready. Please collect it at the Front Desk / Concierge as arranged.';
-      break;
-    case 'rejected':
-      badge.className = 'pgc-status-badge rejected';
-      badge.textContent = '✕ Request Declined';
-      if (detail) { detail.innerHTML = `Reason: <strong>${sanitize(req.rejectReason || 'See front desk for details')}</strong>`; detail.style.display = 'block'; }
-      if (formArea) formArea.style.display = 'block';
-      if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🔄 Re-submit Request'; }
-      if (cancelBtn) cancelBtn.style.display = 'none';
-      if (infoNote) infoNote.textContent = 'Your previous request was declined. You may submit a new request below.';
-      break;
+  const ts = req.requestedAt ? new Date(req.requestedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+  if (req.status === 'pending') {
+    badge.className = 'pgc-status-badge pending'; badge.textContent = '⏳ Pending Review';
+    if (detail) { detail.innerHTML = 'Submitted: <strong>' + ts + '</strong><br>Preference: <strong>' + sanitize(req.deliveryPref||'—') + '</strong>' + (req.notes ? '<br>Notes: ' + sanitize(req.notes) : ''); detail.style.display = 'block'; }
+    if (submitBtn) submitBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+    if (infoNote) infoNote.textContent = 'Your request is under review by our front desk team.';
+  } else if (req.status === 'approved') {
+    badge.className = 'pgc-status-badge approved'; badge.textContent = '✅ Approved';
+    if (detail) { detail.innerHTML = 'Approved by: <strong>' + sanitize(req.reviewedBy||'Staff') + '</strong><br>Preference: <strong>' + sanitize(req.deliveryPref||'—') + '</strong>'; detail.style.display = 'block'; }
+    if (submitBtn) submitBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (infoNote) infoNote.textContent = '🎉 Your card has been approved and is being prepared!';
+  } else if (req.status === 'printed') {
+    badge.className = 'pgc-status-badge printed'; badge.textContent = '🖨️ Card Printed & Ready';
+    if (detail) { detail.innerHTML = 'Ready for: <strong>' + sanitize(req.deliveryPref||'—') + '</strong>'; detail.style.display = 'block'; }
+    if (submitBtn) submitBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (infoNote) infoNote.textContent = '✅ Your physical card is ready. Please collect it as arranged.';
+  } else if (req.status === 'rejected') {
+    badge.className = 'pgc-status-badge rejected'; badge.textContent = '✕ Request Declined';
+    if (formArea) formArea.style.display = 'block';
+    if (detail) { detail.innerHTML = 'Reason: <strong>' + sanitize(req.rejectReason||'See front desk') + '</strong>'; detail.style.display = 'block'; }
+    if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🔄 Re-submit Request'; }
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (infoNote) infoNote.textContent = 'Your previous request was declined. You may submit a new request.';
   }
 }
 
 async function submitPhysicalCardRequest() {
   if (!currentGuest) return;
-  const btn = document.getElementById('pgc-submit-btn');
-  const pref  = document.getElementById('pgc-delivery-pref')?.value || 'reception';
-  const notes = document.getElementById('pgc-request-notes')?.value?.trim() || '';
-
+  const btn  = document.getElementById('pgc-submit-btn');
+  const pref = document.getElementById('pgc-delivery-pref')?.value || 'reception';
+  const notes= (document.getElementById('pgc-request-notes')?.value || '').trim();
   if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
   showSpinner('Submitting card request…');
-
-  // Remove any existing rejected request for this guest
-  let reqs = getCardRequests().filter(r => r.guestId !== currentGuest.id || r.status !== 'rejected');
-
-  const newReq = {
-    id:           'PCR_' + Date.now(),
-    guestId:      currentGuest.id,
-    guestName:    `${currentGuest.title || ''} ${currentGuest.first} ${currentGuest.last}`.trim(),
-    guestType:    currentGuest.type || 'Standard',
-    room:         currentGuest.room || 'TBA',
-    email:        currentGuest.email || '',
-    deliveryPref: pref,
-    notes:        notes,
-    status:       'pending',
-    requestedAt:  new Date().toISOString(),
-    reviewedBy:   '',
-    rejectReason: '',
-    printedAt:    ''
-  };
+  let reqs = getCardRequests().filter(r => !(r.guestId === currentGuest.id && r.status === 'rejected'));
+  const existing = reqs.find(r => r.guestId === currentGuest.id);
+  if (existing && existing.status === 'pending') { hideSpinner(); if (btn) { btn.disabled = false; btn.textContent = '🪪 Request Physical Card'; } showToast('You already have a pending request', 'err'); return; }
+  const newReq = { id: 'PCR_'+Date.now(), guestId: currentGuest.id, guestName: ((currentGuest.title||'')+' '+currentGuest.first+' '+currentGuest.last).trim(), guestType: currentGuest.type||'Standard', room: currentGuest.room||'TBA', email: currentGuest.email||'', deliveryPref: pref, notes, status: 'pending', requestedAt: new Date().toISOString(), reviewedBy: '', rejectReason: '', printedAt: '' };
   reqs.push(newReq);
   saveCardRequests(reqs);
-
-  // Optional: sync to Apps Script (graceful fail)
-  try {
-    await callAppsScript('addCardRequest', { request: newReq });
-  } catch(e) { /* local-only is fine */ }
-
+  try { await callAppsScript('addCardRequest', { request: newReq }); } catch(e) {}
   hideSpinner();
   showToast('Card request submitted! Front desk will review shortly.', 'ok');
-  addLog(`Guest ${currentGuest.id} requested a physical card`);
-  renderGuestCardRequestStatus();
+  addLog('Guest ' + currentGuest.id + ' requested a physical card');
+  renderGuestCardStatus();
   updateCardRequestBadge();
+  if (btn) { btn.disabled = false; }
 }
 
 async function cancelPhysicalCardRequest() {
@@ -3115,16 +2638,12 @@ async function cancelPhysicalCardRequest() {
   let reqs = getCardRequests().filter(r => !(r.guestId === currentGuest.id && r.status === 'pending'));
   saveCardRequests(reqs);
   showToast('Request cancelled', '');
-  renderGuestCardRequestStatus();
+  renderGuestCardStatus();
   updateCardRequestBadge();
 }
 
-// ═══════════════════════════════════════════════════
-// STAFF SIDE — MANAGE CARD REQUESTS
-// ═══════════════════════════════════════════════════
-
+// ── STAFF SIDE ────────────────────────────────────────────────
 let crFilter = 'all';
-
 function setCRFilter(f, btn) {
   crFilter = f;
   document.querySelectorAll('#panel-staff-cardrequests .filter-btn').forEach(b => b.classList.remove('active'));
@@ -3132,19 +2651,12 @@ function setCRFilter(f, btn) {
   renderCardRequestsList();
 }
 
-function loadCardRequests() {
-  updateCardRequestBadge();
-  renderCardRequestsList();
-}
+function loadCardRequests() { updateCardRequestBadge(); renderCardRequestsList(); }
 
 function updateCardRequestBadge() {
-  const reqs = getCardRequests();
-  const pending = reqs.filter(r => r.status === 'pending').length;
+  const pending = getCardRequests().filter(r => r.status === 'pending').length;
   const badge = document.getElementById('card-req-badge');
-  if (badge) {
-    badge.textContent = pending;
-    badge.style.display = pending > 0 ? 'inline-block' : 'none';
-  }
+  if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline-block' : 'none'; }
 }
 
 function renderCardRequestsList() {
@@ -3152,128 +2664,89 @@ function renderCardRequestsList() {
   if (!container) return;
   let reqs = getCardRequests();
   if (crFilter !== 'all') reqs = reqs.filter(r => r.status === crFilter);
-  reqs = reqs.slice().reverse(); // newest first
-
-  if (!reqs.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div>No card requests' + (crFilter !== 'all' ? ' in this category' : '') + '.</div>';
-    return;
-  }
-
-  const statusLabel = { pending:'⏳ Pending', approved:'✅ Approved', rejected:'✕ Rejected', printed:'🖨️ Printed' };
-  const statusClass = { pending:'pending', approved:'approved', rejected:'rejected', printed:'printed' };
-
+  reqs = reqs.slice().reverse();
+  if (!reqs.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div>No card requests' + (crFilter !== 'all' ? ' in this category' : '') + '.</div>'; return; }
+  const slabel = { pending:'⏳ Pending', approved:'✅ Approved', rejected:'✕ Rejected', printed:'🖨️ Printed' };
+  const sclass  = { pending:'pending', approved:'approved', rejected:'rejected', printed:'printed' };
   container.innerHTML = reqs.map(r => {
-    const ts = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const ts = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
     const actions = r.status === 'pending'
-      ? `<button class="card-req-btn approve" onclick="approveCardRequest('${r.id}')">✅ Approve</button>
-         <button class="card-req-btn reject" onclick="rejectCardRequest('${r.id}')">✕ Reject</button>`
+      ? '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">✅ Approve</button><button class="card-req-btn reject" onclick="rejectCardRequest(\''+r.id+'\')">✕ Reject</button>'
       : r.status === 'approved'
-      ? `<button class="card-req-btn print" onclick="openPrintCard('${r.id}')">🖨️ Print Card</button>`
+      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🖨️ Print Card</button>'
       : r.status === 'printed'
-      ? `<button class="card-req-btn print" onclick="openPrintCard('${r.id}')">🔁 Re-print</button>`
-      : `<button class="card-req-btn approve" onclick="approveCardRequest('${r.id}')">↩ Re-approve</button>`;
-    return `
-      <div class="card-req-row" data-id="${r.id}">
-        <div>
-          <div class="card-req-name">${sanitize(r.guestName)}</div>
-          <div class="card-req-meta">${sanitize(r.guestId)} · Room ${sanitize(r.room)} · ${sanitize(r.guestType)} · ${sanitize(r.deliveryPref || '—')}</div>
-          <div class="card-req-meta" style="margin-top:3px;">Requested: ${ts}${r.notes ? ' · ' + sanitize(r.notes) : ''}</div>
-        </div>
-        <span class="pgc-status-badge ${statusClass[r.status] || 'none'}">${statusLabel[r.status] || r.status}</span>
-        <div class="card-req-actions">${actions}</div>
-      </div>`;
+      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🔁 Re-print</button>'
+      : '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">↩ Re-approve</button>';
+    return '<div class="card-req-row"><div><div class="card-req-name">'+sanitize(r.guestName)+'</div><div class="card-req-meta">'+sanitize(r.guestId)+' · Room '+sanitize(r.room)+' · '+sanitize(r.guestType)+' · '+sanitize(r.deliveryPref||'—')+'</div><div class="card-req-meta" style="margin-top:3px;">Requested: '+ts+(r.notes?' · '+sanitize(r.notes):'')+'</div></div><span class="pgc-status-badge '+(sclass[r.status]||'none')+'">'+slabel[r.status]+'</span><div class="card-req-actions">'+actions+'</div></div>';
   }).join('');
 }
 
 function approveCardRequest(id) {
-  const reqs = getCardRequests();
-  const req = reqs.find(r => r.id === id);
+  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
   if (!req) return;
   const staffName = currentUser?.data?.fullname || currentUser?.data?.username || 'Staff';
-  req.status     = 'approved';
-  req.reviewedBy = staffName;
-  req.reviewedAt = new Date().toISOString();
+  req.status = 'approved'; req.reviewedBy = staffName; req.reviewedAt = new Date().toISOString();
   saveCardRequests(reqs);
-  showToast(`Card request for ${req.guestName} approved`, 'ok');
-  addLog(`Approved physical card request for ${req.guestId}`);
-  renderCardRequestsList();
-  updateCardRequestBadge();
+  callAppsScript('updateCardRequest', { requestId: id, status: 'approved', reviewedBy: staffName }).catch(()=>{});
+  showToast('Card request for ' + req.guestName + ' approved', 'ok');
+  addLog('Approved physical card request for ' + req.guestId);
+  renderCardRequestsList(); updateCardRequestBadge();
 }
 
 function rejectCardRequest(id) {
-  const reason = prompt('Reason for rejection (optional):') ?? null;
-  if (reason === null) return; // cancelled
-  const reqs = getCardRequests();
-  const req = reqs.find(r => r.id === id);
+  const reason = prompt('Reason for rejection (optional):');
+  if (reason === null) return;
+  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
   if (!req) return;
   const staffName = currentUser?.data?.fullname || currentUser?.data?.username || 'Staff';
-  req.status       = 'rejected';
-  req.reviewedBy   = staffName;
-  req.reviewedAt   = new Date().toISOString();
-  req.rejectReason = reason || 'No reason given';
+  req.status = 'rejected'; req.reviewedBy = staffName; req.reviewedAt = new Date().toISOString(); req.rejectReason = reason || 'No reason given';
   saveCardRequests(reqs);
-  showToast(`Request rejected`, '');
-  addLog(`Rejected physical card request for ${req.guestId}`);
-  renderCardRequestsList();
-  updateCardRequestBadge();
+  callAppsScript('updateCardRequest', { requestId: id, status: 'rejected', reviewedBy: staffName, extra: { rejectReason: req.rejectReason } }).catch(()=>{});
+  showToast('Request rejected', '');
+  addLog('Rejected physical card request for ' + req.guestId);
+  renderCardRequestsList(); updateCardRequestBadge();
 }
 
 function openPrintCard(id) {
-  const reqs = getCardRequests();
-  const req = reqs.find(r => r.id === id);
+  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
   if (!req) return;
-
-  // Find full guest data
-  const guest = guests.find(g => g.id === req.guestId) || {
-    id: req.guestId, first: req.guestName, last: '', type: req.guestType, room: req.room, title: ''
-  };
-
   document.getElementById('print-card-name').textContent  = sanitize(req.guestName);
   document.getElementById('print-card-id').textContent    = sanitize(req.guestId);
   document.getElementById('print-card-tier').textContent  = sanitize(req.guestType || 'Standard');
   document.getElementById('print-card-room').textContent  = 'Room ' + sanitize(req.room || 'TBA');
-
-  // QR for the print card
-  const qrWrap = document.getElementById('print-card-qr-wrap');
-  if (qrWrap) {
-    qrWrap.innerHTML = '';
-    if (typeof QRCode !== 'undefined') {
-      new QRCode(qrWrap, { text: req.guestId, width: 50, height: 50, correctLevel: QRCode.CorrectLevel.H });
-    }
-  }
-
   document.getElementById('print-card-template').classList.add('show');
-
-  // Mark as printed
-  req.status    = 'printed';
-  req.printedAt = new Date().toISOString();
+  req.status = 'printed'; req.printedAt = new Date().toISOString();
   saveCardRequests(reqs);
-  addLog(`Printed physical card for ${req.guestId}`);
-  updateCardRequestBadge();
-  renderCardRequestsList();
+  callAppsScript('updateCardRequest', { requestId: id, status: 'printed', reviewedBy: currentUser?.data?.fullname || 'Staff' }).catch(()=>{});
+  addLog('Printed physical card for ' + req.guestId);
+  updateCardRequestBadge(); renderCardRequestsList();
 }
 
-function closePrintCard() {
-  document.getElementById('print-card-template').classList.remove('show');
-}
+function closePrintCard() { document.getElementById('print-card-template').classList.remove('show'); }
 
-// ═══════════════════════════════════════════════════
-// HOOK INTO showPanel for card requests
-// ═══════════════════════════════════════════════════
-const _origShowPanel = showPanel;
+// ── Hook into existing showPanel & loadGuestProfile ───────────
+const _origShowPanel = typeof showPanel === 'function' ? showPanel : null;
 function showPanel(pid) {
-  _origShowPanel(pid);
-  const navMap2 = { 'staff-cardrequests': 'nav-cardrequests' };
-  if (navMap2[pid]) {
+  if (_origShowPanel) _origShowPanel(pid);
+  if (pid === 'staff-cardrequests') {
     document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById(navMap2[pid]);
-    if (btn) btn.classList.add('active');
+    document.getElementById('nav-cardrequests')?.classList.add('active');
+    loadCardRequests();
   }
-  if (pid === 'staff-cardrequests') loadCardRequests();
-  if (pid === 'guest-profile') {
-    loadGuestProfileWithCard();
-    return; // already handled profile loading
-  }
+  if (pid === 'guest-profile') loadGuestCardSection();
+}
+
+const _origLoadGuestProfile = typeof loadGuestProfile === 'function' ? loadGuestProfile : null;
+function loadGuestProfile() {
+  if (_origLoadGuestProfile) _origLoadGuestProfile();
+  loadGuestCardSection();
+}
+
+// Update badge on staff login
+const _origApply = typeof applyUserSession === 'function' ? applyUserSession : null;
+function applyUserSession() {
+  if (_origApply) _origApply();
+  if (currentUser?.type === 'staff') updateCardRequestBadge();
 }
 
 // ═══════════════════════════════════════════════════
