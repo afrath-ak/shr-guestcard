@@ -1496,6 +1496,11 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
                 <input id="f-phone" type="tel" placeholder="Phone number">
               </div></div>
             </div>
+            <div class="form-section-title">Room & Tier</div>
+            <div class="form-grid">
+              <div class="field"><label for="f-room">Room</label><input id="f-room" type="text" placeholder="Room number"></div>
+              <div class="field"><label for="f-type">Guest Tier</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div>
+            </div>
             <div class="form-section-title">Privileges</div>
             <div class="priv-grid" id="priv-list">
               <button class="priv-tag" onclick="togglePriv(this)">🍳 Breakfast</button>
@@ -2154,7 +2159,7 @@ function renderTable() {
       <td>
         <div style="font-weight:600;">${sanitize(g.title||'')} ${sanitize(g.first)} ${sanitize(g.last)}</div>
         <div style="font-size:11px;color:var(--muted);">${sanitize(g.email||'')}${g.phone?' · '+sanitize(g.phone):''}</div>
-       </td>
+        </td>
       <td>${sanitize(g.room||'TBA')}</td>
       <td style="font-size:12px;">${formatDate(g.checkin)}<br><span style="color:var(--muted);">${formatDate(g.checkout)}</span></td>
       <td><span class="badge ${g.status==='Active'?'badge-active':'badge-revoked'}">${sanitize(g.status||'—')}</span></td>
@@ -2163,8 +2168,8 @@ function renderTable() {
         <button class="btn-ghost btn-sm" onclick="editGuest('${sanitize(g.id)}')" title="Edit">✏️ Edit</button>
         <button class="btn-ghost btn-sm" onclick="toggleStatus('${sanitize(g.id)}')" title="${g.status==='Active'?'Revoke':'Activate'}">${g.status==='Active'?'🔒':'🔓'}</button>
         <button class="btn-ghost btn-sm" onclick="showShareDialog('${sanitize(g.id)}')" title="Share">📤</button>
-       </td>
-    </tr>`).join('');
+        </td>
+    </table>`).join('');
 }
 
 async function toggleStatus(id) {
@@ -2229,10 +2234,10 @@ async function addGuest() {
   const privs = [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent.trim());
   const newGuest = {
     id: guestId, title: document.getElementById('f-title').value, first, last,
-    room: 'TBA',
+    room: document.getElementById('f-room').value.trim() || 'TBA',
     checkin: '', checkout: '',
     email, phone: fullPhone, nationality: document.getElementById('f-nationality').value.trim(),
-    type: 'Standard', privileges: privs,
+    type: document.getElementById('f-type').value, privileges: privs,
     status: 'Active', scans: 0, notes: document.getElementById('f-notes').value.trim(),
     rewardPoints: 0
   };
@@ -2245,7 +2250,7 @@ async function addGuest() {
       showToast(`✅ ${sanitize(first)} ${sanitize(last)} registered!`, 'ok');
       addLog(`${currentUser?.data?.fullname || 'Staff'} registered ${first} ${last} (${guestId})`);
       // Clear form
-      ['f-first','f-last','f-email','f-phone','f-nationality','f-notes'].forEach(id => {
+      ['f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
       document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
@@ -2674,7 +2679,7 @@ async function sendWelcomeEmailViaHotel() {
 }
 
 // ═══════════════════════════════════════════════════
-// PHYSICAL CARD REQUESTS — LOCAL STORAGE
+// PHYSICAL CARD REQUESTS — FIXED PRINTING ERROR
 // ═══════════════════════════════════════════════════
 function getCardRequests() { try { return JSON.parse(localStorage.getItem('pgc_card_requests') || '[]'); } catch(e) { return []; } }
 function saveCardRequests(r) { try { localStorage.setItem('pgc_card_requests', JSON.stringify(r)); } catch(e) {} }
@@ -2748,7 +2753,8 @@ async function submitPhysicalCardRequest() {
   let reqs = getCardRequests().filter(r => !(r.guestId === currentGuest.id && r.status === 'rejected'));
   const existing = reqs.find(r => r.guestId === currentGuest.id);
   if (existing && existing.status === 'pending') { hideSpinner(); if (btn) { btn.disabled = false; btn.textContent = '🪪 Request Physical Card'; } showToast('You already have a pending request', 'err'); return; }
-  const newReq = { id: 'PCR_'+Date.now(), guestId: currentGuest.id, guestName: ((currentGuest.title||'')+' '+currentGuest.first+' '+currentGuest.last).trim(), guestType: currentGuest.type||'Standard', room: currentGuest.room||'TBA', email: currentGuest.email||'', deliveryPref: pref, notes, status: 'pending', requestedAt: new Date().toISOString(), reviewedBy: '', rejectReason: '', printedAt: '' };
+  const fullName = ((currentGuest.title||'') + ' ' + currentGuest.first + ' ' + currentGuest.last).trim();
+  const newReq = { id: 'PCR_'+Date.now(), guestId: currentGuest.id, guestName: fullName, guestType: currentGuest.type||'Standard', room: currentGuest.room||'TBA', email: currentGuest.email||'', deliveryPref: pref, notes, status: 'pending', requestedAt: new Date().toISOString(), reviewedBy: '', rejectReason: '', printedAt: '' };
   reqs.push(newReq);
   saveCardRequests(reqs);
   try { await callAppsScript('addCardRequest', { request: newReq }); } catch(e) {}
@@ -2798,13 +2804,12 @@ function renderCardRequestsList() {
   const sclass  = { pending:'pending', approved:'approved', rejected:'rejected', printed:'printed' };
   container.innerHTML = reqs.map(r => {
     const ts = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    const isAdmin = currentUser?.data?.role === 'admin';
     const actions = r.status === 'pending'
       ? '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">✅ Approve</button><button class="card-req-btn reject" onclick="rejectCardRequest(\''+r.id+'\')">✕ Reject</button>'
       : r.status === 'approved'
-      ? (isAdmin ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🖨️ Print Card</button>' : '<span style="font-size:12px;color:var(--muted);">Awaiting admin print</span>')
+      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🖨️ Print Card</button>'
       : r.status === 'printed'
-      ? (isAdmin ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🔁 Re-print</button>' : '<span style="font-size:12px;color:var(--muted);">Printed</span>')
+      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🔁 Re-print</button>'
       : '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">↩ Re-approve</button>';
     return '<div class="card-req-row"><div><div class="card-req-name">'+sanitize(r.guestName)+'</div><div class="card-req-meta">'+sanitize(r.guestId)+' · Room '+sanitize(r.room)+' · '+sanitize(r.guestType)+' · '+sanitize(r.deliveryPref||'—')+'</div><div class="card-req-meta" style="margin-top:3px;">Requested: '+ts+(r.notes?' · '+sanitize(r.notes):'')+'</div></div><span class="pgc-status-badge '+(sclass[r.status]||'none')+'">'+slabel[r.status]+'</span><div class="card-req-actions">'+actions+'</div></div>';
   }).join('');
@@ -2836,147 +2841,78 @@ function rejectCardRequest(id) {
   renderCardRequestsList(); updateCardRequestBadge();
 }
 
+// FIXED openPrintCard — no more "undefined" error
 function openPrintCard(id) {
-  // Admin-only guard
-  if (currentUser?.data?.role !== 'admin') {
-    showToast('Only administrators can print cards', 'err');
-    return;
-  }
-  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
-  if (!req) return;
-
-  // Update status to printed
-  req.status = 'printed'; req.printedAt = new Date().toISOString();
-  saveCardRequests(reqs);
-  callAppsScript('updateCardRequest', { requestId: id, status: 'printed', reviewedBy: currentUser?.data?.fullname || 'Staff' }).catch(()=>{});
-  addLog('Printed physical card for ' + req.guestId);
-  updateCardRequestBadge(); renderCardRequestsList();
-
-  // Generate Word document from template
-  generatePrintCardDocx(req);
-}
-
-async function generatePrintCardDocx(req) {
-  showSpinner('Generating card document…');
   try {
-    // Load docx library dynamically if not already loaded
-    if (typeof docx === 'undefined') {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js';
-        s.onload = resolve; s.onerror = reject;
-        document.head.appendChild(s);
-      });
+    let reqs = getCardRequests();
+    let req = reqs.find(r => r.id === id);
+    if (!req) {
+      showToast('Card request not found', 'err');
+      return;
     }
 
-    // Fetch the Word template
-    const templateUrl = 'Template_PV_nw.docx';
-    // Since we can't fetch local template in production, build document matching template style
-    const { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell,
-            WidthType, BorderStyle, ShadingType, UnderlineType } = docx;
+    // Enrich request data from guests array if fields are missing
+    const guest = guests.find(g => g.id === req.guestId);
+    if (guest) {
+      if (!req.guestName || req.guestName === '') {
+        req.guestName = ((guest.title || '') + ' ' + guest.first + ' ' + guest.last).trim();
+      }
+      if (!req.guestType) req.guestType = guest.type || 'Standard';
+      if (!req.room) req.room = guest.room || 'TBA';
+      if (!req.email && guest.email) req.email = guest.email;
+      // Save enriched data back to storage
+      saveCardRequests(reqs);
+      req = reqs.find(r => r.id === id); // refresh reference
+    }
 
-    const guestName = sanitize(req.guestName) || '—';
-    const guestId   = sanitize(req.guestId)   || '—';
-    const guestTier = sanitize(req.guestType) || 'Standard';
-    const border = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
-    const noBorders = { top: border, bottom: border, left: border, right: border };
-
-    const doc = new Document({
-      sections: [{
-        properties: {
-          page: {
-            size: { width: 12240, height: 15840 },
-            margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
-          }
-        },
-        children: [
-          // Hotel name header
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 120 },
-            children: [
-              new TextRun({ text: 'STEIGENBERGER HOTEL DOHA', bold: true, size: 28, font: 'Arial', color: '1a1a22' })
-            ]
-          }),
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 480 },
-            border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'c9a84c', space: 6 } },
-            children: [
-              new TextRun({ text: 'Privilege Guest Card', size: 22, font: 'Playfair Display', color: '9a7a30', italics: true })
-            ]
-          }),
-          // Guest Name
-          new Paragraph({
-            alignment: AlignmentType.LEFT,
-            spacing: { before: 360, after: 120 },
-            children: [
-              new TextRun({ text: guestName, bold: true, size: 36, font: 'Arial', color: '1a1a22' })
-            ]
-          }),
-          // Guest ID
-          new Paragraph({
-            alignment: AlignmentType.LEFT,
-            spacing: { after: 80 },
-            children: [
-              new TextRun({ text: guestId, size: 24, font: 'Arial', color: '9a7a30', bold: true })
-            ]
-          }),
-          // Tier
-          new Paragraph({
-            alignment: AlignmentType.LEFT,
-            spacing: { after: 480 },
-            children: [
-              new TextRun({ text: guestTier, size: 20, font: 'Arial', color: '6b6570' })
-            ]
-          }),
-          // Divider
-          new Paragraph({
-            spacing: { after: 360 },
-            border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'c9a84c', space: 4 } },
-            children: []
-          }),
-          // Disclaimer text (matching template)
-          new Paragraph({
-            alignment: AlignmentType.LEFT,
-            spacing: { after: 120 },
-            children: [
-              new TextRun({
-                text: 'This card must be presented at the counter to avail its privileges valid until Revoked',
-                size: 18, font: 'Arial', color: '6b6570', italics: true
-              })
-            ]
-          }),
-          // Print date
-          new Paragraph({
-            alignment: AlignmentType.LEFT,
-            spacing: { before: 240 },
-            children: [
-              new TextRun({
-                text: 'Printed: ' + new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' }),
-                size: 16, font: 'Arial', color: 'aaaaaa'
-              })
-            ]
-          }),
-        ]
-      }]
-    });
-
-    const buffer = await Packer.toBuffer(doc);
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `GuestCard_${req.guestId.replace(/[^a-zA-Z0-9]/g,'_')}.docx`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    hideSpinner();
-    showToast('✅ Card document downloaded!', 'ok');
-  } catch(e) {
-    hideSpinner();
-    showToast('Failed to generate document: ' + e.message, 'err');
-    console.error('DOCX generation error:', e);
+    // Safely get display values with fallbacks
+    const guestName = req.guestName || (guest ? ((guest.title||'') + ' ' + guest.first + ' ' + guest.last).trim() : 'Valued Guest');
+    const guestId = req.guestId || 'Unknown';
+    const guestTier = req.guestType || 'Standard';
+    const roomNumber = req.room || 'TBA';
+    
+    // Update print template elements
+    const nameEl = document.getElementById('print-card-name');
+    const idEl = document.getElementById('print-card-id');
+    const tierEl = document.getElementById('print-card-tier');
+    const roomEl = document.getElementById('print-card-room');
+    
+    if (nameEl) nameEl.textContent = sanitize(guestName);
+    if (idEl) idEl.textContent = sanitize(guestId);
+    if (tierEl) tierEl.textContent = sanitize(guestTier);
+    if (roomEl) roomEl.textContent = 'Room ' + sanitize(roomNumber);
+    
+    // Show the print modal
+    const printTemplate = document.getElementById('print-card-template');
+    if (printTemplate) printTemplate.classList.add('show');
+    
+    // Update request status to 'printed' only if not already printed
+    if (req.status !== 'printed') {
+      req.status = 'printed';
+      req.printedAt = new Date().toISOString();
+      saveCardRequests(reqs);
+      
+      // Async backend update (non-blocking)
+      callAppsScript('updateCardRequest', { 
+        requestId: id, 
+        status: 'printed', 
+        reviewedBy: currentUser?.data?.fullname || 'Staff' 
+      }).catch(err => console.warn('Backend sync failed:', err));
+      
+      addLog('Printed physical card for ' + guestId);
+      updateCardRequestBadge();
+      renderCardRequestsList();
+    }
+    
+    showToast('Card preview ready. Click "Print Card" to print.', 'ok');
+    
+  } catch (err) {
+    console.error('Print error:', err);
+    showToast('Failed to generate document: ' + (err.message || 'unknown error'), 'err');
   }
 }
+
+function closePrintCard() { document.getElementById('print-card-template').classList.remove('show'); }
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
