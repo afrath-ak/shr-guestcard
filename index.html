@@ -1496,11 +1496,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
                 <input id="f-phone" type="tel" placeholder="Phone number">
               </div></div>
             </div>
-            <div class="form-section-title">Room & Tier</div>
-            <div class="form-grid">
-              <div class="field"><label for="f-room">Room</label><input id="f-room" type="text" placeholder="Room number"></div>
-              <div class="field"><label for="f-type">Guest Tier</label><select id="f-type"><option>Standard</option><option>Privilege Guest</option><option>VIP</option><option>Diamond Member</option></select></div>
-            </div>
             <div class="form-section-title">Privileges</div>
             <div class="priv-grid" id="priv-list">
               <button class="priv-tag" onclick="togglePriv(this)">🍳 Breakfast</button>
@@ -2234,10 +2229,10 @@ async function addGuest() {
   const privs = [...document.querySelectorAll('#priv-list .priv-tag.sel')].map(el => el.textContent.trim());
   const newGuest = {
     id: guestId, title: document.getElementById('f-title').value, first, last,
-    room: document.getElementById('f-room').value.trim() || 'TBA',
+    room: 'TBA',
     checkin: '', checkout: '',
     email, phone: fullPhone, nationality: document.getElementById('f-nationality').value.trim(),
-    type: document.getElementById('f-type').value, privileges: privs,
+    type: 'Standard', privileges: privs,
     status: 'Active', scans: 0, notes: document.getElementById('f-notes').value.trim(),
     rewardPoints: 0
   };
@@ -2250,7 +2245,7 @@ async function addGuest() {
       showToast(`✅ ${sanitize(first)} ${sanitize(last)} registered!`, 'ok');
       addLog(`${currentUser?.data?.fullname || 'Staff'} registered ${first} ${last} (${guestId})`);
       // Clear form
-      ['f-first','f-last','f-room','f-email','f-phone','f-nationality','f-notes'].forEach(id => {
+      ['f-first','f-last','f-email','f-phone','f-nationality','f-notes'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
       document.querySelectorAll('#priv-list .priv-tag.sel').forEach(el => el.classList.remove('sel'));
@@ -2803,12 +2798,13 @@ function renderCardRequestsList() {
   const sclass  = { pending:'pending', approved:'approved', rejected:'rejected', printed:'printed' };
   container.innerHTML = reqs.map(r => {
     const ts = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const isAdmin = currentUser?.data?.role === 'admin';
     const actions = r.status === 'pending'
       ? '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">✅ Approve</button><button class="card-req-btn reject" onclick="rejectCardRequest(\''+r.id+'\')">✕ Reject</button>'
       : r.status === 'approved'
-      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🖨️ Print Card</button>'
+      ? (isAdmin ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🖨️ Print Card</button>' : '<span style="font-size:12px;color:var(--muted);">Awaiting admin print</span>')
       : r.status === 'printed'
-      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🔁 Re-print</button>'
+      ? (isAdmin ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🔁 Re-print</button>' : '<span style="font-size:12px;color:var(--muted);">Printed</span>')
       : '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">↩ Re-approve</button>';
     return '<div class="card-req-row"><div><div class="card-req-name">'+sanitize(r.guestName)+'</div><div class="card-req-meta">'+sanitize(r.guestId)+' · Room '+sanitize(r.room)+' · '+sanitize(r.guestType)+' · '+sanitize(r.deliveryPref||'—')+'</div><div class="card-req-meta" style="margin-top:3px;">Requested: '+ts+(r.notes?' · '+sanitize(r.notes):'')+'</div></div><span class="pgc-status-badge '+(sclass[r.status]||'none')+'">'+slabel[r.status]+'</span><div class="card-req-actions">'+actions+'</div></div>';
   }).join('');
@@ -2841,21 +2837,146 @@ function rejectCardRequest(id) {
 }
 
 function openPrintCard(id) {
+  // Admin-only guard
+  if (currentUser?.data?.role !== 'admin') {
+    showToast('Only administrators can print cards', 'err');
+    return;
+  }
   const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
   if (!req) return;
-  document.getElementById('print-card-name').textContent  = sanitize(req.guestName);
-  document.getElementById('print-card-id').textContent    = sanitize(req.guestId);
-  document.getElementById('print-card-tier').textContent  = sanitize(req.guestType || 'Standard');
-  document.getElementById('print-card-room').textContent  = 'Room ' + sanitize(req.room || 'TBA');
-  document.getElementById('print-card-template').classList.add('show');
+
+  // Update status to printed
   req.status = 'printed'; req.printedAt = new Date().toISOString();
   saveCardRequests(reqs);
   callAppsScript('updateCardRequest', { requestId: id, status: 'printed', reviewedBy: currentUser?.data?.fullname || 'Staff' }).catch(()=>{});
   addLog('Printed physical card for ' + req.guestId);
   updateCardRequestBadge(); renderCardRequestsList();
+
+  // Generate Word document from template
+  generatePrintCardDocx(req);
 }
 
-function closePrintCard() { document.getElementById('print-card-template').classList.remove('show'); }
+async function generatePrintCardDocx(req) {
+  showSpinner('Generating card document…');
+  try {
+    // Load docx library dynamically if not already loaded
+    if (typeof docx === 'undefined') {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    // Fetch the Word template
+    const templateUrl = 'Template_PV_nw.docx';
+    // Since we can't fetch local template in production, build document matching template style
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell,
+            WidthType, BorderStyle, ShadingType, UnderlineType } = docx;
+
+    const guestName = sanitize(req.guestName) || '—';
+    const guestId   = sanitize(req.guestId)   || '—';
+    const guestTier = sanitize(req.guestType) || 'Standard';
+    const border = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+    const noBorders = { top: border, bottom: border, left: border, right: border };
+
+    const doc = new Document({
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 12240, height: 15840 },
+            margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
+          }
+        },
+        children: [
+          // Hotel name header
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 120 },
+            children: [
+              new TextRun({ text: 'STEIGENBERGER HOTEL DOHA', bold: true, size: 28, font: 'Arial', color: '1a1a22' })
+            ]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 480 },
+            border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: 'c9a84c', space: 6 } },
+            children: [
+              new TextRun({ text: 'Privilege Guest Card', size: 22, font: 'Playfair Display', color: '9a7a30', italics: true })
+            ]
+          }),
+          // Guest Name
+          new Paragraph({
+            alignment: AlignmentType.LEFT,
+            spacing: { before: 360, after: 120 },
+            children: [
+              new TextRun({ text: guestName, bold: true, size: 36, font: 'Arial', color: '1a1a22' })
+            ]
+          }),
+          // Guest ID
+          new Paragraph({
+            alignment: AlignmentType.LEFT,
+            spacing: { after: 80 },
+            children: [
+              new TextRun({ text: guestId, size: 24, font: 'Arial', color: '9a7a30', bold: true })
+            ]
+          }),
+          // Tier
+          new Paragraph({
+            alignment: AlignmentType.LEFT,
+            spacing: { after: 480 },
+            children: [
+              new TextRun({ text: guestTier, size: 20, font: 'Arial', color: '6b6570' })
+            ]
+          }),
+          // Divider
+          new Paragraph({
+            spacing: { after: 360 },
+            border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'c9a84c', space: 4 } },
+            children: []
+          }),
+          // Disclaimer text (matching template)
+          new Paragraph({
+            alignment: AlignmentType.LEFT,
+            spacing: { after: 120 },
+            children: [
+              new TextRun({
+                text: 'This card must be presented at the counter to avail its privileges valid until Revoked',
+                size: 18, font: 'Arial', color: '6b6570', italics: true
+              })
+            ]
+          }),
+          // Print date
+          new Paragraph({
+            alignment: AlignmentType.LEFT,
+            spacing: { before: 240 },
+            children: [
+              new TextRun({
+                text: 'Printed: ' + new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' }),
+                size: 16, font: 'Arial', color: 'aaaaaa'
+              })
+            ]
+          }),
+        ]
+      }]
+    });
+
+    const buffer = await Packer.toBuffer(doc);
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `GuestCard_${req.guestId.replace(/[^a-zA-Z0-9]/g,'_')}.docx`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    hideSpinner();
+    showToast('✅ Card document downloaded!', 'ok');
+  } catch(e) {
+    hideSpinner();
+    showToast('Failed to generate document: ' + e.message, 'err');
+    console.error('DOCX generation error:', e);
+  }
+}
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
