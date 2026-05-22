@@ -886,58 +886,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 400px) { .field-row-2 { grid-template-columns: 1fr; } }
 
-/* ══ PHYSICAL CARD REQUEST ══ */
-.pgc-request-box{background:linear-gradient(135deg,#1a1a22 0%,#12120f 100%);border-radius:var(--radius-lg);padding:26px 22px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(201,168,76,0.18);}
-.pgc-request-box::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%);pointer-events:none;}
-.pgc-card-visual{background:linear-gradient(135deg,#1a1a22 0%,#0c0c0f 100%);border:1px solid rgba(201,168,76,0.3);border-radius:14px;padding:18px 20px;font-family:'Playfair Display',serif;position:relative;overflow:hidden;margin-bottom:20px;box-shadow:0 12px 40px rgba(0,0,0,0.35),inset 0 1px 0 rgba(201,168,76,0.15);width:100%;max-width:340px;}
-.pgc-card-chip{width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#e8d08a,#c9a84c);margin-bottom:16px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);}
-.pgc-card-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:0.06em;margin-bottom:4px;}
-.pgc-card-id{font-size:11px;color:rgba(201,168,76,0.8);letter-spacing:0.1em;font-family:'Outfit',sans-serif;}
-.pgc-card-tier{position:absolute;top:18px;right:18px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:0.1em;background:rgba(201,168,76,0.12);padding:3px 10px;border-radius:20px;border:1px solid rgba(201,168,76,0.2);font-family:'Outfit',sans-serif;}
-.pgc-card-hotel{position:absolute;bottom:14px;right:16px;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.12em;font-family:'Outfit',sans-serif;text-align:right;}
-.pgc-status-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:40px;font-size:12px;font-weight:700;letter-spacing:0.05em;}
-.pgc-status-badge.none{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);}
-.pgc-status-badge.pending{background:rgba(180,83,9,0.18);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
-.pgc-status-badge.approved{background:rgba(21,128,61,0.18);color:#4ade80;border:1px solid rgba(74,222,128,0.3);}
-.pgc-status-badge.rejected{background:rgba(185,28,28,0.18);color:#f87171;border:1px solid rgba(248,113,113,0.3);}
-.pgc-status-badge.printed{background:rgba(13,125,124,0.18);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);}
-.pgc-request-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-.pgc-request-btn{padding:11px 22px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:700;border:none;letter-spacing:0.04em;transition:all 0.2s;}
-.pgc-request-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--dark);}
-.pgc-request-btn.gold:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.3);}
-.pgc-request-btn.ghost{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.12);}
-.pgc-request-btn.ghost:hover{background:rgba(255,255,255,0.1);}
-.pgc-request-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-.pgc-info-note{font-size:12px;color:rgba(255,255,255,0.35);margin-top:12px;line-height:1.7;}
-.card-req-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:14px 16px;border-radius:12px;margin-bottom:8px;background:#fff;border:1px solid var(--border);transition:box-shadow var(--trans);}
-.card-req-row:hover{box-shadow:var(--shadow-md);}
-.card-req-name{font-weight:700;font-size:14px;color:var(--dark);}
-.card-req-meta{font-size:12px;color:var(--muted);margin-top:2px;}
-.card-req-actions{display:flex;gap:6px;}
-.card-req-btn{padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;border:none;transition:all 0.18s;}
-.card-req-btn.approve{background:rgba(21,128,61,0.12);color:#15803d;border:1px solid rgba(21,128,61,0.25);}
-.card-req-btn.approve:hover{background:rgba(21,128,61,0.22);}
-.card-req-btn.reject{background:rgba(185,28,28,0.08);color:var(--danger);border:1px solid rgba(185,28,28,0.2);}
-.card-req-btn.reject:hover{background:rgba(185,28,28,0.15);}
-.card-req-btn.print{background:rgba(13,125,124,0.12);color:var(--teal);border:1px solid rgba(13,125,124,0.25);}
-.card-req-btn.print:hover{background:rgba(13,125,124,0.22);}
-@media print{body>*:not(#print-card-template){display:none !important;}#print-card-template{display:block !important;}@page{size:85.6mm 54mm;margin:0;}}
-#print-card-template{display:none;position:fixed;inset:0;z-index:99999;background:#f3ede3;align-items:center;justify-content:center;}
-#print-card-template.show{display:flex;}
-.print-card-wrap{width:85.6mm;height:54mm;background:linear-gradient(135deg,#1a1a22 0%,#0c0c0f 100%);border-radius:8px;overflow:hidden;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.4);font-family:'Outfit',sans-serif;display:flex;flex-direction:column;justify-content:space-between;padding:10px 14px;border:1px solid rgba(201,168,76,0.3);}
-.print-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
-.print-card-chip{width:22px;height:17px;border-radius:3px;background:linear-gradient(135deg,#e8d08a,#c9a84c);}
-.print-card-hotel{font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-align:right;}
-.print-card-hotel strong{display:block;font-size:8px;color:var(--gold);font-family:'Playfair Display',serif;letter-spacing:0.06em;}
-.print-card-mid{flex:1;display:flex;align-items:flex-end;padding-bottom:4px;}
-.print-card-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:0.04em;font-family:'Playfair Display',serif;}
-.print-card-bottom{display:flex;align-items:flex-end;justify-content:space-between;}
-.print-card-id{font-size:8px;color:rgba(201,168,76,0.8);letter-spacing:0.12em;}
-.print-card-tier{font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-align:right;}
-.print-close-btn{position:fixed;top:20px;right:20px;z-index:100000;background:var(--dark);color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:8px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;}
-@media print{.print-close-btn{display:none !important;}.print-actions-bar{display:none !important;}}
-.print-actions-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:100000;}
-
 .hosp-strip { display:flex; height:3px; border-radius:40px; overflow:hidden; margin: 0 0 20px; }
 .hosp-strip span { flex:1; }
 .hosp-strip .s1 { background: var(--gold); }
@@ -996,114 +944,124 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .share-credentials-box strong { color: var(--gold); }
 
 /* Country code phone row */
-/* ── Phone Field ── */
 .phone-flex {
   display: flex;
   align-items: stretch;
   gap: 0;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  overflow: visible;
-  background: var(--cream);
-  transition: border-color 0.2s, box-shadow 0.2s;
   position: relative;
 }
-.phone-flex:focus-within {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
-}
-/* Custom country picker trigger */
-.cc-trigger {
-  display: flex; align-items: center; gap: 5px;
-  padding: 0 10px 0 12px;
-  cursor: pointer; user-select: none;
-  border-right: 1.5px solid var(--border);
-  min-width: 90px; flex-shrink: 0;
-  background: transparent;
-  border-radius: 0; border-top: none; border-bottom: none; border-left: none;
-  transition: background 0.15s;
-  font-family: inherit;
-  white-space: nowrap;
-}
-.cc-trigger:hover { background: rgba(0,0,0,0.03); }
-.cc-flag { font-size: 18px; line-height: 1; }
-.cc-code { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.02em; }
-.cc-arrow { font-size: 8px; color: var(--muted); margin-left: 2px; transition: transform 0.2s; }
-.cc-trigger.open .cc-arrow { transform: rotate(180deg); }
-
-#f-phone {
-  flex: 1; min-width: 0;
-  border: none !important; outline: none !important;
-  background: transparent !important;
-  padding: 12px 14px !important;
-  font-size: 14px !important;
-  color: var(--dark) !important;
+.phone-flex #f-phone {
   border-radius: 0 10px 10px 0 !important;
-  box-shadow: none !important;
+  border-left: none !important;
+  flex: 1;
 }
+/* Custom country code picker */
+.cc-picker-wrap {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.cc-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  padding: 0 10px;
+  background: var(--cream2);
+  border: 1.5px solid var(--border);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--dark);
+  white-space: nowrap;
+  min-width: 90px;
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
+}
+.cc-trigger:hover { background: var(--cream); border-color: var(--gold); }
+.cc-trigger.open  { border-color: var(--gold); background: #fff; }
+.cc-trigger-flag  { font-size: 16px; line-height: 1; }
+.cc-trigger-code  { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.02em; }
+.cc-trigger-arrow { font-size: 9px; color: var(--muted); margin-left: auto; transition: transform 0.2s; }
+.cc-trigger.open .cc-trigger-arrow { transform: rotate(180deg); }
 
-/* Dropdown panel */
 .cc-dropdown {
-  position: absolute; top: calc(100% + 6px); left: 0;
-  z-index: 9999;
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 260px;
   background: #fff;
   border: 1.5px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.16);
-  width: 310px; max-height: 340px;
-  display: none; flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
   overflow: hidden;
+  z-index: 999;
+  animation: ccFadeIn 0.15s ease;
 }
-.cc-dropdown.open { display: flex; }
+@keyframes ccFadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.cc-dropdown.open { display: block; }
 
 .cc-search-wrap {
-  padding: 10px 12px;
+  padding: 8px 8px 6px;
   border-bottom: 1px solid var(--border);
-  position: relative;
-  flex-shrink: 0;
-}
-.cc-search-wrap::before {
-  content: '🔍';
-  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-  font-size: 13px; pointer-events: none;
+  background: var(--cream2);
 }
 .cc-search {
-  width: 100%; padding: 8px 10px 8px 32px;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 13px; font-family: inherit; color: var(--dark);
-  background: var(--cream2); outline: none;
-  transition: border-color 0.2s;
+  width: 100% !important;
+  padding: 6px 10px 6px 28px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-family: inherit !important;
+  background: #fff !important;
+  color: var(--dark) !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
-.cc-search:focus { border-color: var(--gold); background: #fff; }
-.cc-search::placeholder { color: #bbb; }
+.cc-search:focus { border-color: var(--gold) !important; }
+.cc-search-icon {
+  position: absolute;
+  left: 17px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px; color: var(--muted);
+  pointer-events: none;
+}
+.cc-search-box { position: relative; }
 
 .cc-list {
-  overflow-y: auto; flex: 1;
-  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  max-height: 200px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .cc-list::-webkit-scrollbar { width: 4px; }
-.cc-list::-webkit-scrollbar-track { background: transparent; }
 .cc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-.cc-group-label {
-  padding: 6px 14px 3px;
-  font-size: 10px; font-weight: 700; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  background: var(--cream2);
-  position: sticky; top: 0; z-index: 1;
-}
 .cc-option {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 14px; cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text);
   transition: background 0.12s;
-  font-size: 13px;
 }
-.cc-option:hover, .cc-option.highlighted { background: var(--gold-pale); }
-.cc-option.selected { background: rgba(201,168,76,0.1); font-weight: 600; }
-.cc-option-flag { font-size: 18px; flex-shrink: 0; width: 24px; text-align: center; }
-.cc-option-name { flex: 1; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cc-option-dial { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
-.cc-no-results { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+.cc-option:hover, .cc-option.active { background: var(--gold-pale); }
+.cc-option-flag  { font-size: 15px; line-height: 1; flex-shrink: 0; }
+.cc-option-name  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dark); }
+.cc-option-code  { font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+.cc-empty { padding: 14px; text-align: center; font-size: 12px; color: var(--muted); }
+
+/* When phone field is focused, highlight full group */
+.phone-flex:focus-within .cc-trigger:not(.open) {
+  border-color: var(--gold);
+}
+.phone-flex:focus-within #f-phone {
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+}
 </style>
 </head>
 <body>
@@ -1299,7 +1257,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-guests',event)">Guests</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-add',event)">Add Guest</button>
     <button class="mobile-nav-btn" onclick="showPanelMobile('staff-scanner',event)">Scanner</button>
-    <button class="mobile-nav-btn" onclick="showPanelMobile('staff-cardrequests',event)">Card Requests</button>
     <button class="mobile-nav-btn admin-only" onclick="showPanelMobile('staff-admin',event)">Team Admin</button>
   </nav>
 
@@ -1311,7 +1268,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
         <button class="sidebar-btn" id="nav-guests" onclick="showPanel('staff-guests')"><span class="sidebar-icon">👥</span>Guests</button>
         <button class="sidebar-btn" id="nav-add" onclick="showPanel('staff-add')"><span class="sidebar-icon">➕</span>Add Guest</button>
         <button class="sidebar-btn" id="nav-scanner" onclick="showPanel('staff-scanner')"><span class="sidebar-icon">📷</span>Scanner</button>
-        <button class="sidebar-btn" id="nav-cardrequests" onclick="showPanel('staff-cardrequests')"><span class="sidebar-icon">🪪</span>Card Requests<span class="sidebar-badge" id="card-req-badge" style="display:none;">0</span></button>
         <button class="sidebar-btn admin-only" id="nav-admin" onclick="showPanel('staff-admin')"><span class="sidebar-icon">🛡️</span>Team Admin</button>
       </nav>
       <div class="sidebar-footer">
@@ -1372,49 +1328,6 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             </div>
             <button class="btn-primary" style="margin-top:14px;" onclick="changeGuestPassword()">🔒 Update Password</button>
             <span id="password-change-status" style="font-size:12px;color:var(--muted);margin-left:12px;"></span>
-          </div>
-
-          <!-- PHYSICAL CARD REQUEST -->
-          <div class="card">
-            <div class="card-title">Physical Guest Card</div>
-            <div class="pgc-request-box">
-              <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:20px;">
-                <div class="pgc-card-visual">
-                  <div class="pgc-card-chip"></div>
-                  <div class="pgc-card-name" id="pgc-preview-name">—</div>
-                  <div class="pgc-card-id" id="pgc-preview-id">—</div>
-                  <div class="pgc-card-tier" id="pgc-preview-tier">—</div>
-                  <div class="pgc-card-hotel">STEIGENBERGER<br>Hotel Doha</div>
-                </div>
-                <div style="flex:1;min-width:180px;">
-                  <p style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:14px;">Request a personalised physical card for exclusive access and a premium stay experience.</p>
-                  <div style="margin-bottom:12px;">
-                    <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Request Status</div>
-                    <span class="pgc-status-badge none" id="pgc-guest-status-badge">⬜ No request yet</span>
-                  </div>
-                  <div id="pgc-status-detail" style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;display:none;"></div>
-                </div>
-              </div>
-              <div id="pgc-request-form-area">
-                <div class="field" style="margin-bottom:12px;">
-                  <label style="color:rgba(255,255,255,0.4)!important;">Delivery / Collection Preference</label>
-                  <select id="pgc-delivery-pref" style="background:rgba(255,255,255,0.07)!important;color:#fff!important;border:1px solid rgba(255,255,255,0.12)!important;border-radius:10px!important;padding:11px 14px!important;width:100%;font-family:inherit;font-size:14px;">
-                    <option value="reception">Collect at Reception</option>
-                    <option value="room">Deliver to Room</option>
-                    <option value="concierge">Collect from Concierge</option>
-                  </select>
-                </div>
-                <div class="field" style="margin-bottom:0;">
-                  <label style="color:rgba(255,255,255,0.4)!important;">Notes (optional)</label>
-                  <textarea id="pgc-request-notes" rows="2" placeholder="Any special instructions…" style="background:rgba(255,255,255,0.07)!important;color:#fff!important;border:1px solid rgba(255,255,255,0.12)!important;border-radius:10px!important;padding:11px 14px!important;width:100%;font-family:inherit;font-size:14px;resize:vertical;"></textarea>
-                </div>
-              </div>
-              <div class="pgc-request-actions">
-                <button class="pgc-request-btn gold" id="pgc-submit-btn" onclick="submitPhysicalCardRequest()">🪪 Request Physical Card</button>
-                <button class="pgc-request-btn ghost" id="pgc-cancel-btn" onclick="cancelPhysicalCardRequest()" style="display:none;">✕ Cancel Request</button>
-              </div>
-              <p class="pgc-info-note" id="pgc-info-note">Your card will be prepared by our front desk team and ready within 15–30 minutes after approval.</p>
-            </div>
           </div>
         </section>
 
@@ -1480,21 +1393,27 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
             <div class="form-section-title">Contact</div>
             <div class="form-grid">
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
-              <div class="field"><label>Phone</label><div class="phone-flex" id="phone-field-wrap">
-                <button type="button" class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="cc-flag" id="cc-flag">🇶🇦</span>
-                  <span class="cc-code" id="cc-code-display">+974</span>
-                  <span class="cc-arrow">▼</span>
-                </button>
-                <div class="cc-dropdown" id="cc-dropdown" role="listbox">
-                  <div class="cc-search-wrap">
-                    <input class="cc-search" id="cc-search" type="text" placeholder="Search country or code…" oninput="filterCCOptions(this.value)" onkeydown="ccSearchKeydown(event)" autocomplete="off">
+              <div class="field"><label>Phone</label><div class="phone-flex">
+                <div class="cc-picker-wrap" id="cc-picker-wrap">
+                  <div class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)">
+                    <span class="cc-trigger-flag" id="cc-flag">🇶🇦</span>
+                    <span class="cc-trigger-code" id="cc-code">+974</span>
+                    <span class="cc-trigger-arrow">▼</span>
                   </div>
-                  <div class="cc-list" id="cc-list"></div>
+                  <div class="cc-dropdown" id="cc-dropdown">
+                    <div class="cc-search-wrap">
+                      <div class="cc-search-box">
+                        <span class="cc-search-icon">🔍</span>
+                        <input class="cc-search" id="cc-search" type="text" placeholder="Search country…" oninput="filterCCList(this.value)" autocomplete="off">
+                      </div>
+                    </div>
+                    <div class="cc-list" id="cc-list"></div>
+                  </div>
                 </div>
-                <input type="hidden" id="country-code" value="+974">
                 <input id="f-phone" type="tel" placeholder="Phone number">
+                <input type="hidden" id="country-code" value="+974">
               </div></div>
+
             </div>
             <div class="form-section-title">Room & Tier</div>
             <div class="form-grid">
@@ -1566,52 +1485,8 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           <div class="card"><div class="card-title">📜 Activity Log</div><div id="activity-log" style="max-height:320px;overflow-y:auto;"></div></div>
         </section>
 
-        <!-- STAFF CARD REQUESTS -->
-        <section class="panel" id="panel-staff-cardrequests">
-          <div class="page-header">
-            <div class="page-title">Physical Card Requests</div>
-            <div class="page-subtitle">Review and process guest physical card requests</div>
-          </div>
-          <div class="card" style="margin-bottom:16px;">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
-              <button class="filter-btn active" onclick="setCRFilter('all',this)">All</button>
-              <button class="filter-btn" onclick="setCRFilter('pending',this)">⏳ Pending</button>
-              <button class="filter-btn" onclick="setCRFilter('approved',this)">✅ Approved</button>
-              <button class="filter-btn" onclick="setCRFilter('printed',this)">🖨️ Printed</button>
-              <button class="filter-btn" onclick="setCRFilter('rejected',this)">✕ Rejected</button>
-              <button class="btn-primary btn-sm" style="margin-left:auto;" onclick="loadCardRequests()">🔄 Refresh</button>
-            </div>
-            <div id="card-requests-list"><div class="empty-state"><div class="empty-icon">🪪</div>Loading card requests…</div></div>
-          </div>
-        </section>
-
       </div>
     </main>
-  </div>
-</div>
-
-<!-- PRINT CARD TEMPLATE -->
-<div id="print-card-template">
-  <button class="print-close-btn" onclick="closePrintCard()">✕ Close</button>
-  <div style="text-align:center;">
-    <div class="print-card-wrap" id="print-card-inner">
-      <div class="print-card-top">
-        <div class="print-card-chip"></div>
-        <div class="print-card-hotel"><strong>STEIGENBERGER</strong>HOTEL DOHA</div>
-      </div>
-      <div class="print-card-mid"><div><div class="print-card-name" id="print-card-name">—</div></div></div>
-      <div class="print-card-bottom">
-        <div>
-          <div class="print-card-id" id="print-card-id">—</div>
-          <div style="font-size:7px;color:rgba(255,255,255,0.25);margin-top:2px;" id="print-card-room">—</div>
-        </div>
-        <div class="print-card-tier" id="print-card-tier">—</div>
-      </div>
-    </div>
-    <div class="print-actions-bar">
-      <button class="pgc-request-btn gold" onclick="window.print()">🖨️ Print Card</button>
-      <button class="pgc-request-btn ghost" onclick="closePrintCard()">Close</button>
-    </div>
   </div>
 </div>
 
@@ -1628,8 +1503,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     </div>
     <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Send via</div>
     <a class="share-modal-option whatsapp" id="share-whatsapp-link" href="#" target="_blank" rel="noopener"><span>📱</span><div><div style="font-weight:700;">WhatsApp</div><div style="font-size:12px;color:var(--muted);">Opens WhatsApp with full credentials</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
-    <button class="share-modal-option" id="share-hotel-email-btn" onclick="sendWelcomeEmailViaHotel()" style="width:100%;text-align:left;cursor:pointer;background:var(--cream);border:1.5px solid rgba(59,130,246,0.25);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;font-family:inherit;transition:all 0.2s;"><span>✉️</span><div><div style="font-weight:700;">Send Welcome Email</div><div style="font-size:12px;color:var(--muted);">Sends via hotel system directly to guest's inbox</div></div><span style="margin-left:auto;font-size:18px;" id="share-hotel-email-icon">→</span></button>
-    <a class="share-modal-option" id="share-email-link" href="#" style="opacity:0.55;"><span>📧</span><div><div style="font-weight:700;">Open Email Client</div><div style="font-size:12px;color:var(--muted);">Backup: opens your local mail app</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
+    <a class="share-modal-option email" id="share-email-link" href="#"><span>✉️</span><div><div style="font-weight:700;">Email</div><div style="font-size:12px;color:var(--muted);">Opens email client with pre-filled message</div></div><span style="margin-left:auto;font-size:18px;">→</span></a>
     <button class="btn-ghost" style="width:100%;margin-top:10px;" onclick="copyShareDetails()">📋 Copy to Clipboard</button>
     <button class="btn-ghost" style="width:100%;margin-top:6px;opacity:.6;" onclick="closeShareModal()">Close</button>
   </div>
@@ -1974,143 +1848,13 @@ function selectResetMethod(m) { resetMethod=m; document.getElementById('reset-by
 async function sendPasswordReset() { showToast('Contact IT support for password reset', 'err'); }
 async function confirmPasswordReset() { showToast('Please contact admin', 'err'); }
 
-// ═══════════════════════════════════════════════════
-// GUEST SIGNUP — Full 4-step implementation
-// ═══════════════════════════════════════════════════
-let _signupGuestData = null;
-let _signupOTPToken  = null;
-let _signupEmail     = null;
-
-async function signupNextStep() {
-  const guestId = (document.getElementById('s-guest-id')?.value || '').trim().toUpperCase();
-  if (!guestId) { showLoginError('Please enter your Guest ID'); return; }
-  const btn = document.querySelector('#signup-step-1 .login-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
-  showSpinner('Verifying Guest ID…');
-  try {
-    const res = await callAppsScript('getGuests', {});
-    hideSpinner();
-    const allGuests = (res.success && res.guests) ? res.guests : (guests || []);
-    const found = allGuests.find(g => String(g.id).toUpperCase() === guestId);
-    if (!found) { showLoginError('Guest ID not found. Please check with front desk.'); return; }
-    if (found.status !== 'Active') { showLoginError('This guest card is not active. Please contact front desk.'); return; }
-    if (found.passwordSet === true || String(found.passwordSet).toLowerCase() === 'true') { showLoginError('An account already exists for this ID. Use "Returning Guest" to sign in.'); return; }
-    if (!found.email) { showLoginError('No email on file for this Guest ID. Please visit front desk to add your email first.'); return; }
-    _signupGuestData = found;
-    clearLoginError();
-    const emailField = document.getElementById('s-phone');
-    if (emailField) {
-      const parts = found.email.split('@');
-      const masked = parts[0].slice(0,2) + '***@' + parts[1];
-      emailField.value = masked;
-      emailField.readOnly = true;
-      emailField.style.color = 'rgba(255,255,255,0.45)';
-    }
-    const lbl = document.querySelector('#signup-step-2 label');
-    if (lbl) lbl.textContent = 'Email on File (from front desk)';
-    document.getElementById('signup-step-1').style.display = 'none';
-    document.getElementById('signup-step-2').style.display = 'block';
-  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = 'Continue →'; } }
-}
-
-async function signupSendOTP() {
-  if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-  const email = _signupGuestData.email;
-  if (!email) { showLoginError('No email on file. Contact front desk.'); return; }
-  const btn = document.querySelector('#signup-step-2 .login-btn:not(.secondary)');
-  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
-  showSpinner('Sending verification code…');
-  try {
-    const res = await callAppsScript('sendOTP', { email, name: _signupGuestData.first + ' ' + _signupGuestData.last });
-    hideSpinner();
-    if (res.success) {
-      _signupOTPToken = res.token;
-      _signupEmail = email;
-      const timerEl = document.getElementById('signup-otp-timer');
-      if (timerEl) { const p = email.split('@'); timerEl.textContent = 'Code sent to ' + p[0].slice(0,2) + '***@' + p[1]; }
-      document.getElementById('s-otp').value = '';
-      document.getElementById('signup-step-2').style.display = 'none';
-      document.getElementById('signup-step-3').style.display = 'block';
-      document.getElementById('s-otp')?.focus();
-      clearLoginError();
-    } else { showLoginError(res.error || 'Failed to send code. Try again.'); }
-  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = 'Send Email Code →'; } }
-}
-
-async function signupVerifyAndCreate() {
-  const code = (document.getElementById('s-otp')?.value || '').trim();
-  if (!code || code.length !== 6) { showLoginError('Enter the 6-digit code from your email.'); return; }
-  if (!_signupOTPToken || !_signupEmail) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-  const btn = document.querySelector('#signup-step-3 .login-btn.teal');
-  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
-  showSpinner('Verifying code…');
-  try {
-    const res = await callAppsScript('verifyOTP', { email: _signupEmail, code, token: _signupOTPToken });
-    hideSpinner();
-    if (res.success) {
-      await callAppsScript('updateGuest', { guestId: _signupGuestData.id, updates: { verifiedEmail: _signupEmail, Mail: _signupEmail } }).catch(()=>{});
-      document.getElementById('signup-step-3').style.display = 'none';
-      document.getElementById('signup-step-4').style.display = 'block';
-      document.getElementById('s-password')?.focus();
-      clearLoginError();
-    } else { showLoginError(res.error || 'Incorrect or expired code. Try again.'); }
-  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = 'Verify Code →'; } }
-}
-
-async function signupFinalize() {
-  const pw1 = document.getElementById('s-password')?.value || '';
-  const pw2 = document.getElementById('s-password-confirm')?.value || '';
-  const pwErr = validatePassword(pw1);
-  if (pwErr) { showLoginError(pwErr); return; }
-  if (pw1 !== pw2) { showLoginError('Passwords do not match.'); return; }
-  if (!_signupGuestData) { showLoginError('Session lost. Please start again.'); signupBack(1); return; }
-  const btn = document.querySelector('#signup-step-4 .login-btn.teal');
-  if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
-  showSpinner('Setting up your account…');
-  try {
-    const salt = generateSalt();
-    const hash = await hashPasswordFrontend(pw1, salt);
-    const res = await callAppsScript('updateGuest', { guestId: _signupGuestData.id, updates: { password_hash: hash, salt, passwordSet: true, verified: true, verifiedAt: new Date().toISOString() } });
-    hideSpinner();
-    if (res.success) {
-      showToast('✅ Account created! Welcome, ' + sanitize(_signupGuestData.first) + '!', 'ok');
-      const loginRes = await callAppsScript('guestLogin', { guestId: _signupGuestData.id, password: pw1 });
-      if (loginRes.success) {
-        currentUser = { type: 'guest', data: loginRes.user };
-        currentGuest = loginRes.user;
-        saveSession(); applyUserSession(); startSessionTimer(); setupActivityListeners();
-        await loadGuests().catch(()=>{});
-      } else {
-        showLoginError('Account created! Please sign in using "Returning Guest".');
-        document.getElementById('guest-id').value = _signupGuestData.id;
-      }
-      _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
-      switchGuestMode('returning');
-    } else { showLoginError(res.error || 'Failed to save password. Please try again.'); }
-  } catch(e) { hideSpinner(); showLoginError('Connection error. Please try again.'); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = 'Complete Registration ✓'; } }
-}
-
-function signupBack(toStep) {
-  [1,2,3,4].forEach(n => { const el = document.getElementById('signup-step-'+n); if (el) el.style.display = n === toStep ? 'block' : 'none'; });
-  clearLoginError();
-  if (toStep === 1) {
-    _signupGuestData = null; _signupOTPToken = null; _signupEmail = null;
-    const ef = document.getElementById('s-phone');
-    if (ef) { ef.readOnly = false; ef.value = ''; ef.style.color = ''; }
-  }
-}
-
-async function signupResend() {
-  if (!_signupGuestData) return;
-  document.getElementById('s-otp').value = '';
-  document.getElementById('signup-step-3').style.display = 'none';
-  document.getElementById('signup-step-2').style.display = 'block';
-  showToast('Click "Send Email Code" to resend.', '');
-}
+// Signup (keep as original but no verification flags)
+async function signupNextStep() { showToast('Signup disabled temporarily. Please contact front desk.', 'err'); }
+async function signupSendOTP() {}
+async function signupVerifyAndCreate() {}
+async function signupFinalize() {}
+function signupBack(step) {}
+async function signupResend() {}
 
 // ═══════════════════════════════════════════════════
 // SESSION TIMER
@@ -2260,29 +2004,8 @@ async function addGuest() {
       if (suggBox) suggBox.textContent = '';
       setTimeout(() => suggestGuestId(), 300);
       renderTable();
-      // Auto-send welcome email silently in the background
-      if (newGuest.email) {
-        const loginUrl = window.location.href.split('?')[0];
-        callAppsScript('sendGuestWelcomeEmail', {
-          to:        newGuest.email,
-          guestName: ((newGuest.title||'') + ' ' + newGuest.first + ' ' + newGuest.last).trim(),
-          guestId:   newGuest.id,
-          room:      newGuest.room || 'TBA',
-          type:      newGuest.type || 'Standard',
-          loginUrl
-        }).then(emailRes => {
-          if (emailRes && emailRes.success) {
-            showToast(`✅ Welcome email sent to ${sanitize(newGuest.email)}`, 'ok');
-            addLog(`Welcome email auto-sent to ${newGuest.first} ${newGuest.last} (${newGuest.email})`);
-          } else {
-            showToast('⚠️ Guest registered, but email failed. Send manually from guest card.', 'err');
-          }
-        }).catch(() => {
-          showToast('⚠️ Guest registered, but email could not be sent. Check connection.', 'err');
-        });
-      } else {
-        showToast('⚠️ No email on file — welcome message not sent.', 'err');
-      }
+      // Auto-share dialog
+      showShareDialog(guestId, newGuest);
     } else { showToast('Error: ' + (res.error || 'unknown'), 'err'); }
   } catch(e) { hideSpinner(); showToast('Network error: ' + e.message, 'err'); }
 }
@@ -2537,7 +2260,7 @@ function copyShareDetails() { const text = document.getElementById('share-creden
 // ═══════════════════════════════════════════════════
 // GUEST PROFILE
 // ═══════════════════════════════════════════════════
-function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; loadGuestCardSection(); }
+function loadGuestProfile() { if (!currentGuest) return; document.getElementById('profile-email').value = currentGuest.email || ''; document.getElementById('profile-phone').value = currentGuest.phone || ''; document.getElementById('change-password-card').style.display = currentGuest.passwordSet ? 'block' : 'none'; }
 async function updateGuestProfile() { const email = document.getElementById('profile-email').value.trim(); const phone = document.getElementById('profile-phone').value.trim(); if (!email && !phone) { showToast('Enter email or phone', 'err'); return; } showSpinner(); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { email, phone } }); hideSpinner(); if (res.success) { currentGuest.email = email; currentGuest.phone = phone; await loadGuests(); showToast('Profile updated', 'ok'); } else { showToast('Failed', 'err'); } }
 async function changeGuestPassword() { const currentPw = document.getElementById('profile-current-password').value; const newPw = document.getElementById('profile-new-password').value; const confirmPw = document.getElementById('profile-confirm-password').value; if (!currentPw) { showToast('Enter current password', 'err'); return; } const err = validatePassword(newPw); if (err) { showToast(err, 'err'); return; } if (newPw !== confirmPw) { showToast('Passwords do not match', 'err'); return; } showSpinner(); const verify = await callAppsScript('guestLogin', { guestId: currentGuest.id, password: currentPw }); if (!verify.success) { hideSpinner(); showToast('Current password incorrect', 'err'); return; } const salt = generateSalt(); const hash = await hashPasswordFrontend(newPw, salt); const res = await callAppsScript('updateGuest', { guestId: currentGuest.id, updates: { password_hash: hash, salt } }); hideSpinner(); if (res.success) { showToast('Password updated', 'ok'); addLog(`${currentGuest.first} changed password`); document.getElementById('profile-current-password').value = ''; document.getElementById('profile-new-password').value = ''; document.getElementById('profile-confirm-password').value = ''; } else { showToast('Failed', 'err'); } }
 
@@ -2567,16 +2290,11 @@ function showPanel(pid) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
   const navMap = { 'staff-analytics':'nav-analytics','staff-guests':'nav-guests','staff-add':'nav-add','staff-scanner':'nav-scanner','staff-admin':'nav-admin' };
   if (navMap[pid]) { const btn = document.getElementById(navMap[pid]); if (btn) btn.classList.add('active'); }
-  if (pid === 'guest-profile') { loadGuestProfile(); loadGuestCardSection(); }
+  if (pid === 'guest-profile') loadGuestProfile();
   if (pid === 'staff-guests') renderTable();
   if (pid === 'staff-admin') { renderStaffUsers(); updateAdminStats(); }
   if (pid === 'staff-analytics') { loadChartLib().then(() => renderAnalytics()); }
   if (pid === 'staff-add') { setTimeout(() => suggestGuestId(), 200); }
-  if (pid === 'staff-cardrequests') {
-    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('nav-cardrequests')?.classList.add('active');
-    loadCardRequests();
-  }
 }
 function showPanelMobile(pid, evt) { showPanel(pid); document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active')); if (evt?.target) evt.target.classList.add('active'); }
 function highlightMobileNav(btn) { document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
@@ -2617,7 +2335,6 @@ function applyUserSession() {
     document.getElementById('sidebar-toggle-btn').style.display = 'flex';
     if (isAdmin) { showPanel('staff-analytics'); document.getElementById('nav-analytics')?.classList.add('active'); }
     else { showPanel('staff-guests'); document.getElementById('nav-guests')?.classList.add('active'); }
-    updateCardRequestBadge();
   }
 }
 function logout() { if (sessionTimer) clearInterval(sessionTimer); stopScanner(); currentUser = null; currentGuest = null; sessionStorage.removeItem('sg_session'); document.getElementById('login-page').style.display = ''; document.getElementById('main-app').classList.remove('active'); switchTab('guest'); showToast('Signed out', ''); clearLoginError(); }
@@ -2636,226 +2353,6 @@ function loadGuestDashboard() {
   document.getElementById('guest-stay-info').innerHTML = rows.filter(r => r[1]).map(([label, val]) => `<div class="detail-row"><span class="detail-label">${label}</span><span>${sanitize(String(val))}</span></div>`).join('');
 }
 function downloadQR() { const canvas = document.querySelector('#qr-inner canvas'); if (!canvas) { showToast('QR code not ready', 'err'); return; } const a = document.createElement('a'); a.download = `steigenberger-${currentGuest?.id || 'card'}.png`; a.href = canvas.toDataURL(); a.click(); }
-
-// ═══════════════════════════════════════════════════
-// SEND WELCOME EMAIL VIA HOTEL SYSTEM
-// ═══════════════════════════════════════════════════
-async function sendWelcomeEmailViaHotel() {
-  const guest = _shareGuestData;
-  if (!guest) { showToast('No guest data', 'err'); return; }
-  if (!guest.email) { showToast('No email address on file for this guest', 'err'); return; }
-  const icon = document.getElementById('share-hotel-email-icon');
-  const btn  = document.getElementById('share-hotel-email-btn');
-  if (btn)  btn.disabled = true;
-  if (icon) icon.textContent = '⏳';
-  showSpinner('Sending welcome email…');
-  try {
-    const loginUrl = window.location.href.split('?')[0];
-    const res = await callAppsScript('sendGuestWelcomeEmail', {
-      to:        guest.email,
-      guestName: ((guest.title||'') + ' ' + guest.first + ' ' + guest.last).trim(),
-      guestId:   guest.id,
-      room:      guest.room || 'TBA',
-      type:      guest.type || 'Standard',
-      loginUrl
-    });
-    hideSpinner();
-    if (res.success) {
-      if (icon) icon.textContent = '✅';
-      showToast('✅ Welcome email sent to ' + guest.email, 'ok');
-      addLog('Welcome email sent to ' + guest.first + ' ' + guest.last + ' (' + guest.email + ')');
-      setTimeout(() => { if (btn) btn.disabled = false; if (icon) icon.textContent = '→'; }, 3000);
-    } else {
-      if (icon) icon.textContent = '❌';
-      showToast('Email failed: ' + (res.error || 'Unknown error'), 'err');
-      if (btn) btn.disabled = false;
-    }
-  } catch(e) {
-    hideSpinner();
-    showToast('Network error: ' + e.message, 'err');
-    if (icon) icon.textContent = '❌';
-    if (btn) btn.disabled = false;
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// PHYSICAL CARD REQUESTS — LOCAL STORAGE
-// ═══════════════════════════════════════════════════
-function getCardRequests() { try { return JSON.parse(localStorage.getItem('pgc_card_requests') || '[]'); } catch(e) { return []; } }
-function saveCardRequests(r) { try { localStorage.setItem('pgc_card_requests', JSON.stringify(r)); } catch(e) {} }
-function getGuestCardRequest(guestId) { return getCardRequests().find(r => r.guestId === guestId) || null; }
-
-function loadGuestCardSection() {
-  if (!currentGuest) return;
-  const g = currentGuest;
-  const n = document.getElementById('pgc-preview-name'); if (n) n.textContent = ((g.title||'') + ' ' + g.first + ' ' + g.last).trim();
-  const i = document.getElementById('pgc-preview-id');   if (i) i.textContent = g.id;
-  const t = document.getElementById('pgc-preview-tier'); if (t) t.textContent = g.type || 'Standard';
-  renderGuestCardStatus();
-}
-
-function renderGuestCardStatus() {
-  if (!currentGuest) return;
-  const req = getGuestCardRequest(currentGuest.id);
-  const badge    = document.getElementById('pgc-guest-status-badge');
-  const detail   = document.getElementById('pgc-status-detail');
-  const formArea = document.getElementById('pgc-request-form-area');
-  const submitBtn= document.getElementById('pgc-submit-btn');
-  const cancelBtn= document.getElementById('pgc-cancel-btn');
-  const infoNote = document.getElementById('pgc-info-note');
-  if (!badge) return;
-  if (!req) {
-    badge.className = 'pgc-status-badge none'; badge.textContent = '⬜ No request yet';
-    if (detail) detail.style.display = 'none';
-    if (formArea) formArea.style.display = 'block';
-    if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🪪 Request Physical Card'; }
-    if (cancelBtn) cancelBtn.style.display = 'none';
-    if (infoNote) infoNote.textContent = 'Your card will be prepared by our front desk team and ready within 15–30 minutes after approval.';
-    return;
-  }
-  if (formArea) formArea.style.display = 'none';
-  const ts = req.requestedAt ? new Date(req.requestedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-  if (req.status === 'pending') {
-    badge.className = 'pgc-status-badge pending'; badge.textContent = '⏳ Pending Review';
-    if (detail) { detail.innerHTML = 'Submitted: <strong>' + ts + '</strong><br>Preference: <strong>' + sanitize(req.deliveryPref||'—') + '</strong>' + (req.notes ? '<br>Notes: ' + sanitize(req.notes) : ''); detail.style.display = 'block'; }
-    if (submitBtn) submitBtn.style.display = 'none';
-    if (cancelBtn) cancelBtn.style.display = 'inline-flex';
-    if (infoNote) infoNote.textContent = 'Your request is under review by our front desk team.';
-  } else if (req.status === 'approved') {
-    badge.className = 'pgc-status-badge approved'; badge.textContent = '✅ Approved';
-    if (detail) { detail.innerHTML = 'Approved by: <strong>' + sanitize(req.reviewedBy||'Staff') + '</strong><br>Preference: <strong>' + sanitize(req.deliveryPref||'—') + '</strong>'; detail.style.display = 'block'; }
-    if (submitBtn) submitBtn.style.display = 'none';
-    if (cancelBtn) cancelBtn.style.display = 'none';
-    if (infoNote) infoNote.textContent = '🎉 Your card has been approved and is being prepared!';
-  } else if (req.status === 'printed') {
-    badge.className = 'pgc-status-badge printed'; badge.textContent = '🖨️ Card Printed & Ready';
-    if (detail) { detail.innerHTML = 'Ready for: <strong>' + sanitize(req.deliveryPref||'—') + '</strong>'; detail.style.display = 'block'; }
-    if (submitBtn) submitBtn.style.display = 'none';
-    if (cancelBtn) cancelBtn.style.display = 'none';
-    if (infoNote) infoNote.textContent = '✅ Your physical card is ready. Please collect it as arranged.';
-  } else if (req.status === 'rejected') {
-    badge.className = 'pgc-status-badge rejected'; badge.textContent = '✕ Request Declined';
-    if (formArea) formArea.style.display = 'block';
-    if (detail) { detail.innerHTML = 'Reason: <strong>' + sanitize(req.rejectReason||'See front desk') + '</strong>'; detail.style.display = 'block'; }
-    if (submitBtn) { submitBtn.style.display = 'inline-flex'; submitBtn.disabled = false; submitBtn.textContent = '🔄 Re-submit Request'; }
-    if (cancelBtn) cancelBtn.style.display = 'none';
-    if (infoNote) infoNote.textContent = 'Your previous request was declined. You may submit a new request.';
-  }
-}
-
-async function submitPhysicalCardRequest() {
-  if (!currentGuest) return;
-  const btn  = document.getElementById('pgc-submit-btn');
-  const pref = document.getElementById('pgc-delivery-pref')?.value || 'reception';
-  const notes= (document.getElementById('pgc-request-notes')?.value || '').trim();
-  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
-  showSpinner('Submitting card request…');
-  let reqs = getCardRequests().filter(r => !(r.guestId === currentGuest.id && r.status === 'rejected'));
-  const existing = reqs.find(r => r.guestId === currentGuest.id);
-  if (existing && existing.status === 'pending') { hideSpinner(); if (btn) { btn.disabled = false; btn.textContent = '🪪 Request Physical Card'; } showToast('You already have a pending request', 'err'); return; }
-  const newReq = { id: 'PCR_'+Date.now(), guestId: currentGuest.id, guestName: ((currentGuest.title||'')+' '+currentGuest.first+' '+currentGuest.last).trim(), guestType: currentGuest.type||'Standard', room: currentGuest.room||'TBA', email: currentGuest.email||'', deliveryPref: pref, notes, status: 'pending', requestedAt: new Date().toISOString(), reviewedBy: '', rejectReason: '', printedAt: '' };
-  reqs.push(newReq);
-  saveCardRequests(reqs);
-  try { await callAppsScript('addCardRequest', { request: newReq }); } catch(e) {}
-  hideSpinner();
-  showToast('Card request submitted! Front desk will review shortly.', 'ok');
-  addLog('Guest ' + currentGuest.id + ' requested a physical card');
-  renderGuestCardStatus();
-  updateCardRequestBadge();
-  if (btn) { btn.disabled = false; }
-}
-
-async function cancelPhysicalCardRequest() {
-  if (!currentGuest) return;
-  if (!confirm('Cancel your physical card request?')) return;
-  let reqs = getCardRequests().filter(r => !(r.guestId === currentGuest.id && r.status === 'pending'));
-  saveCardRequests(reqs);
-  showToast('Request cancelled', '');
-  renderGuestCardStatus();
-  updateCardRequestBadge();
-}
-
-// ── STAFF SIDE ────────────────────────────────────────────────
-let crFilter = 'all';
-function setCRFilter(f, btn) {
-  crFilter = f;
-  document.querySelectorAll('#panel-staff-cardrequests .filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderCardRequestsList();
-}
-
-function loadCardRequests() { updateCardRequestBadge(); renderCardRequestsList(); }
-
-function updateCardRequestBadge() {
-  const pending = getCardRequests().filter(r => r.status === 'pending').length;
-  const badge = document.getElementById('card-req-badge');
-  if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline-block' : 'none'; }
-}
-
-function renderCardRequestsList() {
-  const container = document.getElementById('card-requests-list');
-  if (!container) return;
-  let reqs = getCardRequests();
-  if (crFilter !== 'all') reqs = reqs.filter(r => r.status === crFilter);
-  reqs = reqs.slice().reverse();
-  if (!reqs.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div>No card requests' + (crFilter !== 'all' ? ' in this category' : '') + '.</div>'; return; }
-  const slabel = { pending:'⏳ Pending', approved:'✅ Approved', rejected:'✕ Rejected', printed:'🖨️ Printed' };
-  const sclass  = { pending:'pending', approved:'approved', rejected:'rejected', printed:'printed' };
-  container.innerHTML = reqs.map(r => {
-    const ts = r.requestedAt ? new Date(r.requestedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    const actions = r.status === 'pending'
-      ? '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">✅ Approve</button><button class="card-req-btn reject" onclick="rejectCardRequest(\''+r.id+'\')">✕ Reject</button>'
-      : r.status === 'approved'
-      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🖨️ Print Card</button>'
-      : r.status === 'printed'
-      ? '<button class="card-req-btn print" onclick="openPrintCard(\''+r.id+'\')">🔁 Re-print</button>'
-      : '<button class="card-req-btn approve" onclick="approveCardRequest(\''+r.id+'\')">↩ Re-approve</button>';
-    return '<div class="card-req-row"><div><div class="card-req-name">'+sanitize(r.guestName)+'</div><div class="card-req-meta">'+sanitize(r.guestId)+' · Room '+sanitize(r.room)+' · '+sanitize(r.guestType)+' · '+sanitize(r.deliveryPref||'—')+'</div><div class="card-req-meta" style="margin-top:3px;">Requested: '+ts+(r.notes?' · '+sanitize(r.notes):'')+'</div></div><span class="pgc-status-badge '+(sclass[r.status]||'none')+'">'+slabel[r.status]+'</span><div class="card-req-actions">'+actions+'</div></div>';
-  }).join('');
-}
-
-function approveCardRequest(id) {
-  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
-  if (!req) return;
-  const staffName = currentUser?.data?.fullname || currentUser?.data?.username || 'Staff';
-  req.status = 'approved'; req.reviewedBy = staffName; req.reviewedAt = new Date().toISOString();
-  saveCardRequests(reqs);
-  callAppsScript('updateCardRequest', { requestId: id, status: 'approved', reviewedBy: staffName }).catch(()=>{});
-  showToast('Card request for ' + req.guestName + ' approved', 'ok');
-  addLog('Approved physical card request for ' + req.guestId);
-  renderCardRequestsList(); updateCardRequestBadge();
-}
-
-function rejectCardRequest(id) {
-  const reason = prompt('Reason for rejection (optional):');
-  if (reason === null) return;
-  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
-  if (!req) return;
-  const staffName = currentUser?.data?.fullname || currentUser?.data?.username || 'Staff';
-  req.status = 'rejected'; req.reviewedBy = staffName; req.reviewedAt = new Date().toISOString(); req.rejectReason = reason || 'No reason given';
-  saveCardRequests(reqs);
-  callAppsScript('updateCardRequest', { requestId: id, status: 'rejected', reviewedBy: staffName, extra: { rejectReason: req.rejectReason } }).catch(()=>{});
-  showToast('Request rejected', '');
-  addLog('Rejected physical card request for ' + req.guestId);
-  renderCardRequestsList(); updateCardRequestBadge();
-}
-
-function openPrintCard(id) {
-  const reqs = getCardRequests(), req = reqs.find(r => r.id === id);
-  if (!req) return;
-  document.getElementById('print-card-name').textContent  = sanitize(req.guestName);
-  document.getElementById('print-card-id').textContent    = sanitize(req.guestId);
-  document.getElementById('print-card-tier').textContent  = sanitize(req.guestType || 'Standard');
-  document.getElementById('print-card-room').textContent  = 'Room ' + sanitize(req.room || 'TBA');
-  document.getElementById('print-card-template').classList.add('show');
-  req.status = 'printed'; req.printedAt = new Date().toISOString();
-  saveCardRequests(reqs);
-  callAppsScript('updateCardRequest', { requestId: id, status: 'printed', reviewedBy: currentUser?.data?.fullname || 'Staff' }).catch(()=>{});
-  addLog('Printed physical card for ' + req.guestId);
-  updateCardRequestBadge(); renderCardRequestsList();
-}
-
-function closePrintCard() { document.getElementById('print-card-template').classList.remove('show'); }
 
 // ═══════════════════════════════════════════════════
 // RESTORE SESSION
@@ -2899,361 +2396,126 @@ async function init() {
     Promise.all([loadStaff(), loadGuests()]).catch(e => console.warn(e));
   }
 }
-document.addEventListener('DOMContentLoaded', () => { init(); initCCPicker(); });
+document.addEventListener('DOMContentLoaded', init);
 
 // ═══════════════════════════════════════════════════
-// COUNTRY CODE PICKER — All 249 ITU countries/territories
+// COUNTRY CODE PICKER
 // ═══════════════════════════════════════════════════
-const CC_DATA = [
-  // ── POPULAR / GCC (pinned first) ──────────────────
-  { name:'Qatar',            flag:'🇶🇦', dial:'+974', group:'popular' },
-  { name:'United Arab Emirates', flag:'🇦🇪', dial:'+971', group:'popular' },
-  { name:'Saudi Arabia',     flag:'🇸🇦', dial:'+966', group:'popular' },
-  { name:'Kuwait',           flag:'🇰🇼', dial:'+965', group:'popular' },
-  { name:'Bahrain',          flag:'🇧🇭', dial:'+973', group:'popular' },
-  { name:'Oman',             flag:'🇴🇲', dial:'+968', group:'popular' },
-  { name:'United States',    flag:'🇺🇸', dial:'+1',   group:'popular' },
-  { name:'United Kingdom',   flag:'🇬🇧', dial:'+44',  group:'popular' },
-  { name:'India',            flag:'🇮🇳', dial:'+91',  group:'popular' },
-  { name:'Pakistan',         flag:'🇵🇰', dial:'+92',  group:'popular' },
-  // ── MIDDLE EAST ───────────────────────────────────
-  { name:'Jordan',           flag:'🇯🇴', dial:'+962', group:'Middle East' },
-  { name:'Lebanon',          flag:'🇱🇧', dial:'+961', group:'Middle East' },
-  { name:'Iraq',             flag:'🇮🇶', dial:'+964', group:'Middle East' },
-  { name:'Syria',            flag:'🇸🇾', dial:'+963', group:'Middle East' },
-  { name:'Yemen',            flag:'🇾🇪', dial:'+967', group:'Middle East' },
-  { name:'Palestine',        flag:'🇵🇸', dial:'+970', group:'Middle East' },
-  { name:'Israel',           flag:'🇮🇱', dial:'+972', group:'Middle East' },
-  { name:'Iran',             flag:'🇮🇷', dial:'+98',  group:'Middle East' },
-  { name:'Turkey',           flag:'🇹🇷', dial:'+90',  group:'Middle East' },
-  // ── AFRICA ────────────────────────────────────────
-  { name:'Egypt',            flag:'🇪🇬', dial:'+20',  group:'Africa' },
-  { name:'Morocco',          flag:'🇲🇦', dial:'+212', group:'Africa' },
-  { name:'Algeria',          flag:'🇩🇿', dial:'+213', group:'Africa' },
-  { name:'Tunisia',          flag:'🇹🇳', dial:'+216', group:'Africa' },
-  { name:'Libya',            flag:'🇱🇾', dial:'+218', group:'Africa' },
-  { name:'Sudan',            flag:'🇸🇩', dial:'+249', group:'Africa' },
-  { name:'South Sudan',      flag:'🇸🇸', dial:'+211', group:'Africa' },
-  { name:'Ethiopia',         flag:'🇪🇹', dial:'+251', group:'Africa' },
-  { name:'Kenya',            flag:'🇰🇪', dial:'+254', group:'Africa' },
-  { name:'Tanzania',         flag:'🇹🇿', dial:'+255', group:'Africa' },
-  { name:'Uganda',           flag:'🇺🇬', dial:'+256', group:'Africa' },
-  { name:'Nigeria',          flag:'🇳🇬', dial:'+234', group:'Africa' },
-  { name:'Ghana',            flag:'🇬🇭', dial:'+233', group:'Africa' },
-  { name:'South Africa',     flag:'🇿🇦', dial:'+27',  group:'Africa' },
-  { name:'Senegal',          flag:'🇸🇳', dial:'+221', group:'Africa' },
-  { name:'Ivory Coast',      flag:'🇨🇮', dial:'+225', group:'Africa' },
-  { name:'Cameroon',         flag:'🇨🇲', dial:'+237', group:'Africa' },
-  { name:'Zimbabwe',         flag:'🇿🇼', dial:'+263', group:'Africa' },
-  { name:'Zambia',           flag:'🇿🇲', dial:'+260', group:'Africa' },
-  { name:'Rwanda',           flag:'🇷🇼', dial:'+250', group:'Africa' },
-  { name:'Somalia',          flag:'🇸🇴', dial:'+252', group:'Africa' },
-  { name:'Mauritius',        flag:'🇲🇺', dial:'+230', group:'Africa' },
-  { name:'Madagascar',       flag:'🇲🇬', dial:'+261', group:'Africa' },
-  { name:'Mozambique',       flag:'🇲🇿', dial:'+258', group:'Africa' },
-  { name:'Angola',           flag:'🇦🇴', dial:'+244', group:'Africa' },
-  { name:'Congo (DRC)',      flag:'🇨🇩', dial:'+243', group:'Africa' },
-  { name:'Congo (Rep.)',     flag:'🇨🇬', dial:'+242', group:'Africa' },
-  { name:'Botswana',         flag:'🇧🇼', dial:'+267', group:'Africa' },
-  { name:'Namibia',          flag:'🇳🇦', dial:'+264', group:'Africa' },
-  { name:'Malawi',           flag:'🇲🇼', dial:'+265', group:'Africa' },
-  { name:'Benin',            flag:'🇧🇯', dial:'+229', group:'Africa' },
-  { name:'Burkina Faso',     flag:'🇧🇫', dial:'+226', group:'Africa' },
-  { name:'Mali',             flag:'🇲🇱', dial:'+223', group:'Africa' },
-  { name:'Niger',            flag:'🇳🇪', dial:'+227', group:'Africa' },
-  { name:'Chad',             flag:'🇹🇩', dial:'+235', group:'Africa' },
-  { name:'Guinea',           flag:'🇬🇳', dial:'+224', group:'Africa' },
-  { name:'Sierra Leone',     flag:'🇸🇱', dial:'+232', group:'Africa' },
-  { name:'Liberia',          flag:'🇱🇷', dial:'+231', group:'Africa' },
-  { name:'Togo',             flag:'🇹🇬', dial:'+228', group:'Africa' },
-  { name:'Eritrea',          flag:'🇪🇷', dial:'+291', group:'Africa' },
-  { name:'Djibouti',         flag:'🇩🇯', dial:'+253', group:'Africa' },
-  { name:'Eswatini',         flag:'🇸🇿', dial:'+268', group:'Africa' },
-  { name:'Lesotho',          flag:'🇱🇸', dial:'+266', group:'Africa' },
-  { name:'Cape Verde',       flag:'🇨🇻', dial:'+238', group:'Africa' },
-  { name:'Equatorial Guinea',flag:'🇬🇶', dial:'+240', group:'Africa' },
-  { name:'Gabon',            flag:'🇬🇦', dial:'+241', group:'Africa' },
-  { name:'Comoros',          flag:'🇰🇲', dial:'+269', group:'Africa' },
-  { name:'Seychelles',       flag:'🇸🇨', dial:'+248', group:'Africa' },
-  { name:'São Tomé',         flag:'🇸🇹', dial:'+239', group:'Africa' },
-  { name:'Gambia',           flag:'🇬🇲', dial:'+220', group:'Africa' },
-  { name:'Guinea-Bissau',    flag:'🇬🇼', dial:'+245', group:'Africa' },
-  { name:'Mauritania',       flag:'🇲🇷', dial:'+222', group:'Africa' },
-  { name:'Burundi',          flag:'🇧🇮', dial:'+257', group:'Africa' },
-  { name:'Central African Republic', flag:'🇨🇫', dial:'+236', group:'Africa' },
-  // ── SOUTH ASIA ────────────────────────────────────
-  { name:'Bangladesh',       flag:'🇧🇩', dial:'+880', group:'South Asia' },
-  { name:'Sri Lanka',        flag:'🇱🇰', dial:'+94',  group:'South Asia' },
-  { name:'Nepal',            flag:'🇳🇵', dial:'+977', group:'South Asia' },
-  { name:'Afghanistan',      flag:'🇦🇫', dial:'+93',  group:'South Asia' },
-  { name:'Maldives',         flag:'🇲🇻', dial:'+960', group:'South Asia' },
-  { name:'Bhutan',           flag:'🇧🇹', dial:'+975', group:'South Asia' },
-  // ── SOUTHEAST ASIA ────────────────────────────────
-  { name:'Philippines',      flag:'🇵🇭', dial:'+63',  group:'Southeast Asia' },
-  { name:'Indonesia',        flag:'🇮🇩', dial:'+62',  group:'Southeast Asia' },
-  { name:'Malaysia',         flag:'🇲🇾', dial:'+60',  group:'Southeast Asia' },
-  { name:'Singapore',        flag:'🇸🇬', dial:'+65',  group:'Southeast Asia' },
-  { name:'Thailand',         flag:'🇹🇭', dial:'+66',  group:'Southeast Asia' },
-  { name:'Vietnam',          flag:'🇻🇳', dial:'+84',  group:'Southeast Asia' },
-  { name:'Myanmar',          flag:'🇲🇲', dial:'+95',  group:'Southeast Asia' },
-  { name:'Cambodia',         flag:'🇰🇭', dial:'+855', group:'Southeast Asia' },
-  { name:'Laos',             flag:'🇱🇦', dial:'+856', group:'Southeast Asia' },
-  { name:'Brunei',           flag:'🇧🇳', dial:'+673', group:'Southeast Asia' },
-  { name:'Timor-Leste',      flag:'🇹🇱', dial:'+670', group:'Southeast Asia' },
-  // ── EAST ASIA ─────────────────────────────────────
-  { name:'China',            flag:'🇨🇳', dial:'+86',  group:'East Asia' },
-  { name:'Japan',            flag:'🇯🇵', dial:'+81',  group:'East Asia' },
-  { name:'South Korea',      flag:'🇰🇷', dial:'+82',  group:'East Asia' },
-  { name:'Hong Kong',        flag:'🇭🇰', dial:'+852', group:'East Asia' },
-  { name:'Macau',            flag:'🇲🇴', dial:'+853', group:'East Asia' },
-  { name:'Taiwan',           flag:'🇹🇼', dial:'+886', group:'East Asia' },
-  { name:'Mongolia',         flag:'🇲🇳', dial:'+976', group:'East Asia' },
-  // ── CENTRAL ASIA ──────────────────────────────────
-  { name:'Kazakhstan',       flag:'🇰🇿', dial:'+7',   group:'Central Asia' },
-  { name:'Uzbekistan',       flag:'🇺🇿', dial:'+998', group:'Central Asia' },
-  { name:'Turkmenistan',     flag:'🇹🇲', dial:'+993', group:'Central Asia' },
-  { name:'Tajikistan',       flag:'🇹🇯', dial:'+992', group:'Central Asia' },
-  { name:'Kyrgyzstan',       flag:'🇰🇬', dial:'+996', group:'Central Asia' },
-  { name:'Azerbaijan',       flag:'🇦🇿', dial:'+994', group:'Central Asia' },
-  { name:'Georgia',          flag:'🇬🇪', dial:'+995', group:'Central Asia' },
-  { name:'Armenia',          flag:'🇦🇲', dial:'+374', group:'Central Asia' },
-  // ── EUROPE ────────────────────────────────────────
-  { name:'France',           flag:'🇫🇷', dial:'+33',  group:'Europe' },
-  { name:'Germany',          flag:'🇩🇪', dial:'+49',  group:'Europe' },
-  { name:'Italy',            flag:'🇮🇹', dial:'+39',  group:'Europe' },
-  { name:'Spain',            flag:'🇪🇸', dial:'+34',  group:'Europe' },
-  { name:'Portugal',         flag:'🇵🇹', dial:'+351', group:'Europe' },
-  { name:'Netherlands',      flag:'🇳🇱', dial:'+31',  group:'Europe' },
-  { name:'Belgium',          flag:'🇧🇪', dial:'+32',  group:'Europe' },
-  { name:'Switzerland',      flag:'🇨🇭', dial:'+41',  group:'Europe' },
-  { name:'Austria',          flag:'🇦🇹', dial:'+43',  group:'Europe' },
-  { name:'Sweden',           flag:'🇸🇪', dial:'+46',  group:'Europe' },
-  { name:'Norway',           flag:'🇳🇴', dial:'+47',  group:'Europe' },
-  { name:'Denmark',          flag:'🇩🇰', dial:'+45',  group:'Europe' },
-  { name:'Finland',          flag:'🇫🇮', dial:'+358', group:'Europe' },
-  { name:'Poland',           flag:'🇵🇱', dial:'+48',  group:'Europe' },
-  { name:'Greece',           flag:'🇬🇷', dial:'+30',  group:'Europe' },
-  { name:'Russia',           flag:'🇷🇺', dial:'+7',   group:'Europe' },
-  { name:'Ukraine',          flag:'🇺🇦', dial:'+380', group:'Europe' },
-  { name:'Czech Republic',   flag:'🇨🇿', dial:'+420', group:'Europe' },
-  { name:'Hungary',          flag:'🇭🇺', dial:'+36',  group:'Europe' },
-  { name:'Romania',          flag:'🇷🇴', dial:'+40',  group:'Europe' },
-  { name:'Bulgaria',         flag:'🇧🇬', dial:'+359', group:'Europe' },
-  { name:'Croatia',          flag:'🇭🇷', dial:'+385', group:'Europe' },
-  { name:'Serbia',           flag:'🇷🇸', dial:'+381', group:'Europe' },
-  { name:'Slovakia',         flag:'🇸🇰', dial:'+421', group:'Europe' },
-  { name:'Slovenia',         flag:'🇸🇮', dial:'+386', group:'Europe' },
-  { name:'Luxembourg',       flag:'🇱🇺', dial:'+352', group:'Europe' },
-  { name:'Ireland',          flag:'🇮🇪', dial:'+353', group:'Europe' },
-  { name:'Iceland',          flag:'🇮🇸', dial:'+354', group:'Europe' },
-  { name:'Malta',            flag:'🇲🇹', dial:'+356', group:'Europe' },
-  { name:'Cyprus',           flag:'🇨🇾', dial:'+357', group:'Europe' },
-  { name:'Albania',          flag:'🇦🇱', dial:'+355', group:'Europe' },
-  { name:'Bosnia & Herzegovina', flag:'🇧🇦', dial:'+387', group:'Europe' },
-  { name:'North Macedonia',  flag:'🇲🇰', dial:'+389', group:'Europe' },
-  { name:'Montenegro',       flag:'🇲🇪', dial:'+382', group:'Europe' },
-  { name:'Kosovo',           flag:'🇽🇰', dial:'+383', group:'Europe' },
-  { name:'Moldova',          flag:'🇲🇩', dial:'+373', group:'Europe' },
-  { name:'Belarus',          flag:'🇧🇾', dial:'+375', group:'Europe' },
-  { name:'Lithuania',        flag:'🇱🇹', dial:'+370', group:'Europe' },
-  { name:'Latvia',           flag:'🇱🇻', dial:'+371', group:'Europe' },
-  { name:'Estonia',          flag:'🇪🇪', dial:'+372', group:'Europe' },
-  { name:'Andorra',          flag:'🇦🇩', dial:'+376', group:'Europe' },
-  { name:'Monaco',           flag:'🇲🇨', dial:'+377', group:'Europe' },
-  { name:'San Marino',       flag:'🇸🇲', dial:'+378', group:'Europe' },
-  { name:'Liechtenstein',    flag:'🇱🇮', dial:'+423', group:'Europe' },
-  { name:'Vatican City',     flag:'🇻🇦', dial:'+379', group:'Europe' },
-  // ── NORTH AMERICA ─────────────────────────────────
-  { name:'Canada',           flag:'🇨🇦', dial:'+1',   group:'Americas' },
-  { name:'Mexico',           flag:'🇲🇽', dial:'+52',  group:'Americas' },
-  { name:'Cuba',             flag:'🇨🇺', dial:'+53',  group:'Americas' },
-  { name:'Jamaica',          flag:'🇯🇲', dial:'+1876',group:'Americas' },
-  { name:'Haiti',            flag:'🇭🇹', dial:'+509', group:'Americas' },
-  { name:'Dominican Republic',flag:'🇩🇴',dial:'+1809',group:'Americas' },
-  { name:'Trinidad & Tobago',flag:'🇹🇹', dial:'+1868',group:'Americas' },
-  { name:'Puerto Rico',      flag:'🇵🇷', dial:'+1787',group:'Americas' },
-  { name:'Bahamas',          flag:'🇧🇸', dial:'+1242',group:'Americas' },
-  { name:'Barbados',         flag:'🇧🇧', dial:'+1246',group:'Americas' },
-  { name:'Belize',           flag:'🇧🇿', dial:'+501', group:'Americas' },
-  { name:'Guatemala',        flag:'🇬🇹', dial:'+502', group:'Americas' },
-  { name:'Honduras',         flag:'🇭🇳', dial:'+504', group:'Americas' },
-  { name:'El Salvador',      flag:'🇸🇻', dial:'+503', group:'Americas' },
-  { name:'Nicaragua',        flag:'🇳🇮', dial:'+505', group:'Americas' },
-  { name:'Costa Rica',       flag:'🇨🇷', dial:'+506', group:'Americas' },
-  { name:'Panama',           flag:'🇵🇦', dial:'+507', group:'Americas' },
-  // ── SOUTH AMERICA ─────────────────────────────────
-  { name:'Brazil',           flag:'🇧🇷', dial:'+55',  group:'Americas' },
-  { name:'Argentina',        flag:'🇦🇷', dial:'+54',  group:'Americas' },
-  { name:'Colombia',         flag:'🇨🇴', dial:'+57',  group:'Americas' },
-  { name:'Chile',            flag:'🇨🇱', dial:'+56',  group:'Americas' },
-  { name:'Peru',             flag:'🇵🇪', dial:'+51',  group:'Americas' },
-  { name:'Venezuela',        flag:'🇻🇪', dial:'+58',  group:'Americas' },
-  { name:'Ecuador',          flag:'🇪🇨', dial:'+593', group:'Americas' },
-  { name:'Bolivia',          flag:'🇧🇴', dial:'+591', group:'Americas' },
-  { name:'Paraguay',         flag:'🇵🇾', dial:'+595', group:'Americas' },
-  { name:'Uruguay',          flag:'🇺🇾', dial:'+598', group:'Americas' },
-  { name:'Guyana',           flag:'🇬🇾', dial:'+592', group:'Americas' },
-  { name:'Suriname',         flag:'🇸🇷', dial:'+597', group:'Americas' },
-  // ── OCEANIA ───────────────────────────────────────
-  { name:'Australia',        flag:'🇦🇺', dial:'+61',  group:'Oceania' },
-  { name:'New Zealand',      flag:'🇳🇿', dial:'+64',  group:'Oceania' },
-  { name:'Fiji',             flag:'🇫🇯', dial:'+679', group:'Oceania' },
-  { name:'Papua New Guinea', flag:'🇵🇬', dial:'+675', group:'Oceania' },
-  { name:'Solomon Islands',  flag:'🇸🇧', dial:'+677', group:'Oceania' },
-  { name:'Vanuatu',          flag:'🇻🇺', dial:'+678', group:'Oceania' },
-  { name:'Samoa',            flag:'🇼🇸', dial:'+685', group:'Oceania' },
-  { name:'Tonga',            flag:'🇹🇴', dial:'+676', group:'Oceania' },
-  { name:'Kiribati',         flag:'🇰🇮', dial:'+686', group:'Oceania' },
-  { name:'Micronesia',       flag:'🇫🇲', dial:'+691', group:'Oceania' },
-  { name:'Marshall Islands', flag:'🇲🇭', dial:'+692', group:'Oceania' },
-  { name:'Palau',            flag:'🇵🇼', dial:'+680', group:'Oceania' },
-  { name:'Tuvalu',           flag:'🇹🇻', dial:'+688', group:'Oceania' },
-  { name:'Nauru',            flag:'🇳🇷', dial:'+674', group:'Oceania' },
+const COUNTRIES = [
+  {name:'Qatar',flag:'🇶🇦',code:'+974'},{name:'United Arab Emirates',flag:'🇦🇪',code:'+971'},
+  {name:'Saudi Arabia',flag:'🇸🇦',code:'+966'},{name:'Kuwait',flag:'🇰🇼',code:'+965'},
+  {name:'Bahrain',flag:'🇧🇭',code:'+973'},{name:'Oman',flag:'🇴🇲',code:'+968'},
+  {name:'Jordan',flag:'🇯🇴',code:'+962'},{name:'Lebanon',flag:'🇱🇧',code:'+961'},
+  {name:'Egypt',flag:'🇪🇬',code:'+20'},{name:'Iraq',flag:'🇮🇶',code:'+964'},
+  {name:'Turkey',flag:'🇹🇷',code:'+90'},{name:'Iran',flag:'🇮🇷',code:'+98'},
+  {name:'Pakistan',flag:'🇵🇰',code:'+92'},{name:'India',flag:'🇮🇳',code:'+91'},
+  {name:'Bangladesh',flag:'🇧🇩',code:'+880'},{name:'Sri Lanka',flag:'🇱🇰',code:'+94'},
+  {name:'Nepal',flag:'🇳🇵',code:'+977'},{name:'Philippines',flag:'🇵🇭',code:'+63'},
+  {name:'Indonesia',flag:'🇮🇩',code:'+62'},{name:'Malaysia',flag:'🇲🇾',code:'+60'},
+  {name:'Singapore',flag:'🇸🇬',code:'+65'},{name:'Thailand',flag:'🇹🇭',code:'+66'},
+  {name:'Vietnam',flag:'🇻🇳',code:'+84'},{name:'China',flag:'🇨🇳',code:'+86'},
+  {name:'Japan',flag:'🇯🇵',code:'+81'},{name:'South Korea',flag:'🇰🇷',code:'+82'},
+  {name:'United States',flag:'🇺🇸',code:'+1'},{name:'Canada',flag:'🇨🇦',code:'+1'},
+  {name:'United Kingdom',flag:'🇬🇧',code:'+44'},{name:'Germany',flag:'🇩🇪',code:'+49'},
+  {name:'France',flag:'🇫🇷',code:'+33'},{name:'Italy',flag:'🇮🇹',code:'+39'},
+  {name:'Spain',flag:'🇪🇸',code:'+34'},{name:'Netherlands',flag:'🇳🇱',code:'+31'},
+  {name:'Belgium',flag:'🇧🇪',code:'+32'},{name:'Switzerland',flag:'🇨🇭',code:'+41'},
+  {name:'Sweden',flag:'🇸🇪',code:'+46'},{name:'Norway',flag:'🇳🇴',code:'+47'},
+  {name:'Denmark',flag:'🇩🇰',code:'+45'},{name:'Finland',flag:'🇫🇮',code:'+358'},
+  {name:'Poland',flag:'🇵🇱',code:'+48'},{name:'Austria',flag:'🇦🇹',code:'+43'},
+  {name:'Portugal',flag:'🇵🇹',code:'+351'},{name:'Greece',flag:'🇬🇷',code:'+30'},
+  {name:'Russia',flag:'🇷🇺',code:'+7'},{name:'Ukraine',flag:'🇺🇦',code:'+380'},
+  {name:'Australia',flag:'🇦🇺',code:'+61'},{name:'New Zealand',flag:'🇳🇿',code:'+64'},
+  {name:'South Africa',flag:'🇿🇦',code:'+27'},{name:'Nigeria',flag:'🇳🇬',code:'+234'},
+  {name:'Kenya',flag:'🇰🇪',code:'+254'},{name:'Ethiopia',flag:'🇪🇹',code:'+251'},
+  {name:'Morocco',flag:'🇲🇦',code:'+212'},{name:'Tunisia',flag:'🇹🇳',code:'+216'},
+  {name:'Algeria',flag:'🇩🇿',code:'+213'},{name:'Libya',flag:'🇱🇾',code:'+218'},
+  {name:'Sudan',flag:'🇸🇩',code:'+249'},{name:'Syria',flag:'🇸🇾',code:'+963'},
+  {name:'Yemen',flag:'🇾🇪',code:'+967'},{name:'Afghanistan',flag:'🇦🇫',code:'+93'},
+  {name:'Brazil',flag:'🇧🇷',code:'+55'},{name:'Argentina',flag:'🇦🇷',code:'+54'},
+  {name:'Mexico',flag:'🇲🇽',code:'+52'},{name:'Colombia',flag:'🇨🇴',code:'+57'},
+  {name:'Chile',flag:'🇨🇱',code:'+56'},{name:'Peru',flag:'🇵🇪',code:'+51'},
+  {name:'Venezuela',flag:'🇻🇪',code:'+58'},{name:'Ecuador',flag:'🇪🇨',code:'+593'},
+  {name:'Romania',flag:'🇷🇴',code:'+40'},{name:'Czech Republic',flag:'🇨🇿',code:'+420'},
+  {name:'Hungary',flag:'🇭🇺',code:'+36'},{name:'Bulgaria',flag:'🇧🇬',code:'+359'},
+  {name:'Serbia',flag:'🇷🇸',code:'+381'},{name:'Croatia',flag:'🇭🇷',code:'+385'},
+  {name:'Slovakia',flag:'🇸🇰',code:'+421'},{name:'Slovenia',flag:'🇸🇮',code:'+386'},
+  {name:'Israel',flag:'🇮🇱',code:'+972'},{name:'Cyprus',flag:'🇨🇾',code:'+357'},
+  {name:'Malta',flag:'🇲🇹',code:'+356'},{name:'Iceland',flag:'🇮🇸',code:'+354'},
+  {name:'Ireland',flag:'🇮🇪',code:'+353'},{name:'Luxembourg',flag:'🇱🇺',code:'+352'},
+  {name:'Ghana',flag:'🇬🇭',code:'+233'},{name:'Tanzania',flag:'🇹🇿',code:'+255'},
+  {name:'Uganda',flag:'🇺🇬',code:'+256'},{name:'Rwanda',flag:'🇷🇼',code:'+250'},
+  {name:'Cameroon',flag:'🇨🇲',code:'+237'},{name:'Senegal',flag:'🇸🇳',code:'+221'},
+  {name:'Ivory Coast',flag:'🇨🇮',code:'+225'},{name:'Zambia',flag:'🇿🇲',code:'+260'},
+  {name:'Zimbabwe',flag:'🇿🇼',code:'+263'},{name:'Mozambique',flag:'🇲🇿',code:'+258'},
+  {name:'Kazakhstan',flag:'🇰🇿',code:'+7'},{name:'Uzbekistan',flag:'🇺🇿',code:'+998'},
+  {name:'Azerbaijan',flag:'🇦🇿',code:'+994'},{name:'Armenia',flag:'🇦🇲',code:'+374'},
+  {name:'Georgia',flag:'🇬🇪',code:'+995'},{name:'Belarus',flag:'🇧🇾',code:'+375'},
+  {name:'Lithuania',flag:'🇱🇹',code:'+370'},{name:'Latvia',flag:'🇱🇻',code:'+371'},
+  {name:'Estonia',flag:'🇪🇪',code:'+372'},
 ];
 
-// State
-let _ccSelected = CC_DATA[0]; // Qatar default
-let _ccFiltered = [];
-let _ccHighlight = -1;
+let ccOpen = false;
+let selectedCC = COUNTRIES[0];
 
-function initCCPicker() {
-  _ccFiltered = CC_DATA.slice();
-  renderCCList(_ccFiltered);
-  // Close on outside click
-  document.addEventListener('click', (e) => {
-    if (!document.getElementById('phone-field-wrap')?.contains(e.target)) {
-      closeCCDropdown();
-    }
-  });
+function buildCCList(filter='') {
+  const list = document.getElementById('cc-list');
+  if (!list) return;
+  const q = filter.toLowerCase().trim();
+  const filtered = q ? COUNTRIES.filter(c => c.name.toLowerCase().includes(q) || c.code.includes(q)) : COUNTRIES;
+  if (!filtered.length) {
+    list.innerHTML = '<div class="cc-empty">No country found</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(c =>
+    `<div class="cc-option${c.code === selectedCC.code && c.name === selectedCC.name ? ' active' : ''}"
+      onclick="selectCC('${c.name}','${c.flag}','${c.code}')" title="${c.name}">
+      <span class="cc-option-flag">${c.flag}</span>
+      <span class="cc-option-name">${c.name}</span>
+      <span class="cc-option-code">${c.code}</span>
+    </div>`
+  ).join('');
+}
+
+function selectCC(name, flag, code) {
+  selectedCC = {name, flag, code};
+  document.getElementById('cc-flag').textContent = flag;
+  document.getElementById('cc-code').textContent = code;
+  document.getElementById('country-code').value = code;
+  closeCCDropdown();
 }
 
 function toggleCCDropdown(e) {
   e.stopPropagation();
-  const dd = document.getElementById('cc-dropdown');
-  const trigger = document.getElementById('cc-trigger');
-  if (dd.classList.contains('open')) {
-    closeCCDropdown();
-  } else {
-    dd.classList.add('open');
-    trigger.classList.add('open');
-    trigger.setAttribute('aria-expanded', 'true');
-    const search = document.getElementById('cc-search');
-    search.value = '';
-    _ccFiltered = CC_DATA.slice();
-    renderCCList(_ccFiltered);
-    _ccHighlight = -1;
-    setTimeout(() => search.focus(), 50);
-    // Scroll selected into view
+  const dropdown = document.getElementById('cc-dropdown');
+  const trigger  = document.getElementById('cc-trigger');
+  if (!dropdown) return;
+  ccOpen = !ccOpen;
+  dropdown.classList.toggle('open', ccOpen);
+  trigger.classList.toggle('open', ccOpen);
+  if (ccOpen) {
+    buildCCList('');
     setTimeout(() => {
-      const sel = document.querySelector('.cc-option.selected');
-      if (sel) sel.scrollIntoView({ block: 'nearest' });
-    }, 80);
+      const s = document.getElementById('cc-search');
+      if (s) { s.value = ''; s.focus(); }
+    }, 60);
   }
 }
 
 function closeCCDropdown() {
-  const dd = document.getElementById('cc-dropdown');
-  const trigger = document.getElementById('cc-trigger');
-  if (dd) { dd.classList.remove('open'); }
-  if (trigger) { trigger.classList.remove('open'); trigger.setAttribute('aria-expanded', 'false'); }
-  _ccHighlight = -1;
+  ccOpen = false;
+  const dropdown = document.getElementById('cc-dropdown');
+  const trigger  = document.getElementById('cc-trigger');
+  if (dropdown) dropdown.classList.remove('open');
+  if (trigger)  trigger.classList.remove('open');
 }
 
-function selectCC(idx) {
-  const item = _ccFiltered[idx];
-  if (!item) return;
-  _ccSelected = item;
-  document.getElementById('cc-flag').textContent = item.flag;
-  document.getElementById('cc-code-display').textContent = item.dial;
-  document.getElementById('country-code').value = item.dial;
-  closeCCDropdown();
-  document.getElementById('f-phone').focus();
-}
+function filterCCList(val) { buildCCList(val); }
 
-function filterCCOptions(q) {
-  const query = q.toLowerCase().trim();
-  if (!query) {
-    _ccFiltered = CC_DATA.slice();
-  } else {
-    _ccFiltered = CC_DATA.filter(c =>
-      c.name.toLowerCase().includes(query) ||
-      c.dial.includes(query) ||
-      c.dial.replace('+','').includes(query)
-    );
-  }
-  _ccHighlight = _ccFiltered.length > 0 ? 0 : -1;
-  renderCCList(_ccFiltered);
-}
-
-function ccSearchKeydown(e) {
-  const opts = document.querySelectorAll('.cc-option');
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    _ccHighlight = Math.min(_ccHighlight + 1, _ccFiltered.length - 1);
-    updateCCHighlight(opts);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    _ccHighlight = Math.max(_ccHighlight - 1, 0);
-    updateCCHighlight(opts);
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    if (_ccHighlight >= 0) selectCC(_ccHighlight);
-  } else if (e.key === 'Escape') {
-    closeCCDropdown();
-  }
-}
-
-function updateCCHighlight(opts) {
-  opts.forEach((o, i) => o.classList.toggle('highlighted', i === _ccHighlight));
-  if (opts[_ccHighlight]) opts[_ccHighlight].scrollIntoView({ block: 'nearest' });
-}
-
-function renderCCList(items) {
-  const list = document.getElementById('cc-list');
-  if (!list) return;
-  if (!items.length) {
-    list.innerHTML = '<div class="cc-no-results">No countries found</div>';
-    return;
-  }
-  // Group items
-  const groups = {};
-  const groupOrder = [];
-  items.forEach(item => {
-    const g = item.group === 'popular' ? '⭐ Popular' : item.group;
-    if (!groups[g]) { groups[g] = []; groupOrder.push(g); }
-    groups[g].push(item);
-  });
-  // If searching (no popular group or only one group), flatten
-  const isSearching = document.getElementById('cc-search')?.value.trim();
-  let html = '';
-  let optIdx = 0;
-  if (isSearching && groupOrder.length <= 2) {
-    items.forEach((item, i) => {
-      const isSelected = item === _ccSelected;
-      const isHighlighted = i === _ccHighlight;
-      html += `<div class="cc-option${isSelected?' selected':''}${isHighlighted?' highlighted':''}" onclick="selectCC(${i})" data-idx="${i}">
-        <span class="cc-option-flag">${item.flag}</span>
-        <span class="cc-option-name">${item.name}</span>
-        <span class="cc-option-dial">${item.dial}</span>
-      </div>`;
-    });
-  } else {
-    groupOrder.forEach(group => {
-      html += `<div class="cc-group-label">${group}</div>`;
-      groups[group].forEach(item => {
-        const isSelected = item === _ccSelected;
-        const isHighlighted = optIdx === _ccHighlight;
-        html += `<div class="cc-option${isSelected?' selected':''}${isHighlighted?' highlighted':''}" onclick="selectCC(${optIdx})" data-idx="${optIdx}">
-          <span class="cc-option-flag">${item.flag}</span>
-          <span class="cc-option-name">${item.name}</span>
-          <span class="cc-option-dial">${item.dial}</span>
-        </div>`;
-        optIdx++;
-      });
-    });
-  }
-  list.innerHTML = html;
-}
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('cc-picker-wrap');
+  if (wrap && !wrap.contains(e.target)) closeCCDropdown();
+});
 </script>
 </body>
 </html>
