@@ -880,14 +880,14 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 }
 @keyframes modalPop { from { opacity:0; transform:translateY(20px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
 
-.modal-box .field input,
+.modal-box .field input:not(.cc-search),
 .modal-box .field select,
 .modal-box .field textarea,
-.modal-box input[type="text"],
-.modal-box input[type="email"],
-.modal-box input[type="password"],
-.modal-box input[type="tel"],
-.modal-box input[type="search"],
+.modal-box input[type="text"]:not(.cc-search),
+.modal-box input[type="email"]:not(.cc-search),
+.modal-box input[type="password"]:not(.cc-search),
+.modal-box input[type="tel"]:not(.cc-search),
+.modal-box input[type="search"]:not(.cc-search),
 .modal-box select,
 .modal-box textarea {
   background: #f8f6f2 !important;
@@ -930,7 +930,7 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .modal-close:hover { background: #e0d8cc; color: var(--dark); }
 .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
 
-/* Country code phone row */
+/* ── Country Code Phone Picker ── */
 .phone-flex {
   display: flex;
   align-items: stretch;
@@ -941,112 +941,184 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
   border-radius: 0 10px 10px 0 !important;
   border-left: none !important;
   flex: 1;
+  min-width: 0;
 }
 .cc-picker-wrap {
   position: relative;
   flex-shrink: 0;
-  z-index: 10;
+  z-index: 200;
 }
+
+/* Trigger button */
 .cc-trigger {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   height: 100%;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 0 12px 0 10px;
   background: var(--cream2);
   border: 1.5px solid var(--border);
   border-right: none;
   border-radius: 10px 0 0 10px;
   cursor: pointer;
-  font-size: 13px;
   font-family: inherit;
   color: var(--dark);
   white-space: nowrap;
-  min-width: 90px;
-  transition: border-color 0.2s, background 0.2s;
+  min-width: 100px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   user-select: none;
 }
-.cc-trigger:hover { background: var(--cream); border-color: var(--gold); }
-.cc-trigger.open  { border-color: var(--gold); background: #fff; }
-.cc-trigger-flag  { font-size: 16px; line-height: 1; }
-.cc-trigger-code  { font-size: 12px; font-weight: 700; color: var(--dark); letter-spacing: 0.02em; }
-.cc-trigger-arrow { font-size: 9px; color: var(--muted); margin-left: auto; transition: transform 0.2s; }
+.cc-trigger:hover { background: #eee9e0; border-color: var(--gold-dark); }
+.cc-trigger.open  { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(201,168,76,0.1); z-index: 201; }
+.cc-trigger-flag  { font-size: 18px; line-height: 1; }
+.cc-trigger-code  { font-size: 13px; font-weight: 700; color: var(--dark); letter-spacing: 0.01em; }
+.cc-trigger-arrow {
+  font-size: 8px; color: var(--muted);
+  margin-left: 2px;
+  transition: transform 0.22s cubic-bezier(.4,0,.2,1);
+  flex-shrink: 0;
+}
 .cc-trigger.open .cc-trigger-arrow { transform: rotate(180deg); }
 
+/* Dropdown panel */
 .cc-dropdown {
   display: none;
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
-  width: 280px;
+  width: 340px;
+  max-width: calc(100vw - 24px);
   background: #fff;
   border: 1.5px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
-  z-index: 999;
-  animation: ccFadeIn 0.15s ease;
+  z-index: 9999;
 }
-@keyframes ccFadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-.cc-dropdown.open { display: block; }
+.cc-dropdown.open { display: block; animation: ccPop 0.18s cubic-bezier(.34,1.4,.64,1) both; }
+@keyframes ccPop { from { opacity:0; transform:translateY(-8px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
 
+/* Search area */
 .cc-search-wrap {
-  padding: 8px 8px 6px;
-  border-bottom: 1px solid var(--border);
+  padding: 10px 10px 8px;
   background: var(--cream2);
+  border-bottom: 1px solid var(--border);
+}
+.cc-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cc-search-icon-svg {
+  position: absolute;
+  left: 11px;
+  color: var(--muted);
+  font-size: 13px;
+  pointer-events: none;
+  line-height: 1;
 }
 .cc-search {
   width: 100% !important;
-  padding: 6px 10px 6px 28px !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 7px !important;
-  font-size: 12px !important;
+  padding: 9px 34px 9px 34px !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
   font-family: inherit !important;
   background: #fff !important;
   color: var(--dark) !important;
   outline: none !important;
   box-shadow: none !important;
+  transition: border-color 0.2s !important;
 }
-.cc-search:focus { border-color: var(--gold) !important; }
-.cc-search-icon {
+.cc-search:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.1) !important; }
+.cc-search-clear {
   position: absolute;
-  left: 17px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 11px; color: var(--muted);
-  pointer-events: none;
+  right: 10px;
+  background: var(--cream3);
+  border: none;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--muted);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.15s;
 }
-.cc-search-box { position: relative; }
+.cc-search-clear.visible { display: flex; }
+.cc-search-clear:hover { background: var(--border); color: var(--dark); }
 
+/* Results count */
+.cc-results-count {
+  padding: 5px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--cream2);
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Pinned / popular row */
+.cc-pinned-label {
+  padding: 6px 12px 3px;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: var(--gold-pale);
+}
+.cc-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+/* List */
 .cc-list {
-  max-height: 220px;
+  max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-.cc-list::-webkit-scrollbar { width: 4px; }
-.cc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.cc-list::-webkit-scrollbar { width: 5px; }
+.cc-list::-webkit-scrollbar-track { background: transparent; }
+.cc-list::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 10px; }
+.cc-list::-webkit-scrollbar-thumb:hover { background: var(--border); }
 
+/* Option row */
 .cc-option {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
+  gap: 10px;
+  padding: 9px 14px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text);
-  transition: background 0.12s;
+  transition: background 0.1s;
+  border-bottom: 1px solid transparent;
 }
-.cc-option:hover, .cc-option.active { background: var(--gold-pale); }
-.cc-option-flag  { font-size: 15px; line-height: 1; flex-shrink: 0; }
-.cc-option-name  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dark); }
-.cc-option-code  { font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
-.cc-empty { padding: 14px; text-align: center; font-size: 12px; color: var(--muted); }
+.cc-option:hover { background: var(--gold-pale); }
+.cc-option.keyboard-active { background: rgba(201,168,76,0.14); }
+.cc-option.selected { background: rgba(201,168,76,0.1); }
+.cc-option-flag  { font-size: 18px; line-height: 1; flex-shrink: 0; width: 24px; text-align: center; }
+.cc-option-name  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dark); font-weight: 500; }
+.cc-option-name mark { background: rgba(201,168,76,0.35); color: var(--dark); border-radius: 2px; padding: 0 1px; font-style: normal; font-weight: 700; }
+.cc-option-code  { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; background: var(--cream2); padding: 2px 7px; border-radius: 6px; }
+.cc-empty {
+  padding: 28px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.cc-empty-icon { font-size: 28px; margin-bottom: 8px; }
 
-.phone-flex:focus-within .cc-trigger:not(.open) {
-  border-color: var(--gold);
-}
-.phone-flex:focus-within #f-phone {
-  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
-}
+.phone-flex:focus-within .cc-trigger:not(.open) { border-color: var(--gold); }
+.phone-flex:focus-within #f-phone { box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
 </style>
 </head>
 <body>
@@ -1380,19 +1452,21 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
               <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="guest@email.com"></div>
               <div class="field"><label>Phone</label><div class="phone-flex">
                 <div class="cc-picker-wrap" id="cc-picker-wrap">
-                  <div class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)">
+                  <div class="cc-trigger" id="cc-trigger" onclick="toggleCCDropdown(event)" role="button" aria-haspopup="listbox" aria-expanded="false">
                     <span class="cc-trigger-flag" id="cc-flag">🇶🇦</span>
                     <span class="cc-trigger-code" id="cc-code">+974</span>
-                    <span class="cc-trigger-arrow">▼</span>
+                    <span class="cc-trigger-arrow">▾</span>
                   </div>
-                  <div class="cc-dropdown" id="cc-dropdown">
+                  <div class="cc-dropdown" id="cc-dropdown" role="listbox">
                     <div class="cc-search-wrap">
                       <div class="cc-search-box">
-                        <span class="cc-search-icon">🔍</span>
-                        <input class="cc-search" id="cc-search" type="text" placeholder="Search country…" oninput="filterCCList(this.value)" autocomplete="off">
+                        <span class="cc-search-icon-svg">🔍</span>
+                        <input class="cc-search" id="cc-search" type="text" placeholder="Search country or dial code…" oninput="filterCCList(this.value)" autocomplete="off" aria-label="Search country">
+                        <button class="cc-search-clear" id="cc-search-clear" onclick="clearCCSearch()" tabindex="-1" title="Clear">✕</button>
                       </div>
                     </div>
-                    <div class="cc-list" id="cc-list"></div>
+                    <div class="cc-results-count" id="cc-results-count">195 countries</div>
+                    <div class="cc-list" id="cc-list" role="listbox"></div>
                   </div>
                 </div>
                 <input id="f-phone" type="tel" placeholder="Phone number">
@@ -2640,24 +2714,175 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // ═══════════════════════════════════════════════════
-// COUNTRY CODE PICKER (ALL WORLD COUNTRIES)
+// COUNTRY CODE PICKER — Pro Edition
 // ═══════════════════════════════════════════════════
+const PINNED_CODES = ['+974','+971','+966','+973','+968','+965','+962','+1','+44','+91','+92','+20','+249','+251','+256','+254'];
 const ALL_COUNTRIES = [
   {name:"Afghanistan",flag:"🇦🇫",code:"+93"},{name:"Albania",flag:"🇦🇱",code:"+355"},{name:"Algeria",flag:"🇩🇿",code:"+213"},{name:"Andorra",flag:"🇦🇩",code:"+376"},{name:"Angola",flag:"🇦🇴",code:"+244"},{name:"Antigua and Barbuda",flag:"🇦🇬",code:"+1-268"},{name:"Argentina",flag:"🇦🇷",code:"+54"},{name:"Armenia",flag:"🇦🇲",code:"+374"},{name:"Australia",flag:"🇦🇺",code:"+61"},{name:"Austria",flag:"🇦🇹",code:"+43"},{name:"Azerbaijan",flag:"🇦🇿",code:"+994"},{name:"Bahamas",flag:"🇧🇸",code:"+1-242"},{name:"Bahrain",flag:"🇧🇭",code:"+973"},{name:"Bangladesh",flag:"🇧🇩",code:"+880"},{name:"Barbados",flag:"🇧🇧",code:"+1-246"},{name:"Belarus",flag:"🇧🇾",code:"+375"},{name:"Belgium",flag:"🇧🇪",code:"+32"},{name:"Belize",flag:"🇧🇿",code:"+501"},{name:"Benin",flag:"🇧🇯",code:"+229"},{name:"Bhutan",flag:"🇧🇹",code:"+975"},{name:"Bolivia",flag:"🇧🇴",code:"+591"},{name:"Bosnia and Herzegovina",flag:"🇧🇦",code:"+387"},{name:"Botswana",flag:"🇧🇼",code:"+267"},{name:"Brazil",flag:"🇧🇷",code:"+55"},{name:"Brunei",flag:"🇧🇳",code:"+673"},{name:"Bulgaria",flag:"🇧🇬",code:"+359"},{name:"Burkina Faso",flag:"🇧🇫",code:"+226"},{name:"Burundi",flag:"🇧🇮",code:"+257"},{name:"Cabo Verde",flag:"🇨🇻",code:"+238"},{name:"Cambodia",flag:"🇰🇭",code:"+855"},{name:"Cameroon",flag:"🇨🇲",code:"+237"},{name:"Canada",flag:"🇨🇦",code:"+1"},{name:"Central African Republic",flag:"🇨🇫",code:"+236"},{name:"Chad",flag:"🇹🇩",code:"+235"},{name:"Chile",flag:"🇨🇱",code:"+56"},{name:"China",flag:"🇨🇳",code:"+86"},{name:"Colombia",flag:"🇨🇴",code:"+57"},{name:"Comoros",flag:"🇰🇲",code:"+269"},{name:"Congo",flag:"🇨🇬",code:"+242"},{name:"Costa Rica",flag:"🇨🇷",code:"+506"},{name:"Croatia",flag:"🇭🇷",code:"+385"},{name:"Cuba",flag:"🇨🇺",code:"+53"},{name:"Cyprus",flag:"🇨🇾",code:"+357"},{name:"Czech Republic",flag:"🇨🇿",code:"+420"},{name:"Denmark",flag:"🇩🇰",code:"+45"},{name:"Djibouti",flag:"🇩🇯",code:"+253"},{name:"Dominica",flag:"🇩🇲",code:"+1-767"},{name:"Dominican Republic",flag:"🇩🇴",code:"+1-809"},{name:"Ecuador",flag:"🇪🇨",code:"+593"},{name:"Egypt",flag:"🇪🇬",code:"+20"},{name:"El Salvador",flag:"🇸🇻",code:"+503"},{name:"Equatorial Guinea",flag:"🇬🇶",code:"+240"},{name:"Eritrea",flag:"🇪🇷",code:"+291"},{name:"Estonia",flag:"🇪🇪",code:"+372"},{name:"Eswatini",flag:"🇸🇿",code:"+268"},{name:"Ethiopia",flag:"🇪🇹",code:"+251"},{name:"Fiji",flag:"🇫🇯",code:"+679"},{name:"Finland",flag:"🇫🇮",code:"+358"},{name:"France",flag:"🇫🇷",code:"+33"},{name:"Gabon",flag:"🇬🇦",code:"+241"},{name:"Gambia",flag:"🇬🇲",code:"+220"},{name:"Georgia",flag:"🇬🇪",code:"+995"},{name:"Germany",flag:"🇩🇪",code:"+49"},{name:"Ghana",flag:"🇬🇭",code:"+233"},{name:"Greece",flag:"🇬🇷",code:"+30"},{name:"Grenada",flag:"🇬🇩",code:"+1-473"},{name:"Guatemala",flag:"🇬🇹",code:"+502"},{name:"Guinea",flag:"🇬🇳",code:"+224"},{name:"Guinea-Bissau",flag:"🇬🇼",code:"+245"},{name:"Guyana",flag:"🇬🇾",code:"+592"},{name:"Haiti",flag:"🇭🇹",code:"+509"},{name:"Honduras",flag:"🇭🇳",code:"+504"},{name:"Hungary",flag:"🇭🇺",code:"+36"},{name:"Iceland",flag:"🇮🇸",code:"+354"},{name:"India",flag:"🇮🇳",code:"+91"},{name:"Indonesia",flag:"🇮🇩",code:"+62"},{name:"Iran",flag:"🇮🇷",code:"+98"},{name:"Iraq",flag:"🇮🇶",code:"+964"},{name:"Ireland",flag:"🇮🇪",code:"+353"},{name:"Israel",flag:"🇮🇱",code:"+972"},{name:"Italy",flag:"🇮🇹",code:"+39"},{name:"Jamaica",flag:"🇯🇲",code:"+1-876"},{name:"Japan",flag:"🇯🇵",code:"+81"},{name:"Jordan",flag:"🇯🇴",code:"+962"},{name:"Kazakhstan",flag:"🇰🇿",code:"+7"},{name:"Kenya",flag:"🇰🇪",code:"+254"},{name:"Kiribati",flag:"🇰🇮",code:"+686"},{name:"Kuwait",flag:"🇰🇼",code:"+965"},{name:"Kyrgyzstan",flag:"🇰🇬",code:"+996"},{name:"Laos",flag:"🇱🇦",code:"+856"},{name:"Latvia",flag:"🇱🇻",code:"+371"},{name:"Lebanon",flag:"🇱🇧",code:"+961"},{name:"Lesotho",flag:"🇱🇸",code:"+266"},{name:"Liberia",flag:"🇱🇷",code:"+231"},{name:"Libya",flag:"🇱🇾",code:"+218"},{name:"Liechtenstein",flag:"🇱🇮",code:"+423"},{name:"Lithuania",flag:"🇱🇹",code:"+370"},{name:"Luxembourg",flag:"🇱🇺",code:"+352"},{name:"Madagascar",flag:"🇲🇬",code:"+261"},{name:"Malawi",flag:"🇲🇼",code:"+265"},{name:"Malaysia",flag:"🇲🇾",code:"+60"},{name:"Maldives",flag:"🇲🇻",code:"+960"},{name:"Mali",flag:"🇲🇱",code:"+223"},{name:"Malta",flag:"🇲🇹",code:"+356"},{name:"Marshall Islands",flag:"🇲🇭",code:"+692"},{name:"Mauritania",flag:"🇲🇷",code:"+222"},{name:"Mauritius",flag:"🇲🇺",code:"+230"},{name:"Mexico",flag:"🇲🇽",code:"+52"},{name:"Micronesia",flag:"🇫🇲",code:"+691"},{name:"Moldova",flag:"🇲🇩",code:"+373"},{name:"Monaco",flag:"🇲🇨",code:"+377"},{name:"Mongolia",flag:"🇲🇳",code:"+976"},{name:"Montenegro",flag:"🇲🇪",code:"+382"},{name:"Morocco",flag:"🇲🇦",code:"+212"},{name:"Mozambique",flag:"🇲🇿",code:"+258"},{name:"Myanmar",flag:"🇲🇲",code:"+95"},{name:"Namibia",flag:"🇳🇦",code:"+264"},{name:"Nauru",flag:"🇳🇷",code:"+674"},{name:"Nepal",flag:"🇳🇵",code:"+977"},{name:"Netherlands",flag:"🇳🇱",code:"+31"},{name:"New Zealand",flag:"🇳🇿",code:"+64"},{name:"Nicaragua",flag:"🇳🇮",code:"+505"},{name:"Niger",flag:"🇳🇪",code:"+227"},{name:"Nigeria",flag:"🇳🇬",code:"+234"},{name:"North Korea",flag:"🇰🇵",code:"+850"},{name:"North Macedonia",flag:"🇲🇰",code:"+389"},{name:"Norway",flag:"🇳🇴",code:"+47"},{name:"Oman",flag:"🇴🇲",code:"+968"},{name:"Pakistan",flag:"🇵🇰",code:"+92"},{name:"Palau",flag:"🇵🇼",code:"+680"},{name:"Panama",flag:"🇵🇦",code:"+507"},{name:"Papua New Guinea",flag:"🇵🇬",code:"+675"},{name:"Paraguay",flag:"🇵🇾",code:"+595"},{name:"Peru",flag:"🇵🇪",code:"+51"},{name:"Philippines",flag:"🇵🇭",code:"+63"},{name:"Poland",flag:"🇵🇱",code:"+48"},{name:"Portugal",flag:"🇵🇹",code:"+351"},{name:"Qatar",flag:"🇶🇦",code:"+974"},{name:"Romania",flag:"🇷🇴",code:"+40"},{name:"Russia",flag:"🇷🇺",code:"+7"},{name:"Rwanda",flag:"🇷🇼",code:"+250"},{name:"Saint Kitts and Nevis",flag:"🇰🇳",code:"+1-869"},{name:"Saint Lucia",flag:"🇱🇨",code:"+1-758"},{name:"Saint Vincent and the Grenadines",flag:"🇻🇨",code:"+1-784"},{name:"Samoa",flag:"🇼🇸",code:"+685"},{name:"San Marino",flag:"🇸🇲",code:"+378"},{name:"Sao Tome and Principe",flag:"🇸🇹",code:"+239"},{name:"Saudi Arabia",flag:"🇸🇦",code:"+966"},{name:"Senegal",flag:"🇸🇳",code:"+221"},{name:"Serbia",flag:"🇷🇸",code:"+381"},{name:"Seychelles",flag:"🇸🇨",code:"+248"},{name:"Sierra Leone",flag:"🇸🇱",code:"+232"},{name:"Singapore",flag:"🇸🇬",code:"+65"},{name:"Slovakia",flag:"🇸🇰",code:"+421"},{name:"Slovenia",flag:"🇸🇮",code:"+386"},{name:"Solomon Islands",flag:"🇸🇧",code:"+677"},{name:"Somalia",flag:"🇸🇴",code:"+252"},{name:"South Africa",flag:"🇿🇦",code:"+27"},{name:"South Korea",flag:"🇰🇷",code:"+82"},{name:"South Sudan",flag:"🇸🇸",code:"+211"},{name:"Spain",flag:"🇪🇸",code:"+34"},{name:"Sri Lanka",flag:"🇱🇰",code:"+94"},{name:"Sudan",flag:"🇸🇩",code:"+249"},{name:"Suriname",flag:"🇸🇷",code:"+597"},{name:"Sweden",flag:"🇸🇪",code:"+46"},{name:"Switzerland",flag:"🇨🇭",code:"+41"},{name:"Syria",flag:"🇸🇾",code:"+963"},{name:"Taiwan",flag:"🇹🇼",code:"+886"},{name:"Tajikistan",flag:"🇹🇯",code:"+992"},{name:"Tanzania",flag:"🇹🇿",code:"+255"},{name:"Thailand",flag:"🇹🇭",code:"+66"},{name:"Timor-Leste",flag:"🇹🇱",code:"+670"},{name:"Togo",flag:"🇹🇬",code:"+228"},{name:"Tonga",flag:"🇹🇴",code:"+676"},{name:"Trinidad and Tobago",flag:"🇹🇹",code:"+1-868"},{name:"Tunisia",flag:"🇹🇳",code:"+216"},{name:"Turkey",flag:"🇹🇷",code:"+90"},{name:"Turkmenistan",flag:"🇹🇲",code:"+993"},{name:"Tuvalu",flag:"🇹🇻",code:"+688"},{name:"Uganda",flag:"🇺🇬",code:"+256"},{name:"Ukraine",flag:"🇺🇦",code:"+380"},{name:"United Arab Emirates",flag:"🇦🇪",code:"+971"},{name:"United Kingdom",flag:"🇬🇧",code:"+44"},{name:"United States",flag:"🇺🇸",code:"+1"},{name:"Uruguay",flag:"🇺🇾",code:"+598"},{name:"Uzbekistan",flag:"🇺🇿",code:"+998"},{name:"Vanuatu",flag:"🇻🇺",code:"+678"},{name:"Vatican City",flag:"🇻🇦",code:"+379"},{name:"Venezuela",flag:"🇻🇪",code:"+58"},{name:"Vietnam",flag:"🇻🇳",code:"+84"},{name:"Yemen",flag:"🇾🇪",code:"+967"},{name:"Zambia",flag:"🇿🇲",code:"+260"},{name:"Zimbabwe",flag:"🇿🇼",code:"+263"}
 ];
-let selectedCC = ALL_COUNTRIES.find(c=>c.code==="+974") || ALL_COUNTRIES[0];
-function buildCCList(filter='') {
-  const list = document.getElementById('cc-list'); if(!list) return;
-  const q = filter.toLowerCase().trim();
-  const filtered = q ? ALL_COUNTRIES.filter(c=>c.name.toLowerCase().includes(q) || c.code.includes(q)) : ALL_COUNTRIES;
-  if (!filtered.length) { list.innerHTML = '<div class="cc-empty">No country found</div>'; return; }
-  list.innerHTML = filtered.map(c => `<div class="cc-option" onclick="selectCC('${c.name}','${c.flag}','${c.code}')"><span class="cc-option-flag">${c.flag}</span><span class="cc-option-name">${c.name}</span><span class="cc-option-code">${c.code}</span></div>`).join('');
+
+let selectedCC = ALL_COUNTRIES.find(c => c.code === "+974") || ALL_COUNTRIES[0];
+let ccKeyboardIndex = -1;
+let ccCurrentFiltered = [];
+
+function highlightMatch(text, query) {
+  if (!query) return sanitize(text);
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return sanitize(text);
+  return sanitize(text.slice(0, idx)) + '<mark>' + sanitize(text.slice(idx, idx + query.length)) + '</mark>' + sanitize(text.slice(idx + query.length));
 }
-function selectCC(name,flag,code) { document.getElementById('cc-flag').innerHTML = flag; document.getElementById('cc-code').innerHTML = code; document.getElementById('country-code').value = code; closeCCDropdown(); }
-function toggleCCDropdown(e) { e.stopPropagation(); const dd = document.getElementById('cc-dropdown'); if(dd.classList.contains('open')) dd.classList.remove('open'); else { buildCCList(''); dd.classList.add('open'); } }
-function closeCCDropdown() { document.getElementById('cc-dropdown')?.classList.remove('open'); }
+
+function buildCCList(filter = '') {
+  const list = document.getElementById('cc-list');
+  const countEl = document.getElementById('cc-results-count');
+  if (!list) return;
+
+  const q = filter.trim();
+  const ql = q.toLowerCase();
+
+  // Update clear button visibility
+  const clearBtn = document.getElementById('cc-search-clear');
+  if (clearBtn) clearBtn.classList.toggle('visible', q.length > 0);
+
+  let filtered;
+  let html = '';
+
+  if (!q) {
+    // Show pinned popular countries first, then all
+    const pinned = ALL_COUNTRIES.filter(c => PINNED_CODES.includes(c.code));
+    const rest = ALL_COUNTRIES.filter(c => !PINNED_CODES.includes(c.code));
+    filtered = [...pinned, ...rest];
+    ccCurrentFiltered = filtered;
+
+    html += `<div class="cc-pinned-label">⭐ Popular / Gulf Region</div>`;
+    pinned.forEach((c, i) => {
+      const sel = c.code === selectedCC.code ? ' selected' : '';
+      html += `<div class="cc-option${sel}" data-idx="${i}" onclick="selectCC('${c.name}','${c.flag}','${c.code}')">
+        <span class="cc-option-flag">${c.flag}</span>
+        <span class="cc-option-name">${sanitize(c.name)}</span>
+        <span class="cc-option-code">${c.code}</span>
+      </div>`;
+    });
+    html += `<div class="cc-divider"></div>`;
+    rest.forEach((c, i) => {
+      const sel = c.code === selectedCC.code ? ' selected' : '';
+      html += `<div class="cc-option${sel}" data-idx="${pinned.length + i}" onclick="selectCC('${c.name}','${c.flag}','${c.code}')">
+        <span class="cc-option-flag">${c.flag}</span>
+        <span class="cc-option-name">${sanitize(c.name)}</span>
+        <span class="cc-option-code">${c.code}</span>
+      </div>`;
+    });
+    if (countEl) countEl.textContent = `${ALL_COUNTRIES.length} countries`;
+  } else {
+    filtered = ALL_COUNTRIES.filter(c =>
+      c.name.toLowerCase().includes(ql) ||
+      c.code.replace('-','').includes(q.replace('-','')) ||
+      c.code.includes(q)
+    );
+    ccCurrentFiltered = filtered;
+
+    if (!filtered.length) {
+      html = `<div class="cc-empty"><div class="cc-empty-icon">🌐</div>No country matching "<strong>${sanitize(q)}</strong>"</div>`;
+    } else {
+      filtered.forEach((c, i) => {
+        const sel = c.code === selectedCC.code ? ' selected' : '';
+        html += `<div class="cc-option${sel}" data-idx="${i}" onclick="selectCC('${c.name}','${c.flag}','${c.code}')">
+          <span class="cc-option-flag">${c.flag}</span>
+          <span class="cc-option-name">${highlightMatch(c.name, q)}</span>
+          <span class="cc-option-code">${c.code}</span>
+        </div>`;
+      });
+    }
+    if (countEl) countEl.textContent = filtered.length === 1 ? '1 result' : `${filtered.length} results`;
+  }
+
+  list.innerHTML = html;
+  ccKeyboardIndex = -1;
+
+  // Scroll selected into view
+  const selEl = list.querySelector('.cc-option.selected');
+  if (selEl) setTimeout(() => selEl.scrollIntoView({ block: 'nearest' }), 10);
+}
+
+function selectCC(name, flag, code) {
+  selectedCC = { name, flag, code };
+  const flagEl = document.getElementById('cc-flag');
+  const codeEl = document.getElementById('cc-code');
+  const hiddenEl = document.getElementById('country-code');
+  if (flagEl) flagEl.textContent = flag;
+  if (codeEl) codeEl.textContent = code;
+  if (hiddenEl) hiddenEl.value = code;
+  closeCCDropdown();
+  // Focus phone input after selection
+  setTimeout(() => document.getElementById('f-phone')?.focus(), 80);
+}
+
+function toggleCCDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('cc-dropdown');
+  const trigger = document.getElementById('cc-trigger');
+  if (!dd) return;
+  if (dd.classList.contains('open')) {
+    closeCCDropdown();
+  } else {
+    // Clear search and rebuild
+    const search = document.getElementById('cc-search');
+    if (search) search.value = '';
+    buildCCList('');
+    dd.classList.add('open');
+    trigger?.classList.add('open');
+    trigger?.setAttribute('aria-expanded', 'true');
+    setTimeout(() => document.getElementById('cc-search')?.focus(), 80);
+  }
+}
+
+function closeCCDropdown() {
+  const dd = document.getElementById('cc-dropdown');
+  const trigger = document.getElementById('cc-trigger');
+  dd?.classList.remove('open');
+  trigger?.classList.remove('open');
+  trigger?.setAttribute('aria-expanded', 'false');
+}
+
 function filterCCList(val) { buildCCList(val); }
-document.addEventListener('click',()=>closeCCDropdown());
+
+function clearCCSearch() {
+  const search = document.getElementById('cc-search');
+  if (search) { search.value = ''; search.focus(); }
+  buildCCList('');
+}
+
+// Keyboard navigation inside dropdown
+document.addEventListener('keydown', function(e) {
+  const dd = document.getElementById('cc-dropdown');
+  if (!dd || !dd.classList.contains('open')) return;
+  const options = dd.querySelectorAll('.cc-option');
+  if (!options.length) return;
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    options[ccKeyboardIndex]?.classList.remove('keyboard-active');
+    ccKeyboardIndex = Math.min(ccKeyboardIndex + 1, options.length - 1);
+    options[ccKeyboardIndex]?.classList.add('keyboard-active');
+    options[ccKeyboardIndex]?.scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    options[ccKeyboardIndex]?.classList.remove('keyboard-active');
+    ccKeyboardIndex = Math.max(ccKeyboardIndex - 1, 0);
+    options[ccKeyboardIndex]?.classList.add('keyboard-active');
+    options[ccKeyboardIndex]?.scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter' && ccKeyboardIndex >= 0) {
+    e.preventDefault();
+    options[ccKeyboardIndex]?.click();
+  } else if (e.key === 'Escape') {
+    closeCCDropdown();
+    document.getElementById('cc-trigger')?.focus();
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#cc-picker-wrap')) closeCCDropdown();
+});
 </script>
 </body>
 </html>
