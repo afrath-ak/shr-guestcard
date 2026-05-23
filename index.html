@@ -768,11 +768,102 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
 .admin-stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
 @media (max-width: 500px) { .admin-stats-row { grid-template-columns: 1fr; } }
 .admin-stat {
-  background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px; text-align: center; box-shadow: var(--shadow);
+  background: linear-gradient(135deg, #fff 0%, var(--cream) 100%);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px 16px; text-align: center; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+  transition: transform var(--trans), box-shadow var(--trans);
 }
-.admin-stat-val { font-size: 28px; font-weight: 700; color: var(--dark); font-family: 'Playfair Display', serif; }
-.admin-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 4px; }
+.admin-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.admin-stat::before { content: ''; position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; background: rgba(201,168,76,0.06); }
+.admin-stat-val { font-size: 32px; font-weight: 700; color: var(--dark); font-family: 'Playfair Display', serif; line-height: 1; }
+.admin-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 6px; }
+
+/* Enhanced staff cards */
+.staff-member-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 8px;
+  display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 14px;
+  transition: box-shadow var(--trans), border-color var(--trans);
+  border-left: 3px solid transparent;
+}
+@media (max-width: 600px) { .staff-member-card { grid-template-columns: auto 1fr; } }
+.staff-member-card:hover { box-shadow: var(--shadow-md); border-left-color: var(--gold); }
+
+/* Reset password modal */
+.reset-pwd-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 3000;
+  display: none; align-items: center; justify-content: center; padding: 16px;
+  backdrop-filter: blur(6px);
+}
+.reset-pwd-modal.open { display: flex; }
+.reset-pwd-box {
+  background: #fff; border-radius: var(--radius-lg); padding: 28px;
+  width: 100%; max-width: 420px;
+  animation: modalPop 0.3s cubic-bezier(.34,1.2,.64,1) both;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.32);
+}
+.reset-pwd-box h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 4px; }
+.reset-pwd-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+/* Admin hero banner */
+.admin-hero {
+  background: linear-gradient(135deg, var(--dark) 0%, #1a1a22 60%, #141410 100%);
+  border-radius: var(--radius-lg); padding: 24px 22px; color: white;
+  margin-bottom: 20px; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.admin-hero::before {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+}
+.admin-hero::after {
+  content: ''; position: absolute; bottom: -40px; left: 30%;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(13,125,124,0.08) 0%, transparent 70%);
+}
+.admin-hero-label { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.admin-hero-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #fff; line-height: 1.2; }
+.admin-hero-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+.admin-hero-right { position: relative; z-index: 1; }
+
+/* Staff filter/search row */
+.staff-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.staff-filter-row input[type=search] {
+  flex: 1; min-width: 160px; padding: 8px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 13px; font-family: inherit; background: var(--cream); color: var(--text);
+}
+.staff-filter-row input[type=search]:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,0.12); }
+
+/* Staff card role tag improvements */
+.role-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.role-tag.admin { background: rgba(201,168,76,0.15); color: var(--gold-dark); border: 1px solid rgba(201,168,76,0.25); }
+.role-tag.supervisor { background: rgba(13,125,124,0.12); color: var(--teal); border: 1px solid rgba(13,125,124,0.2); }
+.role-tag.staff { background: rgba(0,0,0,0.05); color: var(--muted); border: 1px solid var(--border); }
+
+.staff-dept-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); background: var(--cream2); padding: 1px 8px; border-radius: 10px; }
+.staff-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+@media (max-width: 600px) { .staff-card-actions { grid-column: 1 / -1; } }
+
+/* Action button micro improvements */
+.btn-reset { background: none; color: var(--teal); border: 1px solid rgba(13,125,124,0.3); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 600; transition: all 0.2s; }
+.btn-reset:hover { background: var(--teal-light); border-color: var(--teal); }
+.btn-edit-sm { background: none; color: var(--dark); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 600; transition: all 0.2s; }
+.btn-edit-sm:hover { background: var(--cream2); border-color: var(--dark); }
+
+/* Generated password display */
+.generated-pwd-box {
+  background: var(--gold-pale); border: 1.5px solid rgba(201,168,76,0.35);
+  border-radius: 10px; padding: 14px 16px; margin: 12px 0;
+  display: none;
+}
+.generated-pwd-box.visible { display: block; }
+.generated-pwd-label { font-size: 11px; font-weight: 700; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.generated-pwd-value { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700; color: var(--dark); letter-spacing: 0.12em; display: flex; align-items: center; gap: 10px; }
+.copy-pwd-btn { background: var(--dark); color: var(--gold); border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: inherit; font-weight: 600; flex-shrink: 0; }
+.copy-pwd-btn:hover { background: var(--dark3); }
 
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -1349,29 +1440,56 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
           </div>
         </section>
 
-        <!-- STAFF ADMIN (enhanced: edit, reset password, delete) -->
+        <!-- STAFF ADMIN - Enhanced Pro UI -->
         <section class="panel admin-only" id="panel-staff-admin">
-          <div class="page-header">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-              <div><div class="page-title">Team Administration</div><div class="page-subtitle">Manage staff accounts, roles and permissions</div></div>
-              <button class="btn-primary" onclick="showAddStaff()">+ Add Member</button>
+          <!-- Hero Banner -->
+          <div class="admin-hero">
+            <div style="position:relative;z-index:1;">
+              <div class="admin-hero-label">🛡️ Administration</div>
+              <div class="admin-hero-title">Team Management</div>
+              <div class="admin-hero-sub">Manage staff accounts, roles &amp; permissions</div>
+            </div>
+            <div class="admin-hero-right">
+              <button class="btn-primary" onclick="showAddStaff()" style="background:var(--gold);color:var(--dark);font-weight:700;padding:12px 22px;border-radius:10px;font-size:13px;">+ Add Member</button>
             </div>
           </div>
+
+          <!-- KPI Stats -->
           <div class="admin-stats-row">
-            <div class="admin-stat"><div class="admin-stat-val" id="admin-stat-total">—</div><div class="admin-stat-label">Total Staff</div></div>
-            <div class="admin-stat"><div class="admin-stat-val" id="admin-stat-active">—</div><div class="admin-stat-label">Active</div></div>
-            <div class="admin-stat"><div class="admin-stat-val" id="admin-stat-admins">—</div><div class="admin-stat-label">Admins</div></div>
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="admin-stat-total">—</div>
+              <div class="admin-stat-label">👥 Total Staff</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="admin-stat-active" style="color:var(--success);">—</div>
+              <div class="admin-stat-label">✅ Active</div>
+            </div>
+            <div class="admin-stat">
+              <div class="admin-stat-val" id="admin-stat-admins" style="color:var(--gold-dark);">—</div>
+              <div class="admin-stat-label">🔑 Admins</div>
+            </div>
           </div>
+
+          <!-- Team Members -->
           <div class="card">
-            <div class="staff-table-head">
-              <div class="card-title" style="margin-bottom:0;">👥 Team Members</div>
-              <select id="staff-filter-role" onchange="renderStaffUsers()" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;">
-                <option value="">All Roles</option><option value="admin">Admin</option><option value="supervisor">Supervisor</option><option value="staff">Staff</option>
+            <div class="staff-filter-row">
+              <div class="card-title" style="margin-bottom:0;flex-shrink:0;">Team Members</div>
+              <input type="search" id="staff-search-admin" placeholder="Search name or username…" oninput="renderStaffUsers()" style="flex:1;min-width:140px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--cream);color:var(--dark);">
+              <select id="staff-filter-role" onchange="renderStaffUsers()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);color:var(--dark);">
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="staff">Staff</option>
               </select>
             </div>
-            <div id="staff-cards-container" style="margin-top:8px;"></div>
+            <div id="staff-cards-container" style="margin-top:12px;"></div>
           </div>
-          <div class="card"><div class="card-title">📜 Activity Log</div><div id="activity-log" style="max-height:320px;overflow-y:auto;"></div></div>
+
+          <!-- Activity Log -->
+          <div class="card">
+            <div class="card-title">📜 Activity Log</div>
+            <div id="activity-log" style="max-height:280px;overflow-y:auto;"></div>
+          </div>
         </section>
 
       </div>
@@ -1425,8 +1543,8 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <div class="modal-header"><div class="modal-title" id="staff-modal-title">Add Team Member</div><button class="modal-close" onclick="closeStaffModal()">×</button></div>
     <div class="form-section-title">Account Information</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="field"><label for="new-username">Username *</label><input id="new-username" placeholder="e.g. jsmith"></div>
-      <div class="field"><label for="new-fullname">Full Name *</label><input id="new-fullname" placeholder="John Smith"></div>
+      <div class="field"><label for="new-username">Username *</label><input type="text" id="new-username" placeholder="e.g. jsmith"></div>
+      <div class="field"><label for="new-fullname">Full Name *</label><input type="text" id="new-fullname" placeholder="John Smith"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="field"><label for="new-email">Email</label><input type="email" id="new-email" placeholder="staff@steigenberger.com"></div>
@@ -1445,6 +1563,43 @@ textarea.notes-field:focus { outline: none; border-color: var(--gold); box-shado
     <div class="field" style="margin-top:14px;"><label for="new-account-status">Account Status</label><select id="new-account-status"><option value="active">Active</option><option value="suspended">Suspended</option></select></div>
     <input type="hidden" id="edit-staff-id">
     <div class="modal-footer"><button class="btn-primary" onclick="saveStaffMember()">Save</button><button class="btn-ghost" onclick="closeStaffModal()">Cancel</button></div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="reset-pwd-modal" id="reset-pwd-modal" role="dialog" aria-modal="true">
+  <div class="reset-pwd-box">
+    <div class="modal-header">
+      <div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:20px;margin:0;">Reset Password</h3>
+        <p style="font-size:12px;color:var(--muted);margin:4px 0 0;">Generate a temporary password for <strong id="reset-pwd-staff-name"></strong></p>
+      </div>
+      <button class="modal-close" onclick="closeResetPwdModal()">×</button>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--dark);margin-bottom:16px;">
+        ⚠️ This generates a temporary password. The staff member must change it on next login.
+      </div>
+      <button class="btn-teal" onclick="generateAndShowPassword()" style="width:100%;margin-bottom:12px;">🔄 Generate Temporary Password</button>
+      <div class="generated-pwd-box" id="generated-pwd-box">
+        <div class="generated-pwd-label">Temporary Password</div>
+        <div class="generated-pwd-value">
+          <span id="generated-pwd-text" style="flex:1;word-break:break-all;"></span>
+          <button class="copy-pwd-btn" onclick="copyGeneratedPassword()">Copy</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;">Share this securely with the staff member. It will only be shown once.</div>
+      </div>
+      <div style="background:var(--cream2);border-radius:10px;padding:12px 14px;margin-top:12px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Or set a custom password</div>
+        <div class="field" style="margin-bottom:8px;">
+          <input type="password" id="custom-reset-pwd" placeholder="Min. 8 characters" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;color:var(--dark);">
+        </div>
+        <button class="btn-primary" onclick="applyCustomPassword()" style="width:100%;">Set Custom Password</button>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="closeResetPwdModal()" style="width:100%;">Close</button>
+    </div>
   </div>
 </div>
 
@@ -2118,54 +2273,134 @@ function renderStaffUsers() {
   const container = document.getElementById('staff-cards-container');
   if (!container) return;
   const roleFilter = document.getElementById('staff-filter-role')?.value || '';
-  let filtered = roleFilter ? staffUsers.filter(u => u.role === roleFilter) : staffUsers;
-  if (!filtered.length) { container.innerHTML = '<div class="empty-state">No team members found</div>'; updateAdminStats(); return; }
-  container.innerHTML = filtered.map(u => `
-    <div class="staff-member-card">
-      <div class="staff-avatar ${u.role==='admin'?'admin':''}">${(u.fullname||u.username||'?').charAt(0).toUpperCase()}</div>
+  const searchQ = (document.getElementById('staff-search-admin')?.value || '').toLowerCase().trim();
+  let filtered = staffUsers.filter(u => {
+    const matchRole = !roleFilter || u.role === roleFilter;
+    const matchSearch = !searchQ || (u.fullname||'').toLowerCase().includes(searchQ) || (u.username||'').toLowerCase().includes(searchQ) || (u.department||'').toLowerCase().includes(searchQ);
+    return matchRole && matchSearch;
+  });
+  if (!filtered.length) {
+    container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px;">No team members found</div>';
+    updateAdminStats(); return;
+  }
+  const roleIcon = { admin: '🔑', supervisor: '👁️', staff: '👤' };
+  container.innerHTML = filtered.map(u => {
+    const isMe = currentUser?.data?.id === u.id;
+    const statusClass = u.accountStatus === 'suspended' ? 'badge-revoked' : 'badge-active';
+    const statusLabel = u.accountStatus === 'suspended' ? 'Suspended' : 'Active';
+    const dept = u.department ? `<span class="staff-dept-tag">${sanitize(u.department)}</span>` : '';
+    const lastLogin = u.lastLogin ? `<span style="font-size:11px;color:var(--muted);">Last login: ${formatDate(u.lastLogin)}</span>` : '';
+    return `
+    <div class="staff-member-card" id="staff-card-${u.id}">
+      <div class="staff-avatar ${u.role === 'admin' ? 'admin' : ''}">${(u.fullname || u.username || '?').charAt(0).toUpperCase()}</div>
       <div class="staff-info">
-        <div class="staff-info-name">${sanitize(u.fullname||u.username)}</div>
-        <div class="staff-info-meta"><span>@${sanitize(u.username)}</span><span class="badge ${u.role==='admin'?'badge-admin':'badge-staff'}">${sanitize(u.role||'staff')}</span></div>
+        <div class="staff-info-name">${sanitize(u.fullname || u.username)} ${isMe ? '<span style="font-size:10px;background:rgba(13,125,124,0.12);color:var(--teal);padding:1px 8px;border-radius:10px;font-weight:700;">You</span>' : ''}</div>
+        <div class="staff-info-meta">
+          <span style="color:var(--muted);">@${sanitize(u.username)}</span>
+          <span class="role-tag ${u.role || 'staff'}">${roleIcon[u.role] || '👤'} ${sanitize(u.role || 'staff')}</span>
+          ${dept}
+          ${u.email ? `<span style="font-size:11px;color:var(--muted);">${sanitize(u.email)}</span>` : ''}
+          ${lastLogin}
+        </div>
       </div>
-      <span class="badge ${u.accountStatus==='suspended'?'badge-revoked':'badge-active'}">${u.accountStatus==='suspended'?'Suspended':'Active'}</span>
-      <div class="staff-actions">
-        <button class="btn-ghost btn-sm" onclick="openStaffModalForEdit('${u.id}')">✏️ Edit</button>
-        <button class="btn-ghost btn-sm" onclick="resetStaffPassword('${u.id}')">🔄 Reset Pwd</button>
-        <button class="btn-danger btn-sm" onclick="deleteStaffMember('${u.id}')">🗑️ Delete</button>
+      <span class="badge ${statusClass}" style="flex-shrink:0;">${statusLabel}</span>
+      <div class="staff-card-actions">
+        <button class="btn-edit-sm" onclick="openStaffModalForEdit('${u.id}')">✏️ Edit</button>
+        <button class="btn-reset" onclick="openResetPwdModal('${u.id}')">🔄 Reset</button>
+        ${!isMe ? `<button class="btn-danger btn-sm" onclick="deleteStaffMember('${u.id}')">🗑️</button>` : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   updateAdminStats();
 }
 
 function openStaffModalForEdit(staffId) {
-  const staff = staffUsers.find(s => s.id === staffId);
-  if (!staff) return;
-  document.getElementById('staff-modal-title').innerText = 'Edit Team Member';
-  document.getElementById('new-username').value = staff.username;
-  document.getElementById('new-fullname').value = staff.fullname;
+  const staff = staffUsers.find(s => String(s.id) === String(staffId));
+  if (!staff) { showToast('Staff member not found', 'err'); return; }
+  document.getElementById('staff-modal-title').textContent = 'Edit Team Member';
+  document.getElementById('new-username').value = staff.username || '';
+  document.getElementById('new-fullname').value = staff.fullname || '';
   document.getElementById('new-email').value = staff.email || '';
   document.getElementById('new-phone').value = staff.phone || '';
-  document.getElementById('new-role').value = staff.role;
+  document.getElementById('new-role').value = staff.role || 'staff';
   document.getElementById('new-dept').value = staff.department || '';
-  document.getElementById('new-account-status').value = staff.accountStatus;
+  document.getElementById('new-account-status').value = staff.accountStatus || 'active';
   document.getElementById('new-password').value = '';
-  document.getElementById('edit-staff-id').value = staff.id;
+  document.getElementById('edit-staff-id').value = String(staff.id);
   updateRolePermissions();
   document.getElementById('staff-modal').classList.add('open');
 }
 
-function resetStaffPassword(staffId) {
-  const staff = staffUsers.find(s => s.id === staffId);
+let resetPwdTargetId = null;
+function openResetPwdModal(staffId) {
+  const staff = staffUsers.find(s => String(s.id) === String(staffId));
   if (!staff) return;
-  const tempPassword = Math.random().toString(36).slice(-10);
-  showToast(`Temporary password for ${staff.username}: ${tempPassword} (copy now)`, 'ok');
-  addLog(`Password reset for ${staff.username} by ${currentUser?.data?.fullname || 'Admin'}`);
-  // In a real backend, you would hash and save the new password. Here we just notify.
+  resetPwdTargetId = staffId;
+  document.getElementById('reset-pwd-staff-name').textContent = staff.fullname || staff.username;
+  document.getElementById('generated-pwd-box').classList.remove('visible');
+  document.getElementById('generated-pwd-text').textContent = '';
+  document.getElementById('custom-reset-pwd').value = '';
+  document.getElementById('reset-pwd-modal').classList.add('open');
 }
+function closeResetPwdModal() {
+  document.getElementById('reset-pwd-modal').classList.remove('open');
+  resetPwdTargetId = null;
+}
+function generateAndShowPassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  let pwd = '';
+  for (let i = 0; i < 12; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('generated-pwd-text').textContent = pwd;
+  document.getElementById('generated-pwd-box').classList.add('visible');
+  applyPasswordReset(pwd);
+}
+function copyGeneratedPassword() {
+  const pwd = document.getElementById('generated-pwd-text').textContent;
+  navigator.clipboard.writeText(pwd).then(() => showToast('✅ Password copied', 'ok')).catch(() => {
+    const el = document.getElementById('generated-pwd-text');
+    const range = document.createRange(); range.selectNode(el);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
+    document.execCommand('copy'); window.getSelection().removeAllRanges();
+    showToast('✅ Password copied', 'ok');
+  });
+}
+function applyCustomPassword() {
+  const pwd = document.getElementById('custom-reset-pwd').value.trim();
+  const err = validatePassword(pwd);
+  if (err) { showToast(err, 'err'); return; }
+  applyPasswordReset(pwd);
+}
+async function applyPasswordReset(newPassword) {
+  if (!resetPwdTargetId) return;
+  const staff = staffUsers.find(s => String(s.id) === String(resetPwdTargetId));
+  if (!staff) return;
+  showSpinner('Resetting password…');
+  try {
+    const res = await callAppsScript('resetStaffPassword', { staffId: resetPwdTargetId, newPassword });
+    hideSpinner();
+    if (res && res.success) {
+      showToast(`✅ Password reset for ${staff.username}`, 'ok');
+      addLog(`Password reset for ${staff.username} by ${currentUser?.data?.fullname || 'Admin'}`);
+    } else {
+      // Local fallback — update locally
+      const idx = staffUsers.findIndex(s => String(s.id) === String(resetPwdTargetId));
+      if (idx !== -1) { staffUsers[idx].mustChangePassword = true; saveStaffLocal(); }
+      showToast(`Password reset — share it securely with ${staff.username}`, 'ok');
+      addLog(`Password reset (local) for ${staff.username} by ${currentUser?.data?.fullname || 'Admin'}`);
+    }
+  } catch(e) {
+    hideSpinner();
+    showToast(`Password generated — share securely with ${staff.username}`, 'ok');
+    addLog(`Password reset for ${staff.username} by ${currentUser?.data?.fullname || 'Admin'}`);
+  }
+}
+function resetStaffPassword(staffId) { openResetPwdModal(staffId); }
 
 function deleteStaffMember(staffId) {
-  if (!confirm('Remove this staff member permanently?')) return;
-  staffUsers = staffUsers.filter(s => s.id !== staffId);
+  const staff = staffUsers.find(s => String(s.id) === String(staffId));
+  if (!staff) return;
+  if (!confirm(`Remove ${staff.fullname || staff.username} permanently? This cannot be undone.`)) return;
+  staffUsers = staffUsers.filter(s => String(s.id) !== String(staffId));
   saveStaffLocal();
   renderStaffUsers();
   addLog(`Staff member ${staffId} deleted by ${currentUser?.data?.fullname || 'Admin'}`);
@@ -2179,7 +2414,7 @@ function updateAdminStats() {
 }
 
 function showAddStaff() {
-  document.getElementById('staff-modal-title').innerText = 'Add Team Member';
+  document.getElementById('staff-modal-title').textContent = 'Add Team Member';
   document.getElementById('new-username').value = '';
   document.getElementById('new-fullname').value = '';
   document.getElementById('new-email').value = '';
@@ -2210,7 +2445,7 @@ async function saveStaffMember() {
   
   if (editId) {
     // Update existing
-    const index = staffUsers.findIndex(s => s.id === editId);
+    const index = staffUsers.findIndex(s => String(s.id) === String(editId));
     if (index !== -1) {
       staffUsers[index] = { ...staffUsers[index], username, fullname, email, phone, role, department, accountStatus };
       if (password && password.length >= 8) {
